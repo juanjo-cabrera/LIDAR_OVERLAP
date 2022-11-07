@@ -1,0 +1,30 @@
+#directory: '/home/arvc/Escritorio/develop/Registration/dos_vueltas_features/'
+directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
+down_sample:
+#  voxel_size: 0.03 # Number or None
+  voxel_size: null # Number or null
+
+filter_by_distance:
+  distance: 35
+
+filter_ground_plane:
+  radius_normals: 3
+  maximum_neighbors: 200
+
+normals:
+  maximum_neighbors: 50
+  radius_normals: 0.5
+
+fpfh:
+  fpfh_threshold: 2
+
+descriptor:
+  max_radius_descriptor: 60
+
+icp:
+  distance_threshold: 5
+
+experiment:
+  deltaxy: 0.2
+  deltath: 0.1
+  long: 750 # Number or None

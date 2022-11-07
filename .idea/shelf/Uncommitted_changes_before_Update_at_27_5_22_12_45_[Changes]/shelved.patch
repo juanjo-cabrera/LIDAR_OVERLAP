@@ -1,0 +1,205 @@
+Index: run_scanmatcher.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nSimple experiment using GTSAM in a GraphSLAM context.\n\nA series of\n\"\"\"\nfrom eurocreader.eurocreader import EurocReader\nfrom graphslam.keyframemanager import KeyFrameManager\nfrom tools.homogeneousmatrix import HomogeneousMatrix\nfrom tools.quaternion import Quaternion\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n\ndef compute_homogeneous_transforms(gt_pos, gt_orient):\n    transforms = []\n    for i in range(len(gt_pos)):\n        # CAUTION: THE ORDER IN THE QUATERNION class IS [qw, qx qy qz]\n        # the order in ROS is [qx qy qz qw]\n        q = [gt_orient[i][3], gt_orient[i][0], gt_orient[i][1], gt_orient[i][2]]\n        Q = Quaternion(q)\n        Ti = HomogeneousMatrix(gt_pos[i], Q)\n        transforms.append(Ti)\n    return transforms\n\n\ndef compute_homogeneous_transforms_relative(transforms):\n    transforms_relative = []\n    # compute relative transformations\n    for i in range(len(transforms) - 1):\n        Ti = transforms[i]\n        Tj = transforms[i + 1]\n        Tij = Ti.inv() * Tj\n        transforms_relative.append(Tij)\n    return transforms_relative\n\n\ndef eval_errors(ground_truth_transforms, measured_transforms):\n    # compute xyz alpha beta gamma\n    gt_tijs = []\n    meas_tijs = []\n    for i in range(len(ground_truth_transforms)):\n        gt_tijs.append(ground_truth_transforms[i].t2v(n=3))  # !!! convert to x y z alpha beta gamma\n        meas_tijs.append(measured_transforms[i].t2v(n=3))\n\n    gt_tijs = np.array(gt_tijs)\n    meas_tijs = np.array(meas_tijs)\n    errors = gt_tijs-meas_tijs\n\n    plt.figure()\n    plt.plot(range(len(errors)), errors[:, 0], color='red', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(errors)), errors[:, 1], color='green', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(errors)), errors[:, 2], color='blue', linestyle='dashed', marker='o', markersize=12)\n    plt.title('Errors XYZ')\n    plt.show(block=True)\n\n    plt.figure()\n    plt.plot(range(len(errors)), errors[:, 3], color='red', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(errors)), errors[:, 4], color='green', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(errors)), errors[:, 5], color='blue', linestyle='dashed', marker='o', markersize=12)\n    plt.title('Errors Alfa Beta Gamma')\n    plt.show(block=True)\n\n    print(\"Covariance matrix: \")\n    print(np.cov(errors.T))\n\n\ndef view_pos_data(data):\n    plt.figure()\n    plt.plot(range(len(data)), data[:, 0], color='red', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(data)), data[:, 1], color='green', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(data)), data[:, 2], color='blue', linestyle='dashed', marker='o', markersize=12)\n    plt.show(block=True)\n\n    plt.figure()\n    plt.plot(data[:, 0], data[:, 1], color='blue', linestyle='dashed', marker='o', markersize=12)\n    plt.show(block=True)\n\n\ndef view_orient_data(data):\n    eul = []\n    for dat in data:\n        q = [dat[3], dat[0], dat[1], dat[2]]\n        Q = Quaternion(q)\n        th = Q.Euler()\n        eul.append(th.abg)\n    eul = np.array(eul)\n\n    plt.figure()\n    plt.plot(range(len(eul)), eul[:, 0], color='red', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(eul)), eul[:, 1], color='green', linestyle='dashed', marker='o', markersize=12)\n    plt.plot(range(len(eul)), eul[:, 2], color='blue', linestyle='dashed', marker='o', markersize=12)\n    # plt.legend()\n    plt.show(block=True)\n\n\ndef main():\n    directory = '/media/arvc/INTENSO/DATASETS/dos_vueltas2'\n    # Prepare data\n    euroc_read = EurocReader(directory=directory)\n    # nmax_scans to limit the number of scans in the experiment\n    scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=0.2, deltath=0.2,\n                                                                         nmax_scans=None)\n    measured_transforms = []\n    # create KeyFrameManager\n    keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)\n    keyframe_manager.add_keyframe(0)\n    for i in range(1, len(scan_times)):\n        print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))\n        keyframe_manager.add_keyframe(i)\n        # compute relative motion between scan i and scan i-1 0 1, 1 2...\n        atb = keyframe_manager.compute_transformation_local(i-1, i, use_initial_transform=False)\n        # atb_2 = keyframe_manager.compute_transformation_global(i - 1, i)\n        measured_transforms.append(atb)\n\n    # compute ground truth transformations: ground truth absolute and ground truth relative\n    gt_transforms = compute_homogeneous_transforms(gt_pos, gt_orient)\n    gt_transforms_relative = compute_homogeneous_transforms_relative(gt_transforms)\n    # compare ICP measurements with ground_truth\n    eval_errors(gt_transforms_relative, measured_transforms)\n\n    # view map with computed transforms\n    keyframe_manager.set_relative_transforms(relative_transforms=measured_transforms)\n    keyframe_manager.view_map(keyframe_sampling=5, point_cloud_sampling=5)\n\n    # view map with ground truth transforms\n    keyframe_manager.set_global_transforms(global_transforms=gt_transforms)\n    keyframe_manager.view_map(keyframe_sampling=5, point_cloud_sampling=5)\n    # equivalent: use relative transforms to compute the global map\n    # keyframe_manager.set_relative_transforms(relative_transforms=gt_transforms_relative)\n    # keyframe_manager.view_map(keyframe_sampling=30, point_cloud_sampling=20)\n\n\nif __name__ == \"__main__\":\n    main()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/run_scanmatcher.py b/run_scanmatcher.py
+--- a/run_scanmatcher.py	
++++ b/run_scanmatcher.py	
+@@ -2,6 +2,11 @@
+ Simple experiment using GTSAM in a GraphSLAM context.
+ 
+ A series of
++
++from tools.euler import Euler
++ Ti = HomogeneousMatrix(gt_pos[i], Q)
++
++  Ti = HomogeneousMatrix(gt_pos[i], Euler([alpha, beta, gamma])
+ """
+ from eurocreader.eurocreader import EurocReader
+ from graphslam.keyframemanager import KeyFrameManager
+@@ -9,6 +14,7 @@
+ from tools.quaternion import Quaternion
+ import numpy as np
+ import matplotlib.pyplot as plt
++import yaml
+ 
+ 
+ def compute_homogeneous_transforms(gt_pos, gt_orient):
+@@ -94,19 +100,27 @@
+ 
+ 
+ def main():
+-    directory = '/media/arvc/INTENSO/DATASETS/dos_vueltas2'
++    with open(r'config.yaml') as file:
++        param_list = yaml.load(file, Loader=yaml.FullLoader)
++        print(param_list)
++
++    directory = param_list.get('folder_name')
++
+     # Prepare data
+     euroc_read = EurocReader(directory=directory)
+     # nmax_scans to limit the number of scans in the experiment
+-    scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=0.2, deltath=0.2,
+-                                                                         nmax_scans=None)
++    scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=0.2, deltath=0.1,
++                                                                         nmax_scans=1000)
++
++
+     measured_transforms = []
+     # create KeyFrameManager
+     keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
+-    keyframe_manager.add_keyframe(0)
++    keyframe_manager.add_keyframe(0, params=param_list)
+     for i in range(1, len(scan_times)):
++    # for i in range(1, 350):
+         print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
+-        keyframe_manager.add_keyframe(i)
++        keyframe_manager.add_keyframe(i, params=param_list)
+         # compute relative motion between scan i and scan i-1 0 1, 1 2...
+         atb = keyframe_manager.compute_transformation_local(i-1, i, use_initial_transform=False)
+         # atb_2 = keyframe_manager.compute_transformation_global(i - 1, i)
+@@ -120,11 +134,11 @@
+ 
+     # view map with computed transforms
+     keyframe_manager.set_relative_transforms(relative_transforms=measured_transforms)
+-    keyframe_manager.view_map(keyframe_sampling=5, point_cloud_sampling=5)
++    keyframe_manager.view_map(keyframe_sampling=30, point_cloud_sampling=20)
+ 
+     # view map with ground truth transforms
+     keyframe_manager.set_global_transforms(global_transforms=gt_transforms)
+-    keyframe_manager.view_map(keyframe_sampling=5, point_cloud_sampling=5)
++    keyframe_manager.view_map(keyframe_sampling=30, point_cloud_sampling=20)
+     # equivalent: use relative transforms to compute the global map
+     # keyframe_manager.set_relative_transforms(relative_transforms=gt_transforms_relative)
+     # keyframe_manager.view_map(keyframe_sampling=30, point_cloud_sampling=20)
+Index: graphslam/keyframemanager.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import numpy as np\n# import subprocess\nfrom tools.euler import Euler\nfrom tools.homogeneousmatrix import HomogeneousMatrix\nimport matplotlib.pyplot as plt\nimport open3d as o3d\nimport copy\n\nclass KeyFrameManager():\n    def __init__(self, directory, scan_times):\n        \"\"\"\n        given a list of scan times (ROS times), each pcd is read on demand\n        \"\"\"\n        self.directory = directory\n        self.scan_times = scan_times\n        self.keyframes = []\n\n    def add_keyframe(self, index):\n        kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index])\n        self.keyframes.append(kf)\n\n    def save_solution(self, x):\n        for i in range(len(x)):\n            self.keyframes[i].x = x[i]\n\n    def set_relative_transforms(self, relative_transforms):\n        \"\"\"\n        Given a set of relative transforms. Assign to each keyframe a global transform by\n        postmultiplication.\n        Caution, computing global transforms from relative transforms starting from T0=I\n        \"\"\"\n        T = HomogeneousMatrix(np.eye(4))\n        global_transforms = [T]\n        for i in range(len(relative_transforms)):\n            T = T*relative_transforms[i]\n            global_transforms.append(T)\n\n        for i in range(len(self.keyframes)):\n            self.keyframes[i].set_global_transform(global_transforms[i])\n\n    def set_global_transforms(self, global_transforms):\n        \"\"\"\n        Assign the global transformation for each of the keyframes.\n        \"\"\"\n        for i in range(len(self.keyframes)):\n            self.keyframes[i].set_global_transform(global_transforms[i])\n\n    def compute_transformation_local(self, i, j, use_initial_transform=False):\n        \"\"\"\n        Compute relative transformation using ICP from keyframe i to keyframe j when j-i = 1.\n        An initial estimate is used to compute using icp\n        \"\"\"\n        # compute initial transform from odometry\n        # TODO: Compute inintial transformation from IMU\n        if use_initial_transform:\n            # initial estimation\n            xi = self.keyframes[i].x\n            xj = self.keyframes[j].x\n            Ti = HomogeneousMatrix([xi[0], xi[1], 0], Euler([0, 0, xi[2]]))\n            Tj = HomogeneousMatrix([xj[0], xj[1], 0], Euler([0, 0, xj[2]]))\n            Tij = Ti.inv() * Tj\n            # muatb = Tij.t2v()\n            transform = self.keyframes[i].local_registration(self.keyframes[j], initial_transform=Tij.array)\n            atb = HomogeneousMatrix(transform.transformation) #.t2v()\n            return atb\n        else:\n            transform = self.keyframes[i].local_registration(self.keyframes[j], initial_transform=np.eye(4))\n            atb = HomogeneousMatrix(transform.transformation) #.t2v()\n            return atb\n\n    def compute_transformation_global(self, i, j):\n        \"\"\"\n        Compute relative transformation using ICP from keyframe i to keyframe j.\n        An initial estimate is used.\n        FPFh to align and refine with icp\n        \"\"\"\n        atb = self.keyframes[i].global_registration(self.keyframes[j])\n        atb = HomogeneousMatrix(atb).t2v()\n        return atb\n\n    def view_map(self, keyframe_sampling=10, point_cloud_sampling=1000):\n        print(\"COMPUTING MAP FROM KEYFRAMES\")\n        # transform all keyframes to global coordinates.\n        pointcloud_global = o3d.geometry.PointCloud()\n        for i in range(0, len(self.keyframes), keyframe_sampling):\n            print(\"Keyframe: \", i, \"out of: \", len(self.keyframes), end='\\r')\n            kf = self.keyframes[i]\n            # transform to global and\n            pointcloud_temp = kf.transform_to_global(point_cloud_sampling=point_cloud_sampling)\n            # yuxtaponer los pointclouds\n            pointcloud_global = pointcloud_global + pointcloud_temp\n        # draw the whole map\n        o3d.visualization.draw_geometries([pointcloud_global])\n\n        # # now represent ground truth and solution\n        # x = []\n        # for kf in self.keyframes:\n        #     x.append(kf.x)\n        # x = np.array(x)\n        #\n        # plt.figure()\n        # # plot ground truth\n        # if xgt is not None:\n        #     xgt = np.array(xgt)\n        #     plt.plot(xgt[:, 0], xgt[:, 1], color='black', linestyle='dashed', marker='+',\n        #              markerfacecolor='black', markersize=10)\n        # # plot solution\n        # plt.plot(x[:, 0], x[:, 1], color='red', linestyle='dashed', marker='o', markerfacecolor='blue', markersize=10)\n        # # plt.scatter(points_global[:, 0], points_global[:, 1], color='blue')\n        # plt.show(block=True)\n\n\nclass KeyFrame():\n    def __init__(self, directory, scan_time):\n        self.transform = None\n        # voxel sizes\n        self.voxel_size = 0.1\n        self.voxel_size_normals = 3*self.voxel_size\n        self.voxel_size_fpfh = 3*self.voxel_size\n        self.icp_threshold = 3\n        self.fpfh_threshold = 2\n        filename = directory + '/robot0/lidar/data/' + str(scan_time) + '.pcd'\n        self.pointcloud = o3d.io.read_point_cloud(filename)\n        # downsample pointcloud and save to pointcloud in keyframe\n        self.pointcloud = self.pointcloud.voxel_down_sample(voxel_size=self.voxel_size)\n        # calcular las normales a cada punto\n        self.pointcloud.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,\n                                                                              max_nn=30))\n        # extraer los Fast Point Feature Histograms\n        self.pointcloud_fpfh = o3d.pipelines.registration.compute_fpfh_feature(self.pointcloud,\n                                                                               o3d.geometry.KDTreeSearchParamHybrid(\n                                                                                   radius=self.voxel_size_fpfh,\n                                                                                   max_nn=100))\n        # self.draw_cloud()\n\n    def local_registration(self, other, initial_transform):\n        \"\"\"\n        use icp to compute transformation using an initial estimate.\n        caution, initial_transform is a np array.\n        \"\"\"\n        print(\"Apply point-to-plane ICP\")\n        # print(\"Using threshold: \", self.icp_threshold)\n        # reg_p2p = o3d.pipelines.registration.registration_icp(\n        #         other.pointcloud, self.pointcloud, self.icp_threshold, initial_transform,\n        #         o3d.pipelines.registration.TransformationEstimationPointToPoint())\n        reg_p2p = o3d.pipelines.registration.registration_icp(\n            other.pointcloud, self.pointcloud, self.icp_threshold, initial_transform,\n            o3d.pipelines.registration.TransformationEstimationPointToPlane())\n        print(reg_p2p)\n        print(\"Transformation is:\")\n        print(reg_p2p.transformation)\n        print(\"\")\n        # other.draw_registration_result(self, reg_p2p.transformation)\n        return reg_p2p\n\n    def global_registration(self, other):\n        \"\"\"\n        perform global registration followed by icp\n        \"\"\"\n        initial_transform = o3d.pipelines.registration.registration_fast_based_on_feature_matching(\n            other.pointcloud, self.pointcloud, other.pointcloud_fpfh, self.pointcloud_fpfh,\n            o3d.pipelines.registration.FastGlobalRegistrationOption(maximum_correspondence_distance=self.fpfh_threshold))\n        # other.draw_registration_result(self, initial_transform.transformation)\n\n        reg_p2p = o3d.pipelines.registration.registration_icp(\n            other.pointcloud, self.pointcloud, self.icp_threshold, initial_transform.transformation,\n            o3d.pipelines.registration.TransformationEstimationPointToPoint())\n        # other.draw_registration_result(self, reg_p2p.transformation)\n        print(reg_p2p)\n        print(\"Refined transformation is:\")\n        print(reg_p2p.transformation)\n        return reg_p2p.transformation\n\n    def draw_registration_result(self, other, transformation):\n        source_temp = copy.deepcopy(self.pointcloud)\n        target_temp = copy.deepcopy(other.pointcloud)\n        source_temp.paint_uniform_color([1, 0, 0])\n        target_temp.paint_uniform_color([0, 0, 1])\n        source_temp.transform(transformation)\n        o3d.visualization.draw_geometries([source_temp, target_temp],\n                                          zoom=0.4459,\n                                          front=[0.9288, -0.2951, -0.2242],\n                                          lookat=[1.6784, 2.0612, 1.4451],\n                                          up=[-0.3402, -0.9189, -0.1996])\n\n    def draw_cloud(self):\n        o3d.visualization.draw_geometries([self.pointcloud],\n                                          zoom=0.3412,\n                                          front=[0.4257, -0.2125, -0.8795],\n                                          lookat=[2.6172, 2.0475, 1.532],\n                                          up=[-0.0694, -0.9768, 0.2024])\n\n    def set_global_transform(self, transform):\n        self.transform = transform\n        return\n\n    def transform_to_global(self, point_cloud_sampling=10):\n        \"\"\"\n            Use open3d to fast transform to global coordinates.\n            Returns the pointcloud in global coordinates\n        \"\"\"\n        T = HomogeneousMatrix(self.transform)\n        pointcloud = self.pointcloud.uniform_down_sample(every_k_points=point_cloud_sampling)\n        return pointcloud.transform(T.array)\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/graphslam/keyframemanager.py b/graphslam/keyframemanager.py
+--- a/graphslam/keyframemanager.py	
++++ b/graphslam/keyframemanager.py	
+@@ -15,8 +15,8 @@
+         self.scan_times = scan_times
+         self.keyframes = []
+ 
+-    def add_keyframe(self, index):
+-        kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index])
++    def add_keyframe(self, index, params):
++        kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index], params=params)
+         self.keyframes.append(kf)
+ 
+     def save_solution(self, x):
+@@ -111,26 +111,32 @@
+ 
+ 
+ class KeyFrame():
+-    def __init__(self, directory, scan_time):
++    def __init__(self, directory, scan_time, params):
+         self.transform = None
+         # voxel sizes
+-        self.voxel_size = 0.1
+-        self.voxel_size_normals = 3*self.voxel_size
+-        self.voxel_size_fpfh = 3*self.voxel_size
+-        self.icp_threshold = 3
+-        self.fpfh_threshold = 2
++        self.voxel_size = params.get('down_sample').get('voxel_size')
++        self.voxel_size_normals = params.get('normals').get('radius_normals') #5 * self.voxel_size
++        self.voxel_size_fpfh = params.get('fpfh').get('radius_fpfh')
++        self.icp_threshold = params.get('icp').get('distance_threshold')
++        self.fpfh_threshold = params.get('fpfh').get('threshold')
++
++        # max nearest neighbors
++        self.max_nn_normals = params.get('normals').get('maximum_neighbors')
++        self.max_nn_fpfh = params.get('fpfh').get('maximum_neighbors')
++
+         filename = directory + '/robot0/lidar/data/' + str(scan_time) + '.pcd'
++
+         self.pointcloud = o3d.io.read_point_cloud(filename)
+         # downsample pointcloud and save to pointcloud in keyframe
+         self.pointcloud = self.pointcloud.voxel_down_sample(voxel_size=self.voxel_size)
+         # calcular las normales a cada punto
+         self.pointcloud.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
+-                                                                              max_nn=30))
++                                                                              max_nn=self.max_nn_normals))
+         # extraer los Fast Point Feature Histograms
+         self.pointcloud_fpfh = o3d.pipelines.registration.compute_fpfh_feature(self.pointcloud,
+                                                                                o3d.geometry.KDTreeSearchParamHybrid(
+                                                                                    radius=self.voxel_size_fpfh,
+-                                                                                   max_nn=100))
++                                                                                   max_nn=self.max_nn_fpfh))
+         # self.draw_cloud()
+ 
+     def local_registration(self, other, initial_transform):
+@@ -147,8 +153,8 @@
+             other.pointcloud, self.pointcloud, self.icp_threshold, initial_transform,
+             o3d.pipelines.registration.TransformationEstimationPointToPlane())
+         print(reg_p2p)
+-        print("Transformation is:")
+-        print(reg_p2p.transformation)
++        # print("Transformation is:")
++        # print(reg_p2p.transformation)
+         print("")
+         # other.draw_registration_result(self, reg_p2p.transformation)
+         return reg_p2p
+Index: eurocreader/eurocreader.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import numpy as np\nfrom tools.quaternion import Quaternion\nimport pandas as pd\n\n\nclass EurocReader():\n    def __init__(self, directory):\n        self.directory = directory\n\n    def prepare_experimental_data(self, deltaxy, deltath, nmax_scans=None):\n        print(\"PREPARING EXPERIMENT DATA\")\n        # eurocreader = EurocReader(directory=directory)\n        # sample odometry at deltaxy and deltatheta\n        odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)\n        if nmax_scans is not None:\n            print(\"CAUTION: CROPPING DATA TO: \", nmax_scans)\n            odometry_times = odometry_times[0:nmax_scans]\n\n        # read dfs from data\n        df_odometry = self.read_odometry_data()\n        df_scan_times = self.read_scan_times()\n        df_ground_truth = self.read_ground_truth_data()\n        # for every time in odometry_times, find the closest times of a scan.\n        # next, for every time of the scan, find again the closest odometry and the closest ground truth\n        scan_times, _, _ = self.get_closest_data(df_scan_times, odometry_times)\n        _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)\n        _, gt_pos, gt_orient = self.get_closest_data(df_ground_truth, scan_times)\n        print(\"FOUND: \", len(scan_times), \"TOTAL SCANS\")\n        return scan_times, gt_pos, gt_orient\n\n    def read_ground_truth_data(self):\n        gt_csv_filename = self.directory + '/robot0/ground_truth/data.csv'\n        df_gt = pd.read_csv(gt_csv_filename)\n        return df_gt\n\n    def read_odometry_data(self):\n        odo_csv_filename = self.directory + '/robot0/odom/data.csv'\n        df_odo = pd.read_csv(odo_csv_filename)\n        return df_odo\n\n    def read_scan_times(self):\n        scan_times_csv_filename = self.directory + '/robot0/lidar/data.csv'\n        df_scan_times = pd.read_csv(scan_times_csv_filename)\n        return df_scan_times\n\n    def sample_odometry(self, deltaxy=0.5, deltath=0.2):\n        \"\"\"\n        Get odometry times separated by dxy (m) and dth (rad)\n        \"\"\"\n        df_odo = self.read_odometry_data()\n        odo_times = []\n        for ind in df_odo.index:\n            # print(df_odo['x'][ind])\n            position = [df_odo['x'][ind], df_odo['y'][ind], df_odo['z'][ind]]\n            q = Quaternion([df_odo['qw'][ind], df_odo['qx'][ind], df_odo['qy'][ind], df_odo['qz'][ind]])\n            th = q.Euler()\n            odo = np.array([position[0], position[1], th.abg[2]])\n            current_time = df_odo['#timestamp [ns]'][ind]\n            if ind == 0:\n                odo_times.append(current_time)\n                odoi = odo\n            odoi1 = odo\n\n            dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])\n            dth = np.linalg.norm(odoi1[2]-odoi[2])\n            if dxy > deltaxy or dth > deltath:\n                odo_times.append(current_time)\n                odoi = odoi1\n        return np.array(odo_times)\n\n    def get_closest_scan_times(self, odometry_times):\n        df_scan_times = self.read_scan_times()\n        scan_times = []\n        # now find closest times to odo times\n        for timestamp in odometry_times:\n            result_index = df_scan_times['#timestamp [ns]'].sub(timestamp).abs().idxmin()\n            scan_times.append(df_scan_times['#timestamp [ns]'][result_index])\n        return scan_times\n\n    def get_closest_odometry(self, odometry_times):\n        df_odo = self.read_odometry_data()\n        odometry = []\n        # now find odo corresponding to closest times\n        for timestamp in odometry_times:\n            ind = df_odo['#timestamp [ns]'].sub(timestamp).abs().idxmin()\n            position = [df_odo['x'][ind], df_odo['y'][ind], df_odo['z'][ind]]\n            q = Quaternion([df_odo['qw'][ind], df_odo['qx'][ind], df_odo['qy'][ind], df_odo['qz'][ind]])\n            th = q.Euler()\n            odo = np.array([position[0], position[1], th.abg[2]])\n            odometry.append(odo)\n        return odometry\n\n    def get_closest_data(self, df_data, time_list):\n        # df_odo = self.read_odometry_data()\n        positions = []\n        orientations = []\n        corresp_time_list = []\n        # now find odo corresponding to closest times\n        for timestamp in time_list:\n            # find the closest timestamp in df\n            ind = df_data['#timestamp [ns]'].sub(timestamp).abs().idxmin()\n            try:\n                position = [df_data['x'][ind], df_data['y'][ind], df_data['z'][ind]]\n                positions.append(position)\n            except:\n                pass\n            try:\n                orientation = [df_data['qx'][ind], df_data['qy'][ind], df_data['qz'][ind], df_data['qw'][ind]]\n                orientations.append(orientation)\n            except:\n                pass\n            corresp_time = df_data['#timestamp [ns]'][ind]\n            corresp_time_list.append(corresp_time)\n        return np.array(corresp_time_list), np.array(positions), np.array(orientations)\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/eurocreader/eurocreader.py b/eurocreader/eurocreader.py
+--- a/eurocreader/eurocreader.py	
++++ b/eurocreader/eurocreader.py	
+@@ -25,6 +25,8 @@
+         scan_times, _, _ = self.get_closest_data(df_scan_times, odometry_times)
+         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
+         _, gt_pos, gt_orient = self.get_closest_data(df_ground_truth, scan_times)
++        # gt_pos = []
++        # gt_orient = []
+         print("FOUND: ", len(scan_times), "TOTAL SCANS")
+         return scan_times, gt_pos, gt_orient
+ 
+Index: config.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config.yaml b/config.yaml
+new file mode 100644
+--- /dev/null	
++++ b/config.yaml	
+@@ -0,0 +1,25 @@
++folder_name: '/home/arvc/Escritorio/develop/Registration/dos_vueltas_lab'
++
++down_sample:
++  decision: true
++  voxel_size: 0.05
++
++normals:
++  maximum_neighbors: 100
++  radius_normals: 0.5
++
++
++fpfh:
++  threshold: 5
++  maximum_neighbors: 100
++  radius_fpfh: 0.5
++
++
++icp:
++  point2: 'plane'
++  distance_threshold: 1
++  step: 5
++
++visualization:
++  normals: false
++  registration_result: false
+\ No newline at end of file
