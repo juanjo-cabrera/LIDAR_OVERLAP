@@ -20,6 +20,7 @@ class KeyFrame():
         self.transform = None
         # max radius to filter points
         self.max_radius = PARAMETERS.max_distance
+        self.min_radius = PARAMETERS.min_distance
         # voxel sizes
         self.voxel_downsample_size = PARAMETERS.voxel_size # None
         self.voxel_size_normals = PARAMETERS.radius_normals
@@ -39,12 +40,18 @@ class KeyFrame():
         self.pointcloud_filtered = None
         self.pointcloud_ground_plane = None
         self.pointcloud_non_ground_plane = None
+        self.pcd_fpfh = None
         self.max_radius_descriptor = PARAMETERS.max_radius_descriptor
         self.scdescriptor = SCDescriptor(max_radius=self.max_radius_descriptor)
         # save the pointcloud for Scan context description
 
     def load_pointcloud(self):
-        self.pointcloud = o3d.io.read_point_cloud(self.filename)
+        pointcloud = o3d.io.read_point_cloud(self.filename)
+        success = False
+        if len(np.asarray(pointcloud.points)) != 0:
+            self.pointcloud = pointcloud
+            success = True
+        return success
 
     def pre_process(self):
         # bbox = self.dims_bbox
@@ -54,7 +61,7 @@ class KeyFrame():
         # self.pointcloud = self.pointcloud.crop(bbox)
         # self.draw_pointcloud()
         # filter by a max radius to avoid erros in normal computation
-        self.pointcloud_filtered = self.filter_by_radius(self.max_radius)
+        self.pointcloud_filtered = self.filter_by_radius(self.min_radius, self.max_radius)
         # self.pointcloud_normalized = self.normalize2center()
         # self.draw_pointcloud()
         # downsample pointcloud and save to pointcloud in keyframe
@@ -71,7 +78,13 @@ class KeyFrame():
                                                                               max_nn=PARAMETERS.max_nn_gd))
         self.pointcloud_non_ground_plane.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
                                                                               max_nn=PARAMETERS.max_nn))
+        self.pcd_fpfh = self.estimate_fpfh(radius=self.voxel_size_normals * 5, max_nn=100)
 
+    def estimate_fpfh(self, radius, max_nn):
+        # radius_feature = voxel_size * 5
+        # print(":: Compute FPFH feature with search radius %.3f." % radius)
+        pcd_fpfh = o3d.pipelines.registration.compute_fpfh_feature(self.pointcloud_non_ground_plane, o3d.geometry.KDTreeSearchParamHybrid(radius=radius, max_nn=max_nn))
+        return pcd_fpfh
     def points2homogeneous(self, pre_process):
         """
         Returns a nx4 numpy array of homogeneous points (x, y, z, 1).
@@ -79,7 +92,7 @@ class KeyFrame():
         if pre_process==True:
             points = np.asarray(self.pointcloud_normalized.points)
         else:
-            points = np.asarray(self.pointcloud_non_ground_plane.points)
+            points = np.asarray(self.pointcloud.points)
 
         # else:
         #     points = np.asarray(self.pointcloud.points)
@@ -88,11 +101,13 @@ class KeyFrame():
         return homogeneous_points
 
 
-    def filter_by_radius(self, max_radius):
+    def filter_by_radius(self, min_radius, max_radius):
         points = np.asarray(self.pointcloud.points)
         [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
         r2 = x**2 + y**2
-        idx = np.where(r2 < max_radius**2)
+        idx = np.where(r2 < max_radius**2) and np.where(r2 > min_radius ** 2)
+
+
         return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points[idx]))
 
     def normalize2center(self):
@@ -237,7 +252,7 @@ class KeyFrame():
         idx = points[:, 2] < height
         return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points[idx]))
 
-    def segment_plane(self, height=-0.5, thresholdA=0.01, thresholdB=0.1):
+    def segment_plane(self, height=-0.5, thresholdA=0.01, thresholdB=0.4):
         """
         filter roughly the points that may belong to the plane.
         then estimate the plane with these points.
@@ -255,9 +270,10 @@ class KeyFrame():
         """
         Ecuacion del plano para un entorno en concreto: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
         """
-        a=b=0
+        a=0
+        b=0
         c=1
-        d=0.63
+        d=0.7
 
         points = np.asarray(self.pointcloud_filtered.points)
         # inliers_final = []
@@ -275,6 +291,26 @@ class KeyFrame():
         plane_cloud = self.pointcloud_filtered.select_by_index(inliers_final)
         non_plane_cloud = self.pointcloud_filtered.select_by_index(inliers_final, invert=True)
         return plane_cloud, non_plane_cloud
+
+    def fpfh_similarity(self, other):
+        source = self.pcd_fpfh
+        target = other.pcd_fpfh
+        source = source.data
+        target = target.data
+
+        import torch
+        pdist = nn.PairwiseDistance(p=2)
+        # target0 = target[:, 0]
+        # target0 = target0.reshape(33,1)
+        [_, longitud] = source.shape
+        # resta = np.repeat(target0, longitud, axis=1)
+        #
+        # result = pdist(target0,source)
+
+
+        similarity = 0
+        return similarity
+
 
     def local_registrationA(self, other, initial_transform):
         """
@@ -337,6 +373,52 @@ class KeyFrame():
         beta = t1[4]
         gamma = t2[5]
         T = HomogeneousMatrix(np.array([tx, ty, tz]), Euler([alpha, beta, gamma]))
+
+        if debug:
+            other.draw_registration_result(self, T.array)
+        return T, reg_p2pb.inlier_rmse
+
+
+    def local_registrationB(self, other, initial_transform):
+        """
+        Use icp to compute transformation using an initial estimate.
+        Method B segments a ground plane and estimates two different transforms:
+            - A: using ground planes tz, alfa and beta are estimated. Point to
+            - B: using non ground planes (rest of the points) tx, ty and gamma are estimated
+        caution, initial_transform is a np array.
+        """
+        debug = True
+        # if debug:
+        #     other.draw_registration_result(self, initial_transform)
+
+        # compute a first transform for tz, alfa, gamma, using ground planes
+        reg_p2pa = o3d.pipelines.registration.registration_icp(
+            other.pointcloud_ground_plane, self.pointcloud_ground_plane, self.icp_threshold, initial_transform,
+            o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        # print(reg_p2pa)
+        # if debug:
+        #     other.draw_registration_result(self, reg_p2pa.transformation)
+        # compute second transformation using the whole pointclouds. CAUTION: failures in ground plane segmentation
+        # do affect this transform if computed with some parts of ground
+        reg_p2pb = o3d.pipelines.registration.registration_icp(
+            other.pointcloud_filtered, self.pointcloud_filtered, self.icp_threshold, initial_transform,
+            o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        # print(reg_p2pb)
+
+        # if debug:
+        #     other.draw_registration_result(self, reg_p2pb.transformation)
+
+        t1 = HomogeneousMatrix(reg_p2pa.transformation).t2v(n=3)
+        t2 = HomogeneousMatrix(reg_p2pb.transformation).t2v(n=3)
+        # build solution using both solutions
+        tx = t2[0]
+        ty = t2[1]
+        tz = t1[2]
+        alpha = t1[3]
+        beta = t1[4]
+        gamma = t2[5]
+        T = HomogeneousMatrix(np.array([tx, ty, tz]), Euler([alpha, beta, gamma]))
+
         if debug:
             other.draw_registration_result(self, T.array)
         return T, reg_p2pb.inlier_rmse
@@ -400,12 +482,90 @@ class KeyFrame():
 
     # def centroids_distance(self, other):
 
+    # def global_registration(source_down, target_down, source_fpfh,
+    #                                 target_fpfh, voxel_size):
+    def initial_registration_fpfh(self, other):
+        # distance_threshold = voxel_size * 1.5
+        # distance_threshold = 5
+        # print(":: RANSAC registration on downsampled point clouds.")
+        # print("   Since the downsampling voxel size is %.3f," % voxel_size)
+        # print("   we use a liberal distance threshold %.3f." % distance_threshold)
+
+        # result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
+        #     self.pointcloud_non_ground_plane, other.pointcloud_non_ground_plane, self.pcd_fpfh, other.pcd_fpfh, True,
+        #     self.fpfh_threshold,
+        #     o3d.pipelines.registration.TransformationEstimationPointToPoint(False),
+        #     3, [
+        #         o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(
+        #             0.9),
+        #         o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(
+        #             self.fpfh_threshold)
+        #     ], o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999))
+
+        result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
+            other.pointcloud_non_ground_plane, self.pointcloud_non_ground_plane, other.pcd_fpfh, self.pcd_fpfh, True,
+            self.fpfh_threshold,
+            o3d.pipelines.registration.TransformationEstimationPointToPoint(False),
+            3, [
+                o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(
+                    0.9),
+                o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(
+                    self.fpfh_threshold)
+            ], o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999))
+
+        return result
+
+    def point2point_registration(self, other, initial_transform):
+        # distance_threshold = voxel_size * 0.4
+        # print(":: Point-to-plane ICP registration is applied on original point")
+        # print("   clouds to refine the alignment. This time we use a strict")
+        # print("   distance threshold %.3f." % distance_threshold)
+        # result = o3d.pipelines.registration.registration_icp(
+        #     source_down, target_down, distance_threshold, result_ransac.transformation,
+        #     o3d.pipelines.registration.TransformationEstimationPointToPlane())
+
+        result = o3d.pipelines.registration.registration_icp(other.pointcloud_non_ground_plane, self.pointcloud_non_ground_plane, 2, initial_transform,
+            o3d.pipelines.registration.TransformationEstimationPointToPoint())
+
+        return result
+
+    def global_registrationJ(self, other):
+        debug = False
+        result_fpfh = self.initial_registration_fpfh(other)
+        result_plane = o3d.pipelines.registration.registration_icp(
+            other.pointcloud_ground_plane, self.pointcloud_ground_plane, self.icp_threshold, np.eye(4),
+            o3d.pipelines.registration.TransformationEstimationPointToPlane())
+
+        t1 = HomogeneousMatrix(result_plane.transformation).t2v(n=3)
+        t2 = HomogeneousMatrix(result_fpfh.transformation).t2v(n=3)
+        # build solution using both solutions
+        tx = t2[0]
+        ty = t2[1]
+        tz = t1[2]
+        alpha = t1[3]
+        beta = t1[4]
+        gamma = t2[5]
+        T = HomogeneousMatrix(np.array([tx, ty, tz]), Euler([alpha, beta, gamma]))
+
+
+        result = self.point2point_registration(other, T.array)
+        if debug:
+            other.draw_registration_result(self, np.eye(4))
+            other.draw_registration_result(self, T.array)
+            other.draw_registration_result(self, result.transformation)
+
+        atb = HomogeneousMatrix(result.transformation)
+
+        return atb, result.inlier_rmse
+
 
     def draw_registration_result(self, other, transformation):
         # source_temp = copy.deepcopy(self.pointcloud_normalized)
         # target_temp = copy.deepcopy(other.pointcloud_normalized)
-        source_temp = copy.deepcopy(self.pointcloud_filtered)
-        target_temp = copy.deepcopy(other.pointcloud_filtered)
+        source_temp = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
+        # source_temp = copy.deepcopy(self.pointcloud_filtered)
+        # target_temp = copy.deepcopy(other.pointcloud_filtered)
         source_temp.paint_uniform_color([1, 0, 0])
         target_temp.paint_uniform_color([0, 0, 1])
         source_temp.transform(transformation)
@@ -415,6 +575,8 @@ class KeyFrame():
     def draw_pointclouds(self, other, transformation):
         source_temp = copy.deepcopy(self.pointcloud_normalized)
         target_temp = copy.deepcopy(other.pointcloud_normalized)
+        # source_temp = copy.deepcopy(self.pointcloud_filtered)
+        # target_temp = copy.deepcopy(other.pointcloud_filtered)
         source_temp.paint_uniform_color([1, 0, 0])
         target_temp.paint_uniform_color([0, 0, 1])
         source_temp.transform(transformation)

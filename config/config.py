@@ -15,7 +15,8 @@ class ParametersConfig():
             self.directory = config.get('directory')
 
             self.voxel_size = config.get('down_sample').get('voxel_size')
-            self.max_distance = config.get('filter_by_distance').get('distance')
+            self.max_distance = config.get('filter_by_distance').get('max_distance')
+            self.min_distance = config.get('filter_by_distance').get('min_distance')
 
             self.radius_gd = config.get('filter_ground_plane').get('radius_normals')
             self.max_nn_gd = config.get('filter_ground_plane').get('maximum_neighbors')
@@ -30,6 +31,8 @@ class ParametersConfig():
             self.exp_deltaxy = config.get('experiment').get('deltaxy')
             self.exp_deltath = config.get('experiment').get('deltath')
             self.exp_long = config.get('experiment').get('long')
+
+            self.gps_status = config.get('gps').get('reference_status')
 
 
 

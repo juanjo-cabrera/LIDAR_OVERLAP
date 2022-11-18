@@ -254,12 +254,13 @@ def main():
         reference_pose = gt_poses[i].array
         if pre_process == True:
             keyframe_manager.keyframes[i].pre_process()
+
         reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
         reference_points_world = reference_pose.dot(reference_homogeneous_points.T).T
         reference_points_in_current = np.linalg.inv(current_pose).dot(reference_points_world.T).T
         reference_range, _, _, _ = spherical_projection(reference_points_in_current)
 
-
+        keyframe_manager.keyframes[scan_idx].draw_registration_result(keyframe_manager.keyframes[i], current_pose.dot(np.linalg.inv(reference_pose)))
 
         # plt.imshow(reference_range)
         # plt.show()

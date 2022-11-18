@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="initial commit">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="borrado graphslam">
+      <change afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_fpfh_overlap.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_fpfh_similarity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_gps_odom_overlap.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/parameters.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/graphslam.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphslam/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphslam/keyframe.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphslam/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphslam/keyframemanager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metodo2_overlaps_pi_sextos" beforeDir="false" afterPath="$PROJECT_DIR$/metodo2_overlaps_pi_sextos" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_epic_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_epic_overlap5.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap5.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_overlap_original.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_overlap_original.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,18 +44,19 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "last_opened_file_path": "/home/arvc/Escritorio/develop/LIDAR_OVERLAP",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/eurocreader" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run_epic_overlap5">
+  <component name="RunManager" selected="Python.run_gps_odom_overlap">
     <configuration name="run_epic_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -66,7 +78,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_epic_overlap2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_fpfh_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -78,7 +90,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_epic_overlap2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_fpfh_overlap.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -87,7 +99,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_epic_overlap4" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_fpfh_similarity" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -99,7 +111,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_epic_overlap4.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_fpfh_similarity.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -108,7 +120,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_epic_overlap5" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_gps_odom_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -120,7 +132,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_epic_overlap5.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_gps_odom_overlap.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -152,11 +164,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.run_epic_overlap5" />
+        <item itemvalue="Python.run_gps_odom_overlap" />
         <item itemvalue="Python.run_overlap_original" />
+        <item itemvalue="Python.run_fpfh_overlap" />
+        <item itemvalue="Python.run_fpfh_similarity" />
         <item itemvalue="Python.run_epic_overlap" />
-        <item itemvalue="Python.run_epic_overlap4" />
-        <item itemvalue="Python.run_epic_overlap2" />
       </list>
     </recent_temporary>
   </component>
@@ -190,7 +202,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667815769185</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="borrado graphslam">
+      <created>1667823136339</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1667823136339</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -208,7 +227,8 @@
     <MESSAGE value="juanjo" />
     <MESSAGE value="parametrizacion actualizada" />
     <MESSAGE value="initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="initial commit" />
+    <MESSAGE value="borrado graphslam" />
+    <option name="LAST_COMMIT_MESSAGE" value="borrado graphslam" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -270,12 +290,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>250</line>
+          <line>265</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>248</line>
+          <line>263</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -305,7 +325,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>128</line>
+          <line>143</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -315,43 +335,98 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>229</line>
+          <line>244</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>140</line>
+          <line>155</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>169</line>
+          <line>184</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>184</line>
+          <line>199</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
-          <line>179</line>
+          <line>194</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_epic_overlap5.py</url>
-          <line>423</line>
-          <option name="timeStamp" value="94" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_epic_overlap5.py</url>
-          <line>400</line>
+          <line>401</line>
           <option name="timeStamp" value="95" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/eurocreader/eurocreader.py</url>
+          <line>52</line>
+          <option name="timeStamp" value="100" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/eurocreader/eurocreader.py</url>
+          <line>50</line>
+          <option name="timeStamp" value="101" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/eurocreader/eurocreader.py</url>
+          <line>54</line>
+          <option name="timeStamp" value="102" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_epic_overlap5.py</url>
+          <line>406</line>
+          <option name="timeStamp" value="123" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_overlap_original.py</url>
-          <line>238</line>
-          <option name="timeStamp" value="96" />
+          <line>262</line>
+          <option name="timeStamp" value="131" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_epic_overlap.py</url>
+          <line>372</line>
+          <option name="timeStamp" value="132" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
+          <line>310</line>
+          <option name="timeStamp" value="135" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/graphslam/keyframe.py</url>
+          <line>302</line>
+          <option name="timeStamp" value="136" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_epic_overlap.py</url>
+          <line>345</line>
+          <option name="timeStamp" value="138" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_fpfh_similarity.py</url>
+          <line>338</line>
+          <option name="timeStamp" value="139" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/graphslam/keyframemanager.py</url>
+          <line>44</line>
+          <option name="timeStamp" value="157" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/graphslam/keyframemanager.py</url>
+          <line>29</line>
+          <option name="timeStamp" value="159" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_overlap_original.py</url>
+          <line>221</line>
+          <option name="timeStamp" value="160" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

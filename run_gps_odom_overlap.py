@@ -18,7 +18,7 @@ Parameters:
     TODO:
         Parameters should be stored in a yaml file.
 """
-from eurocreader.eurocreader import EurocReader
+from eurocreader.eurocreader_outdoors import EurocReader
 from graphslam.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
@@ -263,22 +263,23 @@ def main():
     # Prepare data
     euroc_read = EurocReader(directory=directory)
     # nmax_scans to limit the number of scans in the experiment
-    scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy, deltath=PARAMETERS.exp_deltath, nmax_scans=PARAMETERS.exp_long)
-    # scan_times, gt_pos = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy,
-    #                                                                      deltath=PARAMETERS.exp_deltath,
-    #                                                                      nmax_scans=PARAMETERS.exp_long)
+    # scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy, deltath=PARAMETERS.exp_deltath, nmax_scans=PARAMETERS.exp_long)
+    scan_times, gt_pos, odom_pos, odom_orient = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy,
+                                                                         deltath=PARAMETERS.exp_deltath,
+                                                                         nmax_scans=PARAMETERS.exp_long)
     start = 0
     end = 1000
     scan_times = scan_times[start:end]
     gt_pos = gt_pos[start:end]
+    odom_pos = odom_pos[start:end]
+    odom_orient = odom_orient[start:end]
     # gt_orient = gt_orient[start:end]
     # view_pos_data(gt_pos)
-    # gt_poses = compute_homogeneous_transforms(gt_pos, gt_orient)
+    gt_poses = compute_homogeneous_transforms(gt_pos, odom_orient)
     # gt_relative_poses = compute_homogeneous_transforms_relative(gt_poses)
 
     overlaps = []
-    overlaps1 = []
-    scan_idx = 100
+    scan_idx = 0
     pre_process = True
 
     # create KeyFrameManager
@@ -293,102 +294,58 @@ def main():
     # plt.imshow(project_points)
     # plt.show()
 
-    detected_points = project_points[current_range > 0]
-    # valid_num = len(visible_points)
-    # current_pose = gt_poses[scan_idx].array
-    current_pose = np.eye(4)
-    keyframe_manager.keyframes[scan_idx].pre_process()
-    # keyframe_manager.keyframes[scan_idx].draw_pointcloud()
+    detected_points = project_points[current_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
+    valid_num = len(detected_points)
+    current_pose = gt_poses[scan_idx].array
+
     # keyframe_manager.keyframes[0].pre_process()
+    for i in range(0, len(scan_times)):
+        print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
+        reference_pose = gt_poses[i].array
+        if pre_process == True:
+            keyframe_manager.keyframes[i].pre_process()
 
-    saved_overlap = False
-    debug = True
+        reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
+        reference_points_world = reference_pose.dot(reference_homogeneous_points.T).T
+        reference_points_in_current = np.linalg.inv(current_pose).dot(reference_points_world.T).T
+        reference_range, _, _, _ = spherical_projection(reference_points_in_current)
 
-    if saved_overlap == True:
-        with open("metodo2_overlaps_pi_sextos", "rb") as fp:  # Unpickling
-            overlaps = pickle.load(fp)
-        xys = gt_pos[:, 0:2]
+        keyframe_manager.keyframes[scan_idx].draw_registration_result(keyframe_manager.keyframes[i],
+                                                                      current_pose.dot(np.linalg.inv(reference_pose)))
 
+        # plt.imshow(reference_range)
+        # plt.show()
+        # if i == scan_idx:
+        #     plt.imshow(reference_range)
+        #     plt.show()
+        # calculate overlap
+        fig = plt.figure()
+        rows = 2
+        columns = 1
+        fig.add_subplot(rows, columns, 1)
+        # showing image
+        plt.imshow(current_range)
+        plt.axis('off')
+        plt.title("Current")
+        fig.add_subplot(rows, columns, 2)
+        # showing image
+        plt.imshow(reference_range)
+        plt.axis('off')
+        plt.title("Reference")
 
+        plt.show()
 
-    else:
+        overlap = np.count_nonzero(
+            abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
+        overlaps.append(overlap)
 
-        for i in range(0, len(scan_times)):
-            print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
-            overlaps_i = []
-            gammas = np.arange(0, 2 * np.pi, np.pi/6)
+        # keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx],
+        # reference_pose)
 
-            if debug:
-                i = 105
-                xys = gt_pos[:, 0:2]
-                # vis_poses(scan_idx, i, xys)
+    # 25 octubre 10:30 hospital elche 1a planta consulta 105
+    xys = gt_pos[:, 0:2]
+    vis_gt(xys, overlaps)
 
-            for gamma in gammas:
-                tx = ty = tz = beta = alpha = 0
-                transformation_matrix = HomogeneousMatrix(np.array([tx, ty, tz]), Euler(np.array([alpha, beta, gamma])))
-                transformation_matrix = transformation_matrix.array
-                # print(transformation_matrix)
-
-                if pre_process == True:
-                    keyframe_manager.keyframes[i].pre_process()
-
-                # if debug:
-                #     keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx], transformation_matrix)
-
-                # atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='B', initial_transform=transformation_matrix)
-                atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='J')
-                # atb_inv = np.linalg.inv(atb.array)
-
-                # measured_transforms.append(atb)
-
-                # reference_pose = gt_poses[i].array
-
-                reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
-
-                # reference_points_world = reference_pose.dot(reference_homogeneous_points.T).T
-                # reference_points_in_current = np.linalg.inv(current_pose).dot(reference_points_world.T).T
-                # reference_points_in_current = HomogeneousMatrix.__mul__(atb, reference_homogeneous_points.T).T
-                reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
-                reference_range, reference_project_points, _, _ = spherical_projection(reference_points_in_current)
-                reference_detected_points = reference_project_points[reference_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
-                valid_num = np.minimum(len(detected_points), len(reference_detected_points))
-
-                fig = plt.figure()
-                rows = 2
-                columns = 1
-                fig.add_subplot(rows, columns, 1)
-                # showing image
-                plt.imshow(current_range, cmap='gray')
-                plt.axis('off')
-                plt.title("Current")
-                fig.add_subplot(rows, columns, 2)
-                # showing image
-                plt.imshow(reference_range, cmap='gray')
-                plt.axis('off')
-                plt.title("Reference")
-
-                plt.show()
-
-
-                overlap_i = np.count_nonzero(
-                    abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
-                overlaps_i.append(overlap_i)
-                print(overlap_i)
-                # if overlap_i == 1:
-                #     break
-
-
-            overlap = max(overlaps_i)
-            overlaps.append(overlap)
-            # print(overlap)
-            # xys = gt_pos[:, 0:2]
-            # vis_gt(xys, overlaps)
-
-        xys = gt_pos[:, 0:2]
-        with open("metodo2_overlaps_pi_sextos", "wb") as fp:
-            pickle.dump(overlaps, fp)
-
-    vis_gt(scan_idx, xys, overlaps)
 
 if __name__ == "__main__":
     main()

@@ -18,7 +18,7 @@ Parameters:
     TODO:
         Parameters should be stored in a yaml file.
 """
-from eurocreader.eurocreader import EurocReader
+from eurocreader.eurocreader_outdoors import EurocReader
 from graphslam.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
@@ -263,19 +263,19 @@ def main():
     # Prepare data
     euroc_read = EurocReader(directory=directory)
     # nmax_scans to limit the number of scans in the experiment
-    scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy, deltath=PARAMETERS.exp_deltath, nmax_scans=PARAMETERS.exp_long)
+    scan_times, gt_pos = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy, deltath=PARAMETERS.exp_deltath, nmax_scans=PARAMETERS.exp_long)
     start = 0
     end = 1000
     scan_times = scan_times[start:end]
     gt_pos = gt_pos[start:end]
-    gt_orient = gt_orient[start:end]
+    # gt_orient = gt_orient[start:end]
     # view_pos_data(gt_pos)
-    gt_poses = compute_homogeneous_transforms(gt_pos, gt_orient)
+    # gt_poses = compute_homogeneous_transforms(gt_pos, gt_orient)
     # gt_relative_poses = compute_homogeneous_transforms_relative(gt_poses)
 
     overlaps = []
     overlaps1 = []
-    scan_idx = 100
+    scan_idx = 0
     pre_process = True
 
     # create KeyFrameManager
@@ -317,7 +317,7 @@ def main():
         # x_idx, y_idx = keyframe_manager.compute_centroid(scan_idx, pcd_format='normalized')
 
 
-        for i in range(50, len(scan_times)):
+        for i in range(0, len(scan_times)):
             if debug:
                 i = 105
                 xys = gt_pos[:, 0:2]
@@ -398,8 +398,9 @@ def main():
             # keyframe_manager.keyframes[i].pre_process()
             # debug = True
             # if debug:
-            keyframe_manager.keyframes[i].draw_pointclouds(keyframe_manager.keyframes[scan_idx],
-                                                                       transformation_matrix)
+            # keyframe_manager.keyframes[i].draw_pointcloud()
+            # keyframe_manager.keyframes[i].draw_pointclouds(keyframe_manager.keyframes[scan_idx],
+            #                                                            transformation_matrix)
 
             atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='B',
                                                                                    initial_transform=transformation_matrix)

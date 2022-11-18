@@ -24,11 +24,27 @@ class KeyFrameManager():
         for i in range(len(self.scan_times)):
             self.add_keyframe(i)
 
+    def remove_keyframe(self, index):
+        # kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index], index=index)
+
+        del self.keyframes[index[0]: index[len(index) - 1] + 1]
+        self.scan_times = np.delete(self.scan_times, index)
+        # self.scan_times.pop(index)
+
+
     def load_pointclouds(self):
+        read_failed = []
         for i in range(len(self.scan_times)):
             print('Loading pointcloud for keyframe: ', i, end='\r')
-            self.keyframes[i].load_pointcloud()
+            success = self.keyframes[i].load_pointcloud()
+            if success == False:
+                message = 'Point cloud corresponding to scantime ' + str(self.scan_times[i]) + ' has no points'
+                print(message)
+                read_failed.append(int(i))
+        self.remove_keyframe(read_failed)
         print('Ended loading poinclouds')
+        print("SUCCESSFULLY READED: ", len(self.scan_times), "TOTAL SCANS")
+        return self.scan_times
 
     def add_keyframe(self, index):
         kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index], index=index)
@@ -81,22 +97,31 @@ class KeyFrameManager():
         # else:
         if method == 'A':
             atb, rmse = self.keyframes[i].local_registrationA(self.keyframes[j], initial_transform=initial_transform)
-        else:
+        elif method == 'B':
             atb, rmse = self.keyframes[i].local_registrationB(self.keyframes[j], initial_transform=initial_transform)
+
         return atb, rmse
 
-    def compute_transformation_global_registration(self, i, j):
+    def compute_transformation_global_registration(self, i, j, method='J'):
         """
         Compute relative transformation using ICP from keyframe i to keyframe j.
         An initial estimate is used.
         FPFh to align and refine with icp
         Returning the ratio between the best and second best correlations.
         """
-        atb, prob = self.keyframes[i].global_registrationD(self.keyframes[j])
+        if method == 'D':
+            atb, prob = self.keyframes[i].global_registrationD(self.keyframes[j])
+        elif method == 'J':
+            atb, prob = self.keyframes[i].global_registrationJ(self.keyframes[j])
+
         return atb, prob
 
     # def measure_centroid_difference(self, i, j):
     #     difference = self..keyframes[i].global_registrationD(self.keyframes[j])
+
+    def compute_fpfh_similarity(self, i, j):
+        similarity = self.keyframes[i].fpfh_similarity(self.keyframes[j])
+        return similarity
 
     def compute_centroid(self, i, pcd_format):
         x, y = self.keyframes[i].pcd_centroid(pcd_format)
