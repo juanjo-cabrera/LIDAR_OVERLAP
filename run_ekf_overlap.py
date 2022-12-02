@@ -258,27 +258,69 @@ def spherical_projection(homogeneous_points, fov=45, proj_W=512, proj_H=128, max
 
     return proj_range, proj_vertex, proj_intensity, proj_idx
 
+def compute_gps_orientation(gps_pos):
+    global_orientations = []
+    relative_orientations = []
+    global_orientations.append(0)
+    relative_orientations.append(0)
+    for i in range(1, len(gps_pos)):
+        pos_i_1 = gps_pos[i - 1][0:2]
+        pos_i = gps_pos[i][0:2]
+        d_pos = pos_i - pos_i_1
+
+        relative_orient = np.arctan2(gps_pos[i-1][0:2], gps_pos[i][0:2])
+        relative_orientations.append(relative_orient)
+        global_orientations.append(sum(relative_orientations))
+
+
+    return global_orientations
+
 def main():
     directory = PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
     # nmax_scans to limit the number of scans in the experiment
     # scan_times, gt_pos, gt_orient = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy, deltath=PARAMETERS.exp_deltath, nmax_scans=PARAMETERS.exp_long)
-    scan_times, gt_pos = euroc_read.prepare_experimental_data(deltaxy=PARAMETERS.exp_deltaxy,
+    scan_times, odom_ekf_pos, odom_ekf_orient = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
                                                                          deltath=PARAMETERS.exp_deltath,
                                                                          nmax_scans=PARAMETERS.exp_long)
     start = 0
     end = 1000
     scan_times = scan_times[start:end]
-    gt_pos = gt_pos[start:end]
+    # gt_pos = gt_pos[start:end]
+    # gt_orient = compute_gps_orientation(gt_pos)
+    # gt_pos[:, 0] = gt_pos[:, 0] * -1
+    # gt_pos[:, 1] = gt_pos[:, 1] * -1
+    # gt_pos[:, 2] = gt_pos[:, 2] * 0
+    # gt_pos = np.array(x, y, gt_pos[:, 2])
+    # gt_pos = [x, y, gt_pos[:, 2]]
+
+    odom_pos = odom_ekf_pos[start:end]
+    odom_orient = odom_ekf_orient[start:end]
     # gt_orient = gt_orient[start:end]
     # view_pos_data(gt_pos)
-    # gt_poses = compute_homogeneous_transforms(gt_pos, gt_orient)
-    # gt_relative_poses = compute_homogeneous_transforms_relative(gt_poses)
+
+    gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
+
+    # gt_poses_transform = []
+    #
+    # for pose in range(0, len(gt_poses)):
+    #
+    #     gt_pose_transform = np.dot(np.linalg.inv(gt_poses[0].array), gt_poses[pose].array)
+    #     gt_poses_transform.append(HomogeneousMatrix(gt_pose_transform))
+    #
+    # gt_poses = gt_poses_transform
+
+    # gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
+
+
+
+
+
+
 
     overlaps = []
-    overlaps1 = []
-    scan_idx = 0
+    scan_idx = 200
     pre_process = True
 
     # create KeyFrameManager
@@ -293,50 +335,35 @@ def main():
     # plt.imshow(project_points)
     # plt.show()
 
-    detected_points = project_points[current_range > 0]
-    # valid_num = len(visible_points)
-    # current_pose = gt_poses[scan_idx].array
-    current_pose = np.eye(4)
-    # keyframe_manager.keyframes[scan_idx].pre_process()
-    # keyframe_manager.keyframes[scan_idx].draw_pointcloud()
-    # keyframe_manager.keyframes[0].pre_process()
+    detected_points = project_points[current_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
+    # valid_num = len(detected_points)
+    current_pose = gt_poses[scan_idx].array
 
     saved_overlap = False
-    debug = False
+    debug = True
 
     if saved_overlap == True:
-        with open("metodo2_overlaps_pi_sextos", "rb") as fp:  # Unpickling
+        with open("gps_odom_overlaps", "rb") as fp:  # Unpickling
             overlaps = pickle.load(fp)
-        xys = gt_pos[:, 0:2]
+        xys = odom_ekf_pos[:, 0:2]
+
+
 
     else:
-
+        # keyframe_manager.keyframes[0].pre_process()
         for i in range(0, len(scan_times)):
-            print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
-            # overlaps_i = []
-            # gammas = np.arange(0, 2 * np.pi, np.pi/6)
-
             if debug:
-                i = 200
-                xys = gt_pos[:, 0:2]
+                i = 299
+                xys = odom_ekf_pos[:, 0:2]
                 vis_poses(scan_idx, i, xys)
 
-            # for gamma in gammas:
-            #     tx = ty = tz = beta = alpha = 0
-            #     transformation_matrix = HomogeneousMatrix(np.array([tx, ty, tz]), Euler(np.array([alpha, beta, gamma])))
-            #     transformation_matrix = transformation_matrix.array
-                # print(transformation_matrix)
-
+            print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
+            reference_pose = gt_poses[i].array
             if pre_process == True:
                 keyframe_manager.keyframes[i].pre_process()
 
-            # if debug:
-            #     keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx], transformation_matrix)
-
-            atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='J')
-            # measured_transforms.append(atb)
-
-            # reference_pose = gt_poses[i].array
+            transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
+            atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='C', initial_transform=transformation_matrix)
 
             reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
             reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
@@ -352,7 +379,6 @@ def main():
             overlaps.append(overlap)
 
             if debug:
-
                 fig = plt.figure()
                 rows = 2
                 columns = 1
@@ -369,23 +395,16 @@ def main():
 
                 plt.show()
 
+            # keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx],
+            # reference_pose)
 
 
-            # if overlap_i == 1:
-            #     break
-
-
-            # overlap = max(overlaps_i)
-            # overlaps.append(overlap)
-            # print(overlap)
-            # xys = gt_pos[:, 0:2]
-            # vis_gt(xys, overlaps)
-
-        xys = gt_pos[:, 0:2]
-        with open("fpfh_overlaps", "wb") as fp:
+        xys = odom_ekf_pos[:, 0:2]
+        with open("gps_odom_overlaps", "wb") as fp:
             pickle.dump(overlaps, fp)
 
     vis_gt(scan_idx, xys, overlaps)
+
 
 if __name__ == "__main__":
     main()

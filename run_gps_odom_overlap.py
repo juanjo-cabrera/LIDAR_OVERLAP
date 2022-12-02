@@ -258,6 +258,23 @@ def spherical_projection(homogeneous_points, fov=45, proj_W=512, proj_H=128, max
 
     return proj_range, proj_vertex, proj_intensity, proj_idx
 
+def compute_gps_orientation(gps_pos):
+    global_orientations = []
+    relative_orientations = []
+    global_orientations.append(0)
+    relative_orientations.append(0)
+    for i in range(1, len(gps_pos)):
+        pos_i_1 = gps_pos[i - 1][0:2]
+        pos_i = gps_pos[i][0:2]
+        d_pos = pos_i - pos_i_1
+
+        relative_orient = np.arctan2(d_pos[1], d_pos[0])
+        relative_orientations.append(relative_orient)
+        global_orientations.append(sum(relative_orientations))
+
+
+    return global_orientations
+
 def main():
     directory = PARAMETERS.directory
     # Prepare data
@@ -271,12 +288,36 @@ def main():
     end = 1000
     scan_times = scan_times[start:end]
     gt_pos = gt_pos[start:end]
+    gt_orient = compute_gps_orientation(gt_pos)
+    # gt_pos[:, 0] = gt_pos[:, 0] * -1
+    # gt_pos[:, 1] = gt_pos[:, 1] * -1
+    # gt_pos[:, 2] = gt_pos[:, 2] * 0
+    # gt_pos = np.array(x, y, gt_pos[:, 2])
+    # gt_pos = [x, y, gt_pos[:, 2]]
+
     odom_pos = odom_pos[start:end]
     odom_orient = odom_orient[start:end]
     # gt_orient = gt_orient[start:end]
     # view_pos_data(gt_pos)
-    gt_poses = compute_homogeneous_transforms(gt_pos, odom_orient)
-    # gt_relative_poses = compute_homogeneous_transforms_relative(gt_poses)
+
+    gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
+
+    # gt_poses_transform = []
+    #
+    # for pose in range(0, len(gt_poses)):
+    #
+    #     gt_pose_transform = np.dot(np.linalg.inv(gt_poses[0].array), gt_poses[pose].array)
+    #     gt_poses_transform.append(HomogeneousMatrix(gt_pose_transform))
+    #
+    # gt_poses = gt_poses_transform
+
+    # gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
+
+
+
+
+
+
 
     overlaps = []
     scan_idx = 0
@@ -285,7 +326,7 @@ def main():
     # create KeyFrameManager
     keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
     keyframe_manager.add_all_keyframes()
-    keyframe_manager.load_pointclouds()
+    scan_times = keyframe_manager.load_pointclouds()
     if pre_process == True:
         keyframe_manager.keyframes[scan_idx].pre_process()
     current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=False)
@@ -295,56 +336,74 @@ def main():
     # plt.show()
 
     detected_points = project_points[current_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
-    valid_num = len(detected_points)
+    # valid_num = len(detected_points)
     current_pose = gt_poses[scan_idx].array
 
-    # keyframe_manager.keyframes[0].pre_process()
-    for i in range(0, len(scan_times)):
-        print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
-        reference_pose = gt_poses[i].array
-        if pre_process == True:
-            keyframe_manager.keyframes[i].pre_process()
+    saved_overlap = False
+    debug = True
 
-        reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
-        reference_points_world = reference_pose.dot(reference_homogeneous_points.T).T
-        reference_points_in_current = np.linalg.inv(current_pose).dot(reference_points_world.T).T
-        reference_range, _, _, _ = spherical_projection(reference_points_in_current)
+    if saved_overlap == True:
+        with open("gps_odom_overlaps", "rb") as fp:  # Unpickling
+            overlaps = pickle.load(fp)
+        xys = gt_pos[:, 0:2]
 
-        keyframe_manager.keyframes[scan_idx].draw_registration_result(keyframe_manager.keyframes[i],
-                                                                      current_pose.dot(np.linalg.inv(reference_pose)))
 
-        # plt.imshow(reference_range)
-        # plt.show()
-        # if i == scan_idx:
-        #     plt.imshow(reference_range)
-        #     plt.show()
-        # calculate overlap
-        fig = plt.figure()
-        rows = 2
-        columns = 1
-        fig.add_subplot(rows, columns, 1)
-        # showing image
-        plt.imshow(current_range)
-        plt.axis('off')
-        plt.title("Current")
-        fig.add_subplot(rows, columns, 2)
-        # showing image
-        plt.imshow(reference_range)
-        plt.axis('off')
-        plt.title("Reference")
 
-        plt.show()
+    else:
+        # keyframe_manager.keyframes[0].pre_process()
+        for i in range(0, len(scan_times)):
+            if debug:
+                i = 1
+                xys = gt_pos[:, 0:2]
+                vis_poses(scan_idx, i, xys)
 
-        overlap = np.count_nonzero(
-            abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
-        overlaps.append(overlap)
+            print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
+            reference_pose = gt_poses[i].array
+            if pre_process == True:
+                keyframe_manager.keyframes[i].pre_process()
 
-        # keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx],
-        # reference_pose)
+            transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
+            atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='C', initial_transform=transformation_matrix)
 
-    # 25 octubre 10:30 hospital elche 1a planta consulta 105
-    xys = gt_pos[:, 0:2]
-    vis_gt(xys, overlaps)
+            reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
+            reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
+            reference_range, reference_project_points, _, _ = spherical_projection(reference_points_in_current)
+            reference_detected_points = reference_project_points[
+                reference_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
+            valid_num = np.minimum(len(detected_points), len(reference_detected_points))
+
+            overlap = np.count_nonzero(
+                abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
+            print('Current overlap with icp: ', overlap)
+
+            overlaps.append(overlap)
+
+            if debug:
+                fig = plt.figure()
+                rows = 2
+                columns = 1
+                fig.add_subplot(rows, columns, 1)
+                # showing image
+                plt.imshow(current_range, cmap='gray')
+                plt.axis('off')
+                plt.title("Current")
+                fig.add_subplot(rows, columns, 2)
+                # showing image
+                plt.imshow(reference_range, cmap='gray')
+                plt.axis('off')
+                plt.title("Reference")
+
+                plt.show()
+
+            # keyframe_manager.keyframes[i].draw_registration_result(keyframe_manager.keyframes[scan_idx],
+            # reference_pose)
+
+
+        xys = gt_pos[:, 0:2]
+        with open("gps_odom_overlaps", "wb") as fp:
+            pickle.dump(overlaps, fp)
+
+    vis_gt(scan_idx, xys, overlaps)
 
 
 if __name__ == "__main__":

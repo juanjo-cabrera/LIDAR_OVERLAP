@@ -22,6 +22,7 @@ class EurocReader():
             odometry_times = odometry_times[0:nmax_scans]
 
         # read dfs from data
+
         df_odometry = self.read_odometry_data()
         df_scan_times = self.read_scan_times()
         df_gps = self.read_gps_data()
@@ -32,9 +33,49 @@ class EurocReader():
         scan_times, _, _ = self.get_closest_data(df_scan_times, reference_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
         _, gps_pos, _ = self.get_closest_data(df_gps, scan_times)
+        # gps_pos = self.normalize_gps_data(gps_pos)
+        # odo_pos = self.normalize_odom_data(odo_pos)
+
 
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
         return scan_times, gps_pos, odo_pos, odo_orient
+
+    def prepare_ekf_data(self, deltaxy, deltath, nmax_scans=None):
+        print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
+        # eurocreader = EurocReader(directory=directory)
+        # sample odometry at deltaxy and deltatheta
+        odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)
+        # gps_times = self.sample_gps(PARAMETERS.gps_status)
+        # reference_times = self.get_common_times(odometry_times, gps_times)
+
+        if nmax_scans is not None:
+            print("CAUTION: CROPPING DATA TO: ", nmax_scans)
+            odometry_times = odometry_times[0:nmax_scans]
+
+        # read dfs from data
+        df_odometry = self.read_odometry_data()
+        df_scan_times = self.read_scan_times()
+        # df_gps = self.read_gps_data()
+        # df_ground_truth = self.read_ground_truth_data()
+        # for every time in odometry_times, find the closest times of a scan.
+        # next, for every time of the scan, find again the closest odometry and the closest ground truth
+
+        scan_times, _, _ = self.get_closest_data(df_scan_times, odometry_times)
+        _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
+        # _, gps_pos, _ = self.get_closest_data(df_gps, scan_times)
+        # gps_pos = self.normalize_gps_data(gps_pos)
+        # odo_pos = self.normalize_odom_data(odo_pos)
+
+        print("FOUND: ", len(scan_times), "TOTAL SCANS")
+        return scan_times, odo_pos, odo_orient
+
+    def normalize_gps_data(self, gps_pos):
+        gps_pos = gps_pos - gps_pos[0]
+        return gps_pos
+
+    def normalize_odom_data(self, odom_pos):
+        odom_pos = odom_pos - odom_pos[0]
+        return odom_pos
 
 
     def read_gps_data(self):
@@ -75,6 +116,15 @@ class EurocReader():
         return timestamp
 
 
+    def read_ekf_data(self):
+        gt_csv_filename = self.directory + '/robot0/odometry_gps/data.csv'
+        df_gt = pd.read_csv(gt_csv_filename)
+        return df_gt
+
+    def read_gps_filtered_data(self):
+        gt_csv_filename = self.directory + '/robot0/gps_filtered/data.csv'
+        df_gt = pd.read_csv(gt_csv_filename)
+        return df_gt
 
     def read_ground_truth_data(self):
         gt_csv_filename = self.directory + '/robot0/ground_truth/data.csv'
@@ -90,6 +140,7 @@ class EurocReader():
         scan_times_csv_filename = self.directory + '/robot0/lidar/data.csv'
         df_scan_times = pd.read_csv(scan_times_csv_filename)
         return df_scan_times
+
 
     def sample_odometry(self, deltaxy=0.5, deltath=0.2):
         """
@@ -111,8 +162,8 @@ class EurocReader():
 
             dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
             dth = np.linalg.norm(odoi1[2]-odoi[2])
-            # if dxy > deltaxy or dth > deltath:
-            if dxy > deltaxy:
+            if dxy > deltaxy or dth > deltath:
+            # if dxy > deltaxy:
                 odo_times.append(current_time)
                 odoi = odoi1
         return np.array(odo_times)

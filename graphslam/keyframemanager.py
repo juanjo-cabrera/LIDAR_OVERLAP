@@ -41,7 +41,9 @@ class KeyFrameManager():
                 message = 'Point cloud corresponding to scantime ' + str(self.scan_times[i]) + ' has no points'
                 print(message)
                 read_failed.append(int(i))
-        self.remove_keyframe(read_failed)
+
+        if len(read_failed) != 0:
+            self.remove_keyframe(read_failed)
         print('Ended loading poinclouds')
         print("SUCCESSFULLY READED: ", len(self.scan_times), "TOTAL SCANS")
         return self.scan_times
@@ -99,6 +101,8 @@ class KeyFrameManager():
             atb, rmse = self.keyframes[i].local_registrationA(self.keyframes[j], initial_transform=initial_transform)
         elif method == 'B':
             atb, rmse = self.keyframes[i].local_registrationB(self.keyframes[j], initial_transform=initial_transform)
+        elif method == 'C':
+            atb, rmse = self.keyframes[i].local_registrationC(self.keyframes[j], initial_transform=initial_transform)
 
         return atb, rmse
 

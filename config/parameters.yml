@@ -1,5 +1,5 @@
 #directory: '/home/arvc/Escritorio/develop/Registration/dos_vueltas_features/'
-directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/Sequence1'
+directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-11-30-15-30-57'
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
 down_sample:
 #  voxel_size: 0.03 # Number or None
