@@ -61,10 +61,6 @@ def vis_gt(scan_idx, xys, overlaps):
     ax.scatter(x_actual, y_actual, c='red', marker='X', s=5)
 
 
-
-
-
-
     ax.axis('square')
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')
@@ -73,6 +69,13 @@ def vis_gt(scan_idx, xys, overlaps):
     cbar.set_label('Overlap', rotation=270, weight='bold')
     plt.show()
 
+
+def plot(x, title='Untitled', block=True):
+    plt.figure()
+    x = np.array(x)
+    plt.plot(x)
+    plt.title(title)
+    plt.show(block=block)
 
 def vis_poses(scan_i, scan_j, xys):
     """Visualize the trajectory"""
@@ -102,14 +105,17 @@ def vis_poses(scan_i, scan_j, xys):
 
 def compute_homogeneous_transforms(gt_pos, gt_orient):
     transforms = []
+    euler = []
     for i in range(len(gt_pos)):
         # CAUTION: THE ORDER IN THE QUATERNION class IS [qw, qx qy qz]
         # the order in ROS is [qx qy qz qw]
         q = [gt_orient[i][3], gt_orient[i][0], gt_orient[i][1], gt_orient[i][2]]
         Q = Quaternion(q)
+        euler.append(Q.Euler().abg)
         Ti = HomogeneousMatrix(gt_pos[i], Q)
         transforms.append(Ti)
-    return transforms
+
+    return transforms, np.array(euler)
 
 
 def compute_homogeneous_transforms_relative(transforms):
@@ -284,9 +290,18 @@ def main():
     scan_times, odom_ekf_pos, odom_ekf_orient = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
                                                                          deltath=PARAMETERS.exp_deltath,
                                                                          nmax_scans=PARAMETERS.exp_long)
+
+    # create KeyFrameManager
     start = 0
-    end = 1000
+    end = 2000
     scan_times = scan_times[start:end]
+
+    keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
+    keyframe_manager.add_all_keyframes()
+    scan_times = keyframe_manager.load_pointclouds()
+
+
+
     # gt_pos = gt_pos[start:end]
     # gt_orient = compute_gps_orientation(gt_pos)
     # gt_pos[:, 0] = gt_pos[:, 0] * -1
@@ -300,7 +315,7 @@ def main():
     # gt_orient = gt_orient[start:end]
     # view_pos_data(gt_pos)
 
-    gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
+    gt_poses, euler = compute_homogeneous_transforms(odom_pos, odom_orient)
 
     # gt_poses_transform = []
     #
@@ -320,13 +335,15 @@ def main():
 
 
     overlaps = []
-    scan_idx = 200
+    scan_idx = 0
     pre_process = True
 
-    # create KeyFrameManager
-    keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
-    keyframe_manager.add_all_keyframes()
-    scan_times = keyframe_manager.load_pointclouds()
+
+
+
+
+
+
     if pre_process == True:
         keyframe_manager.keyframes[scan_idx].pre_process()
     current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=False)
@@ -349,13 +366,18 @@ def main():
 
 
 
+
     else:
         # keyframe_manager.keyframes[0].pre_process()
         for i in range(0, len(scan_times)):
             if debug:
-                i = 299
+                i = 1559
                 xys = odom_ekf_pos[:, 0:2]
                 vis_poses(scan_idx, i, xys)
+                yaw = euler[:, 2]
+                plot(yaw)
+                print(yaw)
+
 
             print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
             reference_pose = gt_poses[i].array

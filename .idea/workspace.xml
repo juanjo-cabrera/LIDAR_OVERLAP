@@ -4,16 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="fpfh overlap">
-      <change afterPath="$PROJECT_DIR$/run_ekf_overlap.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run_gps_overlap.py" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="ekf_overlap">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/parameters.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphslam/keyframe.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphslam/keyframemanager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_fpfh_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_fpfh_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_gps_odom_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_gps_odom_overlap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_ekf_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_overlap.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -214,7 +208,14 @@
       <option name="project" value="LOCAL" />
       <updated>1668774999692</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="ekf_overlap">
+      <created>1669969922390</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1669969922390</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -234,7 +235,8 @@
     <MESSAGE value="initial commit" />
     <MESSAGE value="borrado graphslam" />
     <MESSAGE value="fpfh overlap" />
-    <option name="LAST_COMMIT_MESSAGE" value="fpfh overlap" />
+    <MESSAGE value="ekf_overlap" />
+    <option name="LAST_COMMIT_MESSAGE" value="ekf_overlap" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -458,6 +460,21 @@
           <url>file://$PROJECT_DIR$/graphslam/keyframemanager.py</url>
           <line>45</line>
           <option name="timeStamp" value="211" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_overlap.py</url>
+          <line>377</line>
+          <option name="timeStamp" value="213" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_overlap.py</url>
+          <line>378</line>
+          <option name="timeStamp" value="214" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_overlap.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="215" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
