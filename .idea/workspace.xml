@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="ekf_overlap">
-      <change afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run_labelling_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/parameters.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphslam/keyframe.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/o3d_demos/kd_tree_feature_matching.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/o3d_demos/registration_ransac.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_ekf_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_overlap.py" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="data labelling">
+      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/slam_tutorial/graphslam_tutorial_knownDA.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/slam_tutorial/graphslam_tutorial_unknownDA.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -234,7 +230,14 @@
       <option name="project" value="LOCAL" />
       <updated>1670837192218</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="data labelling">
+      <created>1670928811368</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1670928811368</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -255,7 +258,8 @@
     <MESSAGE value="borrado graphslam" />
     <MESSAGE value="fpfh overlap" />
     <MESSAGE value="ekf_overlap" />
-    <option name="LAST_COMMIT_MESSAGE" value="ekf_overlap" />
+    <MESSAGE value="data labelling" />
+    <option name="LAST_COMMIT_MESSAGE" value="data labelling" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
