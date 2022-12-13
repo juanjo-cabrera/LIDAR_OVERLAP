@@ -281,7 +281,7 @@ def compute_gps_orientation(gps_pos):
 
     return global_orientations
 
-def main():
+def compute_overlap(scan_idx):
     directory = PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
@@ -301,48 +301,18 @@ def main():
     scan_times = keyframe_manager.load_pointclouds()
 
 
-
-    # gt_pos = gt_pos[start:end]
-    # gt_orient = compute_gps_orientation(gt_pos)
-    # gt_pos[:, 0] = gt_pos[:, 0] * -1
-    # gt_pos[:, 1] = gt_pos[:, 1] * -1
-    # gt_pos[:, 2] = gt_pos[:, 2] * 0
-    # gt_pos = np.array(x, y, gt_pos[:, 2])
-    # gt_pos = [x, y, gt_pos[:, 2]]
-
     odom_pos = odom_ekf_pos[start:end]
     odom_orient = odom_ekf_orient[start:end]
-    # gt_orient = gt_orient[start:end]
-    # view_pos_data(gt_pos)
+
 
     gt_poses, euler = compute_homogeneous_transforms(odom_pos, odom_orient)
 
-    # gt_poses_transform = []
-    #
-    # for pose in range(0, len(gt_poses)):
-    #
-    #     gt_pose_transform = np.dot(np.linalg.inv(gt_poses[0].array), gt_poses[pose].array)
-    #     gt_poses_transform.append(HomogeneousMatrix(gt_pose_transform))
-    #
-    # gt_poses = gt_poses_transform
-
-    # gt_poses = compute_homogeneous_transforms(odom_pos, odom_orient)
-
-
-
     overlaps = []
-    scan_idx = 0
     pre_process = True
-
-
-
-
-
-
 
     if pre_process == True:
         keyframe_manager.keyframes[scan_idx].pre_process()
-    current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=False)
+    current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=True)
     current_range, project_points, _, _ = spherical_projection(current_homogeneous_points)
     # plt.imshow(current_range)
     # plt.imshow(project_points)
@@ -360,14 +330,11 @@ def main():
             overlaps = pickle.load(fp)
         xys = odom_ekf_pos[:, 0:2]
 
-
-
-
     else:
         # keyframe_manager.keyframes[0].pre_process()
         for i in range(0, len(scan_times)):
             if debug:
-                i = 177
+                i = 130
                 xys = odom_ekf_pos[:, 0:2]
                 vis_poses(scan_idx, i, xys)
                 yaw = euler[:, 2]
@@ -383,7 +350,7 @@ def main():
             transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
             atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='C', initial_transform=transformation_matrix)
 
-            reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
+            reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=True)
             reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
             reference_range, reference_project_points, _, _ = spherical_projection(reference_points_in_current)
             reference_detected_points = reference_project_points[
@@ -391,7 +358,7 @@ def main():
 
 
             if len(detected_points) * 0.005 < len(reference_detected_points):
-                print("CUMPLE")
+                # print("CUMPLE")
                 valid_num = np.minimum(len(detected_points), len(reference_detected_points))
                 overlap = np.count_nonzero(
                     abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
@@ -399,13 +366,25 @@ def main():
                     overlap = 0.0
 
             else:
-                overlap = 0.0
+            # if True:
+                # overlap = 0.0
+                # transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
+                transformation_matrix[0, 3] = 0.
+                transformation_matrix[1, 3] = 0.
+                transformation_matrix[2, 3] = 0.
 
+                atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='C',
+                                                                                       initial_transform=transformation_matrix)
+                # atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='J')
 
-
-
-
-
+                reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=True)
+                reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
+                reference_range, reference_project_points, _, _ = spherical_projection(reference_points_in_current)
+                reference_detected_points = reference_project_points[
+                    reference_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
+                valid_num = np.minimum(len(detected_points), len(reference_detected_points))
+                overlap = np.count_nonzero(
+                    abs(reference_range[reference_range > 0] - current_range[reference_range > 0]) < 1) / valid_num
 
             print('Current overlap with icp: ', overlap)
 
@@ -440,5 +419,12 @@ def main():
     vis_gt(scan_idx, xys, overlaps)
 
 
+    scan_times_reference = scan_times[scan_idx]
+    scan_times_reference = np.repeat(scan_times_reference, len(scan_times))
+
+    return overlaps, scan_times_reference, scan_times
+
+
 if __name__ == "__main__":
-    main()
+    scan_idx = 0
+    overlaps, scan_times_reference, scan_times = compute_overlap(scan_idx)

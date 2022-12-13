@@ -90,7 +90,7 @@ class KeyFrame():
         Returns a nx4 numpy array of homogeneous points (x, y, z, 1).
         """
         if pre_process==True:
-            points = np.asarray(self.pointcloud_normalized.points)
+            points = np.asarray(self.pointcloud_non_ground_plane.points)
         else:
             points = np.asarray(self.pointcloud.points)
 
@@ -424,29 +424,13 @@ class KeyFrame():
         return T, reg_p2pb.inlier_rmse
 
     def local_registrationC(self, other, initial_transform):
-        debug = True
-        # initial_transform = np.linalg.inv(initial_transform)
-        # result_plane = o3d.pipelines.registration.registration_icp(
-        #     other.pointcloud_ground_plane, self.pointcloud_ground_plane, self.icp_threshold, np.eye(4),
-        #     o3d.pipelines.registration.TransformationEstimationPointToPlane())
-        #
-        # t1 = HomogeneousMatrix(result_plane.transformation).t2v(n=3)
-        # t2 = HomogeneousMatrix(initial_transform).t2v(n=3)
-        # # build solution using both solutions
-        # tx = t2[0]
-        # ty = t2[1]
-        # tz = t1[2]
-        # alpha = t1[3]
-        # beta = t1[4]
-        # gamma = t2[5]
-        # T = HomogeneousMatrix(np.array([tx, ty, tz]), Euler([alpha, beta, gamma]))
+        debug = False
 
-        # result = self.point2point_registration(other, T.array)
         result = self.point2point_registration(other, initial_transform)
         if debug:
-            other.draw_registration_result(self, np.eye(4))
+            # other.draw_registration_result(self, np.eye(4))
             # other.draw_registration_result(self, T.array)
-            other.draw_registration_result(self, initial_transform)
+            # other.draw_registration_result(self, initial_transform)
             other.draw_registration_result(self, result.transformation)
 
         atb = HomogeneousMatrix(result.transformation)
@@ -559,7 +543,7 @@ class KeyFrame():
         return result
 
     def global_registrationJ(self, other):
-        debug = False
+        debug = True
         result_fpfh = self.initial_registration_fpfh(other)
         result_plane = o3d.pipelines.registration.registration_icp(
             other.pointcloud_ground_plane, self.pointcloud_ground_plane, self.icp_threshold, np.eye(4),
@@ -579,8 +563,8 @@ class KeyFrame():
 
         result = self.point2point_registration(other, T.array)
         if debug:
-            other.draw_registration_result(self, np.eye(4))
-            other.draw_registration_result(self, T.array)
+            # other.draw_registration_result(self, np.eye(4))
+            # other.draw_registration_result(self, T.array)
             other.draw_registration_result(self, result.transformation)
 
         atb = HomogeneousMatrix(result.transformation)
@@ -599,6 +583,7 @@ class KeyFrame():
         target_temp.paint_uniform_color([0, 0, 1])
         source_temp.transform(transformation)
         o3d.visualization.draw_geometries([source_temp, target_temp])
+
 
 
     def draw_pointclouds(self, other, transformation):
