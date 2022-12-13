@@ -416,7 +416,7 @@ def compute_overlap(scan_idx):
         with open("gps_odom_overlaps", "wb") as fp:
             pickle.dump(overlaps, fp)
 
-    vis_gt(scan_idx, xys, overlaps)
+    # vis_gt(scan_idx, xys, overlaps)
 
 
     scan_times_reference = scan_times[scan_idx]
