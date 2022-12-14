@@ -3,7 +3,7 @@ Build a point cloud map in global coordinates using
 A series of
 """
 from eurocreader.eurocreader import EurocReader
-from graphslam.keyframemanager import KeyFrameManager
+from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
 from config import PARAMETERS

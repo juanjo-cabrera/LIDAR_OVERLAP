@@ -5,8 +5,8 @@ Methods provide a way to build a global map and save it to file.
 
 """
 import numpy as np
-from graphslam.keyframe import KeyFrame
-from graphslam.keyframemanager import KeyFrameManager
+from scan_tools.keyframe import KeyFrame
+from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 import open3d as o3d
 

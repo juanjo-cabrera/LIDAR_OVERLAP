@@ -19,7 +19,7 @@ Parameters:
         Parameters should be stored in a yaml file.
 """
 from eurocreader.eurocreader import EurocReader
-from graphslam.keyframemanager import KeyFrameManager
+from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
 import numpy as np

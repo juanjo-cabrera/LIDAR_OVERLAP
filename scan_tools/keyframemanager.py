@@ -5,7 +5,7 @@ Methods provide a way to build a global map and save it to file.
 
 """
 import numpy as np
-from graphslam.keyframe import KeyFrame
+from scan_tools.keyframe import KeyFrame
 from tools.homogeneousmatrix import HomogeneousMatrix
 import open3d as o3d
 from config import PARAMETERS
@@ -106,7 +106,7 @@ class KeyFrameManager():
 
         return atb, rmse
 
-    def compute_transformation_global_registration(self, i, j, method='J'):
+    def compute_transformation_global_registration(self, i, j, method='FPFH'):
         """
         Compute relative transformation using ICP from keyframe i to keyframe j.
         An initial estimate is used.
@@ -115,8 +115,8 @@ class KeyFrameManager():
         """
         if method == 'D':
             atb, prob = self.keyframes[i].global_registrationD(self.keyframes[j])
-        elif method == 'J':
-            atb, prob = self.keyframes[i].global_registrationJ(self.keyframes[j])
+        elif method == 'FPFH':
+            atb, prob = self.keyframes[i].global_registrationFPFH(self.keyframes[j])
 
         return atb, prob
 

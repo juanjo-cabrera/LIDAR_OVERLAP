@@ -1,5 +1,5 @@
 import numpy as np
-from graphslam.keyframemanager import KeyFrame
+from scan_tools.keyframemanager import KeyFrame
 
 
 def parse_log_file(filename):

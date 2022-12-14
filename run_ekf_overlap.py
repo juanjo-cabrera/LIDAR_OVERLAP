@@ -19,7 +19,7 @@ Parameters:
         Parameters should be stored in a yaml file.
 """
 from eurocreader.eurocreader_outdoors import EurocReader
-from graphslam.keyframemanager import KeyFrameManager
+from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
 import numpy as np
@@ -353,7 +353,7 @@ def main():
     current_pose = gt_poses[scan_idx].array
 
     saved_overlap = False
-    debug = False
+    debug = True
 
     if saved_overlap == True:
         with open("gps_odom_overlaps", "rb") as fp:  # Unpickling
@@ -367,7 +367,7 @@ def main():
         # keyframe_manager.keyframes[0].pre_process()
         for i in range(0, len(scan_times)):
             if debug:
-                i = 177
+                i = 200
                 xys = odom_ekf_pos[:, 0:2]
                 vis_poses(scan_idx, i, xys)
                 yaw = euler[:, 2]

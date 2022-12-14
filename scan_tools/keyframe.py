@@ -5,7 +5,6 @@
 https://github.com/hankyang94/teaser_fpfh_threedmatch_python
 """
 import numpy as np
-from graphslam.scdescriptor import SCDescriptor
 from tools.euler import Euler
 from tools.homogeneousmatrix import HomogeneousMatrix
 import matplotlib.pyplot as plt
@@ -41,8 +40,8 @@ class KeyFrame():
         self.pointcloud_ground_plane = None
         self.pointcloud_non_ground_plane = None
         self.pcd_fpfh = None
-        self.max_radius_descriptor = PARAMETERS.max_radius_descriptor
-        self.scdescriptor = SCDescriptor(max_radius=self.max_radius_descriptor)
+
+
         # save the pointcloud for Scan context description
 
     def load_pointcloud(self):
@@ -430,7 +429,7 @@ class KeyFrame():
         if debug:
             # other.draw_registration_result(self, np.eye(4))
             # other.draw_registration_result(self, T.array)
-            # other.draw_registration_result(self, initial_transform)
+            other.draw_registration_result(self, initial_transform)
             other.draw_registration_result(self, result.transformation)
 
         atb = HomogeneousMatrix(result.transformation)
@@ -542,8 +541,8 @@ class KeyFrame():
 
         return result
 
-    def global_registrationJ(self, other):
-        debug = True
+    def global_registrationFPFH(self, other):
+        debug = False
         result_fpfh = self.initial_registration_fpfh(other)
         result_plane = o3d.pipelines.registration.registration_icp(
             other.pointcloud_ground_plane, self.pointcloud_ground_plane, self.icp_threshold, np.eye(4),
