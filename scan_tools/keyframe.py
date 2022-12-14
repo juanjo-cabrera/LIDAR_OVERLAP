@@ -660,6 +660,78 @@ class KeyFrame():
         """
         return self.pointcloud.transform(T.array)
 
+    def kd_tree(self, other, transformation):
+
+        # pcd.paint_uniform_color([0.5, 0.5, 0.5])
+
+        source_temp = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
+        # source_temp.paint_uniform_color([0.5, 0.5, 0.5])
+        target_temp.paint_uniform_color([0.0, 0.7, 0.8])
+
+        target_temp.transform(transformation.array)
+
+        punto = 1500
+        source_temp.paint_uniform_color([0.5, 0.5, 0.5])
+        pcd_tree = o3d.geometry.KDTreeFlann(target_temp)
+        print("Paint the 1500th point red.")
+        source_temp.colors[punto] = [1, 0, 0]
+
+        # print("Find its 500 nearest neighbors, and paint them blue.")
+        # [k, idx, _] = pcd_tree.search_knn_vector_3d(source_temp.points[1500], 1000)
+        # np.asarray(target_temp.colors)[idx[1:], :] = [0, 0, 1]
+
+        print("Find its neighbors with distance less than 0.2, and paint them green.")
+        radio = 1
+        [k, idx, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+
+        np.asarray(target_temp.colors)[idx[1:], :] = [0, 1, 0]
+        o3d.visualization.draw_geometries([target_temp, source_temp])
+
+        return k
+
+    def overlap_3d(self, other, transformation):
+
+        # pcd.paint_uniform_color([0.5, 0.5, 0.5])
+
+        source_temp = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
+        source_temp.paint_uniform_color([0.5, 0.5, 0.5])
+        target_temp.paint_uniform_color([0.0, 0.7, 0.8])
+
+        target_temp.transform(transformation.array)
+        pcd_tree = o3d.geometry.KDTreeFlann(target_temp)
+        radio = 0.2
+        print("Find its neighbors with distance less than 0.2, and paint them green.")
+        num = 0
+        for punto in range(0, len(source_temp.points)):
+
+
+
+            # print("Paint the 1500th point red.")
+            # source_temp.colors[punto] = [1, 0, 0]
+
+            # print("Find its 500 nearest neighbors, and paint them blue.")
+            # [k, idx, _] = pcd_tree.search_knn_vector_3d(source_temp.points[1500], 1000)
+            # np.asarray(target_temp.colors)[idx[1:], :] = [0, 0, 1]
+
+
+
+            [k, idx, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+            if k > 0:
+                num += 1
+
+        # np.asarray(target_temp.colors)[idx[1:], :] = [0, 1, 0]
+        # o3d.visualization.draw_geometries([target_temp, source_temp])
+
+        overlap = num / len(source_temp.points)
+        print(overlap)
+        return overlap
+
+
+
+
+
 
 
 

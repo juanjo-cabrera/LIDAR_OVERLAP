@@ -4,30 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="eliminando archivos no utiles">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="limpieza">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_map_ground_truth.py" beforeDir="false" afterPath="$PROJECT_DIR$/build_map_ground_truth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/dataassociation.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/dataassociation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframemanager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/scdescriptor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphslam/submapmanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/submapmanager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_ekf_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_overlap.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epic_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epic_overlap2.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epic_overlap3.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epic_overlap4.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epic_overlap5.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_epic_overlap5.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_fpfh_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_fpfh_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_fpfh_similarity.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_fpfh_similarity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_gps_odom_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_gps_odom_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_gps_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_gps_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_overlap_original.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_overlap_original.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_scanmatcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_scanmatcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/logparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/logparser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframemanager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,6 +57,27 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.run_ekf_remote_overlap">
+    <configuration name="keyframe" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scan_tools" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scan_tools/keyframe.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="run_ekf_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -110,27 +112,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_ekf_remote_overlap.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="run_gps_odom_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_gps_odom_overlap.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -184,10 +165,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_ekf_remote_overlap" />
+        <item itemvalue="Python.keyframe" />
         <item itemvalue="Python.run_ekf_overlap" />
         <item itemvalue="Python.run_labelling_data" />
         <item itemvalue="Python.run_gps_overlap" />
-        <item itemvalue="Python.run_gps_odom_overlap" />
       </list>
     </recent_temporary>
   </component>
@@ -277,7 +258,21 @@
       <option name="project" value="LOCAL" />
       <updated>1670930603126</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="limpieza">
+      <created>1671021074384</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1671021074384</updated>
+    </task>
+    <task id="LOCAL-00013" summary="limpieza">
+      <created>1671021097248</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1671021097248</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -300,7 +295,8 @@
     <MESSAGE value="ekf_overlap" />
     <MESSAGE value="data labelling" />
     <MESSAGE value="eliminando archivos no utiles" />
-    <option name="LAST_COMMIT_MESSAGE" value="eliminando archivos no utiles" />
+    <MESSAGE value="limpieza" />
+    <option name="LAST_COMMIT_MESSAGE" value="limpieza" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -529,6 +525,26 @@
           <url>file://$PROJECT_DIR$/run_labelling_data.py</url>
           <line>21</line>
           <option name="timeStamp" value="227" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>666</line>
+          <option name="timeStamp" value="230" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>687</line>
+          <option name="timeStamp" value="232" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>724</line>
+          <option name="timeStamp" value="234" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>723</line>
+          <option name="timeStamp" value="235" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

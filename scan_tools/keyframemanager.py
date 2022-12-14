@@ -123,6 +123,10 @@ class KeyFrameManager():
     # def measure_centroid_difference(self, i, j):
     #     difference = self..keyframes[i].global_registrationD(self.keyframes[j])
 
+    def compute_3d_overlap(self, i, j, atb):
+        some = self.keyframes[i].overlap_3d(self.keyframes[j], transformation=atb)
+
+
     def compute_fpfh_similarity(self, i, j):
         similarity = self.keyframes[i].fpfh_similarity(self.keyframes[j])
         return similarity
