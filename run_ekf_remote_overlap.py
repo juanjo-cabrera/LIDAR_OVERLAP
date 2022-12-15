@@ -316,7 +316,7 @@ def save_overlaps(name, overlaps):
         pickle.dump(overlaps, fp)
 
 def current_range_points(keyframe_manager, scan_idx):
-    current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=True)
+    current_homogeneous_points = keyframe_manager.keyframes[scan_idx].points2homogeneous(pre_process=False)
     current_range, project_points, _, _ = spherical_projection(current_homogeneous_points)
     current_detected_points = project_points[current_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
     return current_range, current_detected_points
@@ -327,7 +327,7 @@ def reference_range_points(keyframe_manager, i, transformation_matrix=np.eye(4),
     else:
         atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
 
-    reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=True)
+    reference_homogeneous_points = keyframe_manager.keyframes[i].points2homogeneous(pre_process=False)
     reference_points_in_current = np.dot(atb.array, reference_homogeneous_points.T).T
     reference_range, reference_project_points, _, _ = spherical_projection(reference_points_in_current)
     reference_detected_points = reference_project_points[reference_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
@@ -338,7 +338,7 @@ def compute_range_overlap(keyframe_manager, gt_poses, odom_ekf_pos, scan_idx, sc
     pre_process = True
     debug = False
 
-    if pre_process == True:
+    if pre_process:
         keyframe_manager.keyframes[scan_idx].pre_process()
 
     current_range, detected_points = current_range_points(keyframe_manager, scan_idx)
@@ -346,13 +346,13 @@ def compute_range_overlap(keyframe_manager, gt_poses, odom_ekf_pos, scan_idx, sc
 
     for i in range(0, len(scan_times)):
         if debug:
-            i = 35
+            i = 5
             xys = odom_ekf_pos[:, 0:2]
             vis_poses(scan_idx, i, xys)
 
         print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
         reference_pose = gt_poses[i].array
-        if pre_process == True:
+        if pre_process:
             keyframe_manager.keyframes[i].pre_process()
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
@@ -371,6 +371,7 @@ def compute_range_overlap(keyframe_manager, gt_poses, odom_ekf_pos, scan_idx, sc
         print('Current overlap with icp: ', overlap)
         overlaps.append(overlap)
 
+        debug = True
         if debug:
             plot_range_images(current_range, reference_range)
 
@@ -400,9 +401,9 @@ def read_data():
 def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
     pre_process = True
-    debug = False
+    debug = True
 
-    if pre_process == True:
+    if pre_process:
         keyframe_manager.keyframes[scan_idx].pre_process()
 
     current_pose = poses[scan_idx].array
@@ -411,51 +412,46 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
         if debug:
             i = 35
             xys = pos[:, 0:2]
-            vis_poses(scan_idx, i, xys)
+            # vis_poses(scan_idx, i, xys)
 
         print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
         reference_pose = poses[i].array
-        if pre_process == True:
+        if pre_process:
             keyframe_manager.keyframes[i].pre_process()
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
-        atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='C',
+        dist = np.linalg.norm(transformation_matrix[0:2, 3])
+        if dist < 40:
+            atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                                initial_transform=transformation_matrix)
-        keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+            overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+        else:
+            atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
+            overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+        print('Current overlap with icp: ', overlap)
+        overlaps.append(overlap)
+
+    return overlaps
 
 
-        # reference_range, reference_detected_points = reference_range_points(keyframe_manager, i, transformation_matrix,
-        #                                                                     method='local')
-        #
-        # if len(detected_points) * 0.005 < len(reference_detected_points):
-        #     valid_num = np.minimum(len(detected_points), len(reference_detected_points))
-        #     overlap = compute_overlap(reference_range, current_range, valid_num, epsilon=1)
-        #
-        # else:
-        #     reference_range, reference_detected_points = reference_range_points(keyframe_manager, i,
-        #                                                                         transformation_matrix, method='remote')
-        #     valid_num = np.minimum(len(detected_points), len(reference_detected_points))
-        #     overlap = compute_overlap(reference_range, current_range, valid_num, epsilon=1)
-        #
-        # print('Current overlap with icp: ', overlap)
-        # overlaps.append(overlap)
-        #
-        # if debug:
-        #     plot_range_images(current_range, reference_range)
-
-
-
+def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D'):
+    if method == '3D':
+        overlaps = compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+    else:
+        overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+    return overlaps
 
 def process_scans(scan_idx):
     plot_saved_overlaps = False
-
     scan_times, poses, pos, keyframe_manager = read_data()
-    compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+    # compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
 
     if plot_saved_overlaps:
         overlaps = load_saved_overlap(name='gps_odom_overlaps')
     else:
-        overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+        overlaps = overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D')
+        # overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
         save_overlaps(name='ekf_overlap', overlaps=overlaps)
 
     xys = pos[:, 0:2]
@@ -465,7 +461,6 @@ def process_scans(scan_idx):
     scan_times_reference = np.repeat(scan_times_reference, len(scan_times))
 
     return overlaps, scan_times_reference, scan_times
-
 
 if __name__ == "__main__":
     scan_idx = 0

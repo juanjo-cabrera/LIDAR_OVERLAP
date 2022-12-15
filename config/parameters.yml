@@ -23,7 +23,7 @@ descriptor:
   max_radius_descriptor: 60
 
 icp:
-  distance_threshold: 40 #5
+  distance_threshold: 5 #5
 
 experiment:
   deltaxy: 1

@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="limpieza">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="overlap en 3d">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/parameters.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/registration/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/registration/registration_tools.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/dataassociation.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scan_tools/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframemanager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/submapmanager.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -272,7 +277,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671021097248</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="overlap en 3d">
+      <created>1671029145972</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1671029145972</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -296,7 +308,8 @@
     <MESSAGE value="data labelling" />
     <MESSAGE value="eliminando archivos no utiles" />
     <MESSAGE value="limpieza" />
-    <option name="LAST_COMMIT_MESSAGE" value="limpieza" />
+    <MESSAGE value="overlap en 3d" />
+    <option name="LAST_COMMIT_MESSAGE" value="overlap en 3d" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -537,14 +550,9 @@
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>724</line>
-          <option name="timeStamp" value="234" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>723</line>
-          <option name="timeStamp" value="235" />
+          <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
+          <line>424</line>
+          <option name="timeStamp" value="245" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

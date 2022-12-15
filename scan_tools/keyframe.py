@@ -692,42 +692,83 @@ class KeyFrame():
 
     def overlap_3d(self, other, transformation):
 
-        # pcd.paint_uniform_color([0.5, 0.5, 0.5])
-
+        debug = True
         source_temp = copy.deepcopy(self.pointcloud_non_ground_plane)
         target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
-        source_temp.paint_uniform_color([0.5, 0.5, 0.5])
-        target_temp.paint_uniform_color([0.0, 0.7, 0.8])
+        if debug:
+            source_temp.paint_uniform_color([0.5, 0.5, 0.5])
+            target_temp.paint_uniform_color([0.0, 0.7, 0.8])
 
         target_temp.transform(transformation.array)
         pcd_tree = o3d.geometry.KDTreeFlann(target_temp)
         radio = 0.2
         print("Find its neighbors with distance less than 0.2, and paint them green.")
-        num = 0
+        matches = 0
+
         for punto in range(0, len(source_temp.points)):
-
-
-
-            # print("Paint the 1500th point red.")
-            # source_temp.colors[punto] = [1, 0, 0]
-
-            # print("Find its 500 nearest neighbors, and paint them blue.")
-            # [k, idx, _] = pcd_tree.search_knn_vector_3d(source_temp.points[1500], 1000)
-            # np.asarray(target_temp.colors)[idx[1:], :] = [0, 0, 1]
-
-
-
-            [k, idx, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+            if punto == 0:
+                [k, indices, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+            else:
+                [k, idx, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+                indices = np.concatenate((indices, idx), axis=0)
             if k > 0:
-                num += 1
+                matches += 1
 
-        # np.asarray(target_temp.colors)[idx[1:], :] = [0, 1, 0]
-        # o3d.visualization.draw_geometries([target_temp, source_temp])
-
-        overlap = num / len(source_temp.points)
+        overlap = matches / len(source_temp.points)
         print(overlap)
+        if debug:
+            indices = np.unique(indices)
+            np.asarray(target_temp.colors)[indices [1:], :] = [1, 0, 0]
+            o3d.visualization.draw_geometries([source_temp, target_temp])
         return overlap
 
+    def overlap(self, source_temp, target_temp, transformation):
+        debug = False
+        target_temp.transform(transformation)
+        pcd_tree = o3d.geometry.KDTreeFlann(target_temp)
+        radio = 0.2
+        # print("Find its neighbors with distance less than 0.2, and paint them green.")
+        matches = 0
+
+        for punto in range(0, len(source_temp.points)):
+            if punto == 0:
+                [k, indices, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+            else:
+                [k, idx, _] = pcd_tree.search_radius_vector_3d(source_temp.points[punto], radio)
+                indices = np.concatenate((indices, idx), axis=0)
+            if k > 0:
+                matches += 1
+        indices = np.unique(indices)
+
+        if debug:
+            np.asarray(target_temp.colors)[indices[1:], :] = [1, 0, 0]
+            # np.asarray(source_temp.colors)[source_indices[1:], :] = [1, 0, 0]
+            o3d.visualization.draw_geometries([source_temp, target_temp])
+        return matches, indices
+
+    def pairwise_overlap(self, other, transformation):
+
+        debug = True
+        source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp1 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        if debug:
+            source_temp0.paint_uniform_color([0.5, 0.5, 0.5])
+            target_temp0.paint_uniform_color([0.0, 0.7, 0.8])
+            source_temp1.paint_uniform_color([0.5, 0.5, 0.5])
+            target_temp1.paint_uniform_color([0.0, 0.7, 0.8])
+
+        target_matches, target_indices = self.overlap(source_temp0, target_temp0, transformation.array)
+        source_matches, source_indices = self.overlap(target_temp1, source_temp1, np.linalg.inv(transformation.array))
+
+        overlap = (source_matches + target_matches) / (len(source_temp0.points) + len(target_temp0.points))
+        # print(overlap)
+        if debug:
+            np.asarray(target_temp0.colors)[target_indices[1:], :] = [1, 0, 0]
+            np.asarray(source_temp0.colors)[source_indices[1:], :] = [0, 1, 0]
+            o3d.visualization.draw_geometries([source_temp0, target_temp0])
+        return overlap
 
 
 

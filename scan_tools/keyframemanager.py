@@ -101,7 +101,7 @@ class KeyFrameManager():
             atb, rmse = self.keyframes[i].local_registrationA(self.keyframes[j], initial_transform=initial_transform)
         elif method == 'B':
             atb, rmse = self.keyframes[i].local_registrationB(self.keyframes[j], initial_transform=initial_transform)
-        elif method == 'C':
+        elif method == 'point2point':
             atb, rmse = self.keyframes[i].local_registrationC(self.keyframes[j], initial_transform=initial_transform)
 
         return atb, rmse
@@ -124,7 +124,8 @@ class KeyFrameManager():
     #     difference = self..keyframes[i].global_registrationD(self.keyframes[j])
 
     def compute_3d_overlap(self, i, j, atb):
-        some = self.keyframes[i].overlap_3d(self.keyframes[j], transformation=atb)
+        overlap = self.keyframes[i].pairwise_overlap(self.keyframes[j], transformation=atb)
+        return overlap
 
 
     def compute_fpfh_similarity(self, i, j):
