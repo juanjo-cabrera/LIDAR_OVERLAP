@@ -32,7 +32,7 @@ class EurocReader():
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, reference_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
-        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times)
+        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='WGS84')
         # gps_pos = self.normalize_gps_data(gps_pos)
         # odo_pos = self.normalize_odom_data(odo_pos)
 
@@ -55,19 +55,19 @@ class EurocReader():
         # read dfs from data
         df_odometry = self.read_odometry_data()
         df_scan_times = self.read_scan_times()
-        # df_gps = self.read_gps_data()
+        df_gps = self.read_gps_data()
         # df_ground_truth = self.read_ground_truth_data()
         # for every time in odometry_times, find the closest times of a scan.
         # next, for every time of the scan, find again the closest odometry and the closest ground truth
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, odometry_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
-        # _, gps_pos, _ = self.get_closest_data(df_gps, scan_times)
+        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='WGS84')
         # gps_pos = self.normalize_gps_data(gps_pos)
         # odo_pos = self.normalize_odom_data(odo_pos)
 
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
-        return scan_times, odo_pos, odo_orient
+        return scan_times, odo_pos, odo_orient, gps_pos
 
     def normalize_gps_data(self, gps_pos):
         gps_pos = gps_pos - gps_pos[0]
@@ -202,12 +202,13 @@ class EurocReader():
             odometry.append(odo)
         return odometry
 
-    def get_closest_data(self, df_data, time_list):
+    def get_closest_data(self, df_data, time_list, gps_mode='utm'):
         # df_odo = self.read_odometry_data()
         positions = []
         orientations = []
         corresp_time_list = []
-        myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
+        if gps_mode == 'utm':
+            myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
         # now find odo corresponding to closest times
         for timestamp in time_list:
             # find the closest timestamp in df
@@ -229,8 +230,12 @@ class EurocReader():
 
                 lat = np.array(latitude)
                 lon = np.array(longitude)
-                [x, y] = myProj(lon, lat)
-                position = [x, y, altitude]
+                alt = np.array(altitude)
+                if gps_mode == 'utm':
+                    [x, y] = myProj(lon, lat)
+                    position = [x, y, altitude]
+                else:
+                    position = [lat, lon, alt]
                 positions.append(position)
             except:
                 pass

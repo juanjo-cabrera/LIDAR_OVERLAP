@@ -18,6 +18,7 @@ Parameters:
     TODO:
         Parameters should be stored in a yaml file.
 """
+from google_maps_plotter.custom_plotter import CustomGoogleMapPlotter
 from eurocreader.eurocreader_outdoors import EurocReader
 from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
@@ -30,7 +31,7 @@ import matplotlib.cm as cm
 from tools.euler import Euler
 import pickle
 
-def vis_gt(scan_idx, xys, overlaps):
+def plot_overlap(scan_idx, xys, overlaps):
     """Visualize the overlap value on trajectory"""
     # set up plot
     fig, ax = plt.subplots()
@@ -381,7 +382,7 @@ def read_data():
     directory = PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
-    scan_times, odom_ekf_pos, odom_ekf_orient = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
+    scan_times, odom_ekf_pos, odom_ekf_orient, gps_pos = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
                                                                             deltath=PARAMETERS.exp_deltath,
                                                                             nmax_scans=PARAMETERS.exp_long)
     # create KeyFrameManager
@@ -396,12 +397,12 @@ def read_data():
     odom_orient = odom_ekf_orient[start:end]
     gt_poses, euler = compute_homogeneous_transforms(odom_pos, odom_orient)
 
-    return scan_times, gt_poses, odom_pos, keyframe_manager
+    return scan_times, gt_poses, odom_pos, keyframe_manager, gps_pos
 
 def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
     pre_process = True
-    debug = True
+    debug = False
 
     if pre_process:
         keyframe_manager.keyframes[scan_idx].pre_process()
@@ -421,7 +422,9 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
         dist = np.linalg.norm(transformation_matrix[0:2, 3])
-        if dist < 40:
+        if dist == 0:
+            overlap = 1.0
+        elif dist < 30:
             atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                                initial_transform=transformation_matrix)
             overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
@@ -444,8 +447,14 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
 
 def process_scans(scan_idx):
     plot_saved_overlaps = False
-    scan_times, poses, pos, keyframe_manager = read_data()
-    # compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+    scan_times, poses, pos, keyframe_manager, gps_pos = read_data()
+    lat = gps_pos[:, 0]
+    lon = gps_pos[:, 1]
+    gmap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
+                                  map_type='satellite')
+    gmap.plot_trajectories(lat, lon,
+                           directory=PARAMETERS.directory + '/map.html')
+
 
     if plot_saved_overlaps:
         overlaps = load_saved_overlap(name='gps_odom_overlaps')
@@ -455,7 +464,7 @@ def process_scans(scan_idx):
         save_overlaps(name='ekf_overlap', overlaps=overlaps)
 
     xys = pos[:, 0:2]
-    vis_gt(scan_idx, xys, overlaps)
+    plot_overlap(scan_idx, xys, overlaps)
 
     scan_times_reference = scan_times[scan_idx]
     scan_times_reference = np.repeat(scan_times_reference, len(scan_times))

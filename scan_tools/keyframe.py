@@ -763,7 +763,9 @@ class KeyFrame():
         source_matches, source_indices = self.overlap(target_temp1, source_temp1, np.linalg.inv(transformation.array))
 
         overlap = (source_matches + target_matches) / (len(source_temp0.points) + len(target_temp0.points))
-        # print(overlap)
+        print('Pairwise overlap:', overlap)
+        print('Source overlap:', source_matches/len(source_temp0.points))
+        print('Target overlap:', target_matches / len(target_temp0.points))
         if debug:
             np.asarray(target_temp0.colors)[target_indices[1:], :] = [1, 0, 0]
             np.asarray(source_temp0.colors)[source_indices[1:], :] = [0, 1, 0]
