@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 from gmplot import GoogleMapPlotter
 import pandas as pd
+import numpy as np
 
 class CustomGoogleMapPlotter(GoogleMapPlotter):
     def __init__(self, center_lat, center_lng, zoom, apikey='',
@@ -38,39 +38,46 @@ class CustomGoogleMapPlotter(GoogleMapPlotter):
             self.scatter(lats=[lat], lngs=[lon], c='orange', size=0.17, marker=False,
                          s=None)
 
+    def overlap_scatter(self, lats, lons, scan_idx, overlaps):
+        def rgb2hex(rgb):
+            """ Convert RGBA or RGB to #RRGGBB """
+            rgb = list(rgb[0:3])  # remove alpha if present
+            rgb = [int(c * 255) for c in rgb]
+            hexcolor = '#%02x%02x%02x' % tuple(rgb)
+            return hexcolor
 
+        norm = Normalize(vmin=0, vmax=1, clip=True)
+        mapper = ScalarMappable(norm=norm)
+        mapper.set_array(overlaps)
+        colors = [rgb2hex(mapper.to_rgba(value)) for value in overlaps]
+
+        # sort according to overlap
+        indices = np.argsort(overlaps)
+        for i in indices:
+            self.scatter(lats=[lats[i]], lngs=[lons[i]], c=colors[i], size=0.17, marker=False,
+                         s=None)
+        self.scatter(lats=[lats[scan_idx]], lngs=[lons[scan_idx]], c='red', size=0.17, marker='X',
+                     s=None)
 
     def plot_trajectories(self, lats, lons, directory='/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/map.html'):
-        # initial_zoom = 20
-        # directory = "/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/mymap.html"
-        # gmap = CustomGoogleMapPlotter(lats[0], lons[0], initial_zoom,
-        #                               map_type='satellite')
-        gmap.pos_scatter(lats, lons)
-        gmap.draw(directory)
+        self.pos_scatter(lats, lons)
+        self.draw(directory)
+
+    def plot_overlap(self, lats, lons, scan_idx, overlaps, directory='/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/map.html'):
+        self.overlap_scatter(lats, lons, scan_idx, overlaps)
+        self.draw(directory)
 
 
+if __name__ == "__main__":
+    initial_zoom = 20
+    df = pd.read_csv('/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/robot0/gps0/data.csv')
+    lats = df['latitude'].values.tolist()
+    print(len(lats))
+    lons = df['longitude'].values.tolist()
+    print(len(lons))
+    alt = df['altitude'].values.tolist()
+    print(len(alt))
+    gmap = CustomGoogleMapPlotter(lats[0], lons[0], initial_zoom,
+                                  map_type='satellite')
 
-
-
-
-
-initial_zoom = 20
-#df = pd.read_csv('/home/arvc/DATASETS/gps_RTK/robot0/gps0/data.csv')
-df = pd.read_csv('/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/robot0/gps0/data.csv')
-lats=df['latitude'].values.tolist()
-print(len(lats))
-lons=df['longitude'].values.tolist()
-print(len(lons))
-alt=df['altitude'].values.tolist()
-print(len(alt))
-
-
-
-gmap = CustomGoogleMapPlotter(lats[0], lons[0], initial_zoom,
-                              map_type='satellite')
-
-gmap.plot_trajectories(lats, lons, directory="/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/mymap.html")
-# gmap.color_scatter(lats, lons)
-
-#gmap.draw("/home/arvc/DATASETS/gps_RTK/mymap.html")
-# gmap.draw("/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/mymap.html")
+    gmap.plot_trajectories(lats, lons, directory="/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/mymap.html")

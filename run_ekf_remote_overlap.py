@@ -446,7 +446,7 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
     return overlaps
 
 def process_scans(scan_idx):
-    plot_saved_overlaps = False
+    plot_saved_overlaps = True
     scan_times, poses, pos, keyframe_manager, gps_pos = read_data()
     lat = gps_pos[:, 0]
     lon = gps_pos[:, 1]
@@ -463,6 +463,8 @@ def process_scans(scan_idx):
         # overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
         save_overlaps(name='ekf_overlap', overlaps=overlaps)
 
+    gmap.plot_overlap(lat, lon, scan_idx, overlaps,
+                           directory=PARAMETERS.directory + '/overlap_map.html')
     xys = pos[:, 0:2]
     plot_overlap(scan_idx, xys, overlaps)
 

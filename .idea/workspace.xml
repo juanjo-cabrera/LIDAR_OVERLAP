@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="3D overlap pairwise">
-      <change afterPath="$PROJECT_DIR$/google_maps_plotter/__init__.py" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="google maps plotter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/google_maps_plotter/custom_plotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/google_maps_plotter/custom_plotter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_labelling_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_data_labelling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -289,7 +286,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671119350669</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="google maps plotter">
+      <created>1671193415167</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1671193415167</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -315,7 +319,8 @@
     <MESSAGE value="limpieza" />
     <MESSAGE value="overlap en 3d" />
     <MESSAGE value="3D overlap pairwise" />
-    <option name="LAST_COMMIT_MESSAGE" value="3D overlap pairwise" />
+    <MESSAGE value="google maps plotter" />
+    <option name="LAST_COMMIT_MESSAGE" value="google maps plotter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -559,16 +564,6 @@
           <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
           <line>427</line>
           <option name="timeStamp" value="245" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
-          <line>458</line>
-          <option name="timeStamp" value="251" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/google_maps_plotter/custom_plotter.py</url>
-          <line>68</line>
-          <option name="timeStamp" value="252" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
