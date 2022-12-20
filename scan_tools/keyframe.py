@@ -748,7 +748,7 @@ class KeyFrame():
 
     def pairwise_overlap(self, other, transformation):
 
-        debug = True
+        debug = False
         source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
         target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
         source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)

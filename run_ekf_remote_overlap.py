@@ -23,6 +23,7 @@ from eurocreader.eurocreader_outdoors import EurocReader
 from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
+from tools.conversions import rot2euler
 import numpy as np
 import matplotlib.pyplot as plt
 from config import PARAMETERS
@@ -378,6 +379,18 @@ def compute_range_overlap(keyframe_manager, gt_poses, odom_ekf_pos, scan_idx, sc
 
     return overlaps
 
+
+def yaw_error(gt_transform, icp_transform):
+    # gt_transform = HomogeneousMatrix(gt_transform)
+    icp_transform = icp_transform.array
+    _, _, gt_yaw = rot2euler(gt_transform)
+    _, _, icp_yaw = rot2euler(icp_transform)
+    error_radians = np.linalg.norm(gt_yaw - icp_yaw)
+    error_degrees = error_radians * (180/np.pi)
+    if error_degrees > 180:
+        error_degrees = 360 - error_degrees
+    return error_degrees
+
 def read_data():
     directory = PARAMETERS.directory
     # Prepare data
@@ -402,7 +415,7 @@ def read_data():
 def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
     pre_process = True
-    debug = False
+    debug = True
 
     if pre_process:
         keyframe_manager.keyframes[scan_idx].pre_process()
@@ -411,9 +424,9 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
     for i in range(0, len(scan_times)):
         if debug:
-            i = 35
+            i = 369
             xys = pos[:, 0:2]
-            # vis_poses(scan_idx, i, xys)
+            vis_poses(scan_idx, i, xys)
 
         print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
         reference_pose = poses[i].array
@@ -435,6 +448,10 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
         print('Current overlap with icp: ', overlap)
         overlaps.append(overlap)
 
+        if debug:
+            print('Computing error ...')
+            error = yaw_error(transformation_matrix, atb)
+            print(error)
     return overlaps
 
 
@@ -446,7 +463,7 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
     return overlaps
 
 def process_scans(scan_idx):
-    saved_overlaps = True
+    saved_overlaps = False
     plot_trajectories = True
     plot_overlap = True
 
