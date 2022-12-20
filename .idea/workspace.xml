@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="google maps plotter">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="fpfh overlap">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/google_maps_plotter/custom_plotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/google_maps_plotter/custom_plotter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
@@ -293,7 +293,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671193415167</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="google maps plotter overlap">
+      <created>1671441745236</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1671441745236</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -320,7 +327,8 @@
     <MESSAGE value="overlap en 3d" />
     <MESSAGE value="3D overlap pairwise" />
     <MESSAGE value="google maps plotter" />
-    <option name="LAST_COMMIT_MESSAGE" value="google maps plotter" />
+    <MESSAGE value="google maps plotter overlap" />
+    <option name="LAST_COMMIT_MESSAGE" value="google maps plotter overlap" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -35,7 +35,7 @@ class CustomGoogleMapPlotter(GoogleMapPlotter):
 
     def pos_scatter(self, lats, lngs):
         for lat, lon in zip(lats, lngs):
-            self.scatter(lats=[lat], lngs=[lon], c='orange', size=0.17, marker=False,
+            self.scatter(lats=[lat], lngs=[lon], c='orange', size=0.3, marker=False,
                          s=None)
 
     def overlap_scatter(self, lats, lons, scan_idx, overlaps):
@@ -54,7 +54,7 @@ class CustomGoogleMapPlotter(GoogleMapPlotter):
         # sort according to overlap
         indices = np.argsort(overlaps)
         for i in indices:
-            self.scatter(lats=[lats[i]], lngs=[lons[i]], c=colors[i], size=0.17, marker=False,
+            self.scatter(lats=[lats[i]], lngs=[lons[i]], c=colors[i], size=0.35, marker=False,
                          s=None)
         self.scatter(lats=[lats[scan_idx]], lngs=[lons[scan_idx]], c='red', size=0.17, marker='X',
                      s=None)
@@ -81,3 +81,4 @@ if __name__ == "__main__":
                                   map_type='satellite')
 
     gmap.plot_trajectories(lats, lons, directory="/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43/mymap.html")
+
