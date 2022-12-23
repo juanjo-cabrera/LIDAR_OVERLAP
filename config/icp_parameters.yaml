@@ -1,0 +1,26 @@
+down_sample:
+#  voxel_size: 0.03 # Number or None
+  voxel_size: 0.05 # Number or null
+
+filter_by_distance:
+  max_distance: 35
+  min_distance: 0.5
+
+filter_ground_plane:
+  radius_normals: 3
+  maximum_neighbors: 200
+
+normals:
+  maximum_neighbors: 50
+  radius_normals: 0.5
+
+fpfh:
+  fpfh_threshold: 5
+
+descriptor:
+  max_radius_descriptor: 60
+
+icp:
+  distance_threshold: 5 #5
+
+

@@ -1,0 +1,11 @@
+do_debug: False
+load_saved_overlap: False
+
+plot_maps:
+  trajectory: True
+  overlap: True
+
+plot_scans:
+  initial_transform: False
+  registration_result: False
+  overlap: False

@@ -8,8 +8,6 @@ import numpy as np
 from scan_tools.keyframe import KeyFrame
 from tools.homogeneousmatrix import HomogeneousMatrix
 import open3d as o3d
-from config import PARAMETERS
-
 
 class KeyFrameManager():
     def __init__(self, directory, scan_times):
@@ -102,7 +100,7 @@ class KeyFrameManager():
         elif method == 'B':
             atb, rmse = self.keyframes[i].local_registrationB(self.keyframes[j], initial_transform=initial_transform)
         elif method == 'point2point':
-            atb, rmse = self.keyframes[i].local_registrationC(self.keyframes[j], initial_transform=initial_transform)
+            atb, rmse = self.keyframes[i].local_registrationP2P(self.keyframes[j], initial_transform=initial_transform)
 
         return atb, rmse
 

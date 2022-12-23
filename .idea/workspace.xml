@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="overlap colors fixed">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="yaw errors">
+      <change afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/icp_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframemanager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +85,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="eurocreader_outdoors" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/eurocreader" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="keyframe" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -91,27 +119,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scan_tools/keyframe.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="run_data_labelling" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_data_labelling.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -165,10 +172,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_ekf_remote_overlap" />
+        <item itemvalue="Python.eurocreader_outdoors" />
         <item itemvalue="Python.custom_plotter" />
         <item itemvalue="Python.keyframe" />
         <item itemvalue="Python.run_ekf_overlap" />
-        <item itemvalue="Python.run_data_labelling" />
       </list>
     </recent_temporary>
   </component>
@@ -307,7 +314,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671545004404</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="yaw errors">
+      <created>1671551093523</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1671551093523</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -336,7 +350,8 @@
     <MESSAGE value="google maps plotter" />
     <MESSAGE value="google maps plotter overlap" />
     <MESSAGE value="overlap colors fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="overlap colors fixed" />
+    <MESSAGE value="yaw errors" />
+    <option name="LAST_COMMIT_MESSAGE" value="yaw errors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -388,12 +403,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>265</line>
+          <line>256</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>263</line>
+          <line>254</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -433,7 +448,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>244</line>
+          <line>236</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -443,17 +458,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>184</line>
+          <line>179</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>199</line>
+          <line>193</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>194</line>
+          <line>189</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -493,12 +508,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>310</line>
+          <line>301</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>302</line>
+          <line>293</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -548,7 +563,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframemanager.py</url>
-          <line>45</line>
+          <line>43</line>
           <option name="timeStamp" value="211" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -568,18 +583,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>666</line>
+          <line>633</line>
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>687</line>
+          <line>654</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py</url>
+          <line>15</line>
+          <option name="timeStamp" value="251" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
-          <line>387</line>
-          <option name="timeStamp" value="250" />
+          <line>397</line>
+          <option name="timeStamp" value="260" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
+          <line>482</line>
+          <option name="timeStamp" value="262" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -2,7 +2,7 @@ import numpy as np
 from tools.quaternion import Quaternion
 import pandas as pd
 from pyproj import Proj
-from config import PARAMETERS
+from config import EXP_PARAMETERS
 
 
 class EurocReader():
@@ -14,7 +14,7 @@ class EurocReader():
         # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
         odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)
-        gps_times = self.sample_gps(PARAMETERS.gps_status)
+        gps_times = self.sample_gps(EXP_PARAMETERS.gps_status)
         reference_times = self.get_common_times(odometry_times, gps_times)
 
         if nmax_scans is not None:
@@ -40,6 +40,19 @@ class EurocReader():
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
         return scan_times, gps_pos, odo_pos, odo_orient
 
+
+    def offline_ekf(self, odometry_times, df_odometry, scan_times):
+        offset = odometry_times[0]
+
+        scan_times = scan_times['#timestamp [ns]']
+        odometry_times = odometry_times - offset
+        odometry_times = odometry_times + scan_times[0]
+
+        df_odometry['#timestamp [ns]'] = df_odometry['#timestamp [ns]'] - offset
+        df_odometry['#timestamp [ns]'] = df_odometry['#timestamp [ns]'] + scan_times[0]
+
+        return odometry_times, df_odometry
+
     def prepare_ekf_data(self, deltaxy, deltath, nmax_scans=None):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
         # eurocreader = EurocReader(directory=directory)
@@ -59,6 +72,9 @@ class EurocReader():
         # df_ground_truth = self.read_ground_truth_data()
         # for every time in odometry_times, find the closest times of a scan.
         # next, for every time of the scan, find again the closest odometry and the closest ground truth
+
+        if EXP_PARAMETERS.do_offline_ekf:
+            odometry_times, df_odometry = self.offline_ekf(odometry_times, df_odometry, df_scan_times)
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, odometry_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)

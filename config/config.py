@@ -3,17 +3,14 @@ Main config file of video and camera parameters.
 """
 import yaml
 
-class ParametersConfig():
+class ICP_ParametersConfig():
     """
     Clase en la que se almacenan los parametros del registration
     """
-    def __init__(self, yaml_file='config/parameters.yml'):
+    def __init__(self, yaml_file='config/icp_parameters.yaml'):
         with open(yaml_file) as file:
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
-            self.folder_name = config.get('folder_name')
-            self.directory = config.get('directory')
-
             self.voxel_size = config.get('down_sample').get('voxel_size')
             self.max_distance = config.get('filter_by_distance').get('max_distance')
             self.min_distance = config.get('filter_by_distance').get('min_distance')
@@ -28,13 +25,45 @@ class ParametersConfig():
             self.max_radius_descriptor = config.get('descriptor').get('max_radius_descriptor')
             self.distance_threshold = config.get('icp').get('distance_threshold')
 
+class Exp_ParametersConfig():
+    """
+    Clase en la que se almacenan los parametros del experimentos
+    """
+    def __init__(self, yaml_file='config/exp_parameters.yaml'):
+        with open(yaml_file) as file:
+            config = yaml.load(file, Loader=yaml.FullLoader)
+            print(config)
+            self.directory = config.get('directory')
+            self.save_overlap_in = config.get('save_overlap_in')
+            self.scan_idx = config.get('scan_idx')
+            self.do_offline_ekf = config.get('do_offline_ekf')
+
             self.exp_deltaxy = config.get('experiment').get('deltaxy')
             self.exp_deltath = config.get('experiment').get('deltath')
             self.exp_long = config.get('experiment').get('long')
+            self.local_environment = config.get('experiment').get('local_environment')
 
             self.gps_status = config.get('gps').get('reference_status')
 
+class Debugging_ParametersConfig():
+    """
+    Clase en la que se almacenan los parametros del debug
+    """
+    def __init__(self, yaml_file='config/debugging_parameters.yaml'):
+        with open(yaml_file) as file:
+            config = yaml.load(file, Loader=yaml.FullLoader)
+            print(config)
+            self.do_debug = config.get('do_debug')
+            self.load_overlap = config.get('load_saved_overlap')
+
+            self.plot_trajectory = config.get('plot_maps').get('trajectory')
+            self.plot_overlap = config.get('plot_maps').get('overlap')
+            self.plot_registration_result = config.get('plot_scans').get('registration_result')
+            self.plot_initial_tranform = config.get('plot_scans').get('initial_transform')
+            self.plot_scan_overlap = config.get('plot_scans').get('overlap')
 
 
 
-PARAMETERS = ParametersConfig()
+ICP_PARAMETERS = ICP_ParametersConfig()
+EXP_PARAMETERS = Exp_ParametersConfig()
+DEBUGGING_PARAMETERS = Debugging_ParametersConfig()

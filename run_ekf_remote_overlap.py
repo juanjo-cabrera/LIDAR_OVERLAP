@@ -26,11 +26,12 @@ from tools.quaternion import Quaternion
 from tools.conversions import rot2euler
 import numpy as np
 import matplotlib.pyplot as plt
-from config import PARAMETERS
+from config import EXP_PARAMETERS, DEBUGGING_PARAMETERS
 import matplotlib
 import matplotlib.cm as cm
 from tools.euler import Euler
 import pickle
+import time
 
 def plot_overlap(scan_idx, xys, overlaps):
     """Visualize the overlap value on trajectory"""
@@ -313,8 +314,8 @@ def load_saved_overlap(name):
     return overlaps
 
 
-def save_overlaps(name, overlaps):
-    with open(name, "wb") as fp:
+def save_overlaps(directory, overlaps):
+    with open(directory, "wb") as fp:
         pickle.dump(overlaps, fp)
 
 def current_range_points(keyframe_manager, scan_idx):
@@ -381,7 +382,6 @@ def compute_range_overlap(keyframe_manager, gt_poses, odom_ekf_pos, scan_idx, sc
 
 
 def yaw_error(gt_transform, icp_transform):
-    # gt_transform = HomogeneousMatrix(gt_transform)
     icp_transform = icp_transform.array
     _, _, gt_yaw = rot2euler(gt_transform)
     _, _, icp_yaw = rot2euler(icp_transform)
@@ -391,13 +391,20 @@ def yaw_error(gt_transform, icp_transform):
         error_degrees = 360 - error_degrees
     return error_degrees
 
+def pos_error(gt_transform, icp_transform):
+    icp_transform = icp_transform.array
+    icp_pos = icp_transform[0:2, 3]
+    gt_pos = gt_transform[0:2, 3]
+    error = np.linalg.norm(icp_pos - gt_pos)
+    return error
+
 def read_data():
-    directory = PARAMETERS.directory
+    directory = EXP_PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
-    scan_times, odom_ekf_pos, odom_ekf_orient, gps_pos = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
-                                                                            deltath=PARAMETERS.exp_deltath,
-                                                                            nmax_scans=PARAMETERS.exp_long)
+    scan_times, odom_ekf_pos, odom_ekf_orient, gps_pos = euroc_read.prepare_ekf_data(deltaxy=EXP_PARAMETERS.exp_deltaxy,
+                                                                            deltath=EXP_PARAMETERS.exp_deltath,
+                                                                            nmax_scans=EXP_PARAMETERS.exp_long)
     # create KeyFrameManager
     start = 0
     end = len(scan_times)
@@ -415,7 +422,7 @@ def read_data():
 def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
     pre_process = True
-    debug = True
+    debug = DEBUGGING_PARAMETERS.do_debug
 
     if pre_process:
         keyframe_manager.keyframes[scan_idx].pre_process()
@@ -424,7 +431,7 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
     for i in range(0, len(scan_times)):
         if debug:
-            i = 369
+            i = len(scan_times) - 1
             xys = pos[:, 0:2]
             vis_poses(scan_idx, i, xys)
 
@@ -437,7 +444,8 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
         dist = np.linalg.norm(transformation_matrix[0:2, 3])
         if dist == 0:
             overlap = 1.0
-        elif dist < 30:
+        elif dist < EXP_PARAMETERS.local_environment:
+
             atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                                initial_transform=transformation_matrix)
             overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
@@ -449,9 +457,12 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
         overlaps.append(overlap)
 
         if debug:
-            print('Computing error ...')
-            error = yaw_error(transformation_matrix, atb)
-            print(error)
+            print('Yaw error: ')
+            angular_error = yaw_error(transformation_matrix, atb)
+            print(angular_error)
+            print('Pos error: ')
+            positional_error = pos_error(transformation_matrix, atb)
+            print(positional_error)
     return overlaps
 
 
@@ -463,9 +474,9 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
     return overlaps
 
 def process_scans(scan_idx):
-    saved_overlaps = False
-    plot_trajectories = True
-    plot_overlap = True
+    saved_overlaps = DEBUGGING_PARAMETERS.load_overlap
+    plot_trajectories = DEBUGGING_PARAMETERS.plot_trajectory
+    plot_overlap = DEBUGGING_PARAMETERS.plot_overlap
 
     scan_times, poses, pos, keyframe_manager, gps_pos = read_data()
     lat = gps_pos[:, 0]
@@ -476,20 +487,20 @@ def process_scans(scan_idx):
                                       map_type='satellite')
 
         gmap.plot_trajectories(lat, lon,
-                               directory=PARAMETERS.directory + '/map.html')
+                               directory=EXP_PARAMETERS.directory + '/map.html')
 
 
     if saved_overlaps:
         overlaps = load_saved_overlap(name='gps_odom_overlaps')
     else:
         overlaps = overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D')
-        save_overlaps(name='ekf_overlap', overlaps=overlaps)
+        save_overlaps(directory=EXP_PARAMETERS.save_overlap_in, overlaps=overlaps)
 
     if plot_overlap:
         gmap_overlap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
                                       map_type='satellite')
         gmap_overlap.plot_overlap(lat, lon, scan_idx, overlaps,
-                           directory=PARAMETERS.directory + '/overlap_map.html')
+                           directory=EXP_PARAMETERS.directory + '/overlap_map.html')
         # xys = pos[:, 0:2]
         # plot_overlap(scan_idx, xys, overlaps)
 
@@ -499,5 +510,5 @@ def process_scans(scan_idx):
     return overlaps, scan_times_reference, scan_times
 
 if __name__ == "__main__":
-    scan_idx = 0
+    scan_idx = EXP_PARAMETERS.scan_idx
     overlaps, scan_times_reference, scan_times = process_scans(scan_idx)
