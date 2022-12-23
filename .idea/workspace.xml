@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="yaw errors">
-      <change afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="distribucion de parametros en diferentes ficheros">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/parameters.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config/icp_parameters.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scan_tools/keyframemanager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframemanager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -321,7 +313,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671551093523</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="distribucion de parametros en diferentes ficheros">
+      <created>1671791897513</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1671791897513</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -351,7 +350,8 @@
     <MESSAGE value="google maps plotter overlap" />
     <MESSAGE value="overlap colors fixed" />
     <MESSAGE value="yaw errors" />
-    <option name="LAST_COMMIT_MESSAGE" value="yaw errors" />
+    <MESSAGE value="distribucion de parametros en diferentes ficheros" />
+    <option name="LAST_COMMIT_MESSAGE" value="distribucion de parametros en diferentes ficheros" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

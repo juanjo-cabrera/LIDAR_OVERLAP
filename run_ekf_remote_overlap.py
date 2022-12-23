@@ -500,7 +500,7 @@ def process_scans(scan_idx):
         gmap_overlap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
                                       map_type='satellite')
         gmap_overlap.plot_overlap(lat, lon, scan_idx, overlaps,
-                           directory=EXP_PARAMETERS.directory + '/overlap_map.html')
+                           directory=EXP_PARAMETERS.directory + '/ekf_overlap_map.html')
         # xys = pos[:, 0:2]
         # plot_overlap(scan_idx, xys, overlaps)
 
