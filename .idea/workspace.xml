@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="distribucion de parametros en diferentes ficheros">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="ultimos cambios">
+      <change afterPath="$PROJECT_DIR$/kittireader/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kittireader/kittireader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/debugging_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/exp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_ekf_remote_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_ekf_remote_overlap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,22 +44,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Escritorio/develop/LIDAR_OVERLAP&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/home/arvc/Escritorio/develop/LIDAR_OVERLAP/config",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/config" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/eurocreader" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/google_maps_plotter" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
   <component name="RunManager" selected="Python.run_ekf_remote_overlap">
@@ -119,7 +127,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_ekf_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="kittireader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -127,11 +135,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/kittireader" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_ekf_overlap.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kittireader/kittireader.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,10 +172,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_ekf_remote_overlap" />
+        <item itemvalue="Python.kittireader" />
         <item itemvalue="Python.eurocreader_outdoors" />
         <item itemvalue="Python.custom_plotter" />
         <item itemvalue="Python.keyframe" />
-        <item itemvalue="Python.run_ekf_overlap" />
       </list>
     </recent_temporary>
   </component>
@@ -320,7 +328,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671791897513</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="ultimos cambios">
+      <created>1671798421438</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1671798421438</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -351,7 +366,8 @@
     <MESSAGE value="overlap colors fixed" />
     <MESSAGE value="yaw errors" />
     <MESSAGE value="distribucion de parametros en diferentes ficheros" />
-    <option name="LAST_COMMIT_MESSAGE" value="distribucion de parametros en diferentes ficheros" />
+    <MESSAGE value="ultimos cambios" />
+    <option name="LAST_COMMIT_MESSAGE" value="ultimos cambios" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -403,12 +419,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>256</line>
+          <line>277</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>254</line>
+          <line>275</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -438,7 +454,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>143</line>
+          <line>164</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -448,27 +464,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>236</line>
+          <line>257</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>155</line>
+          <line>176</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>179</line>
+          <line>200</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>193</line>
+          <line>214</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>189</line>
+          <line>210</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -508,12 +524,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>301</line>
+          <line>322</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>293</line>
+          <line>314</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -562,11 +578,6 @@
           <option name="timeStamp" value="210" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scan_tools/keyframemanager.py</url>
-          <line>43</line>
-          <option name="timeStamp" value="211" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_ekf_overlap.py</url>
           <line>401</line>
           <option name="timeStamp" value="221" />
@@ -583,12 +594,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>633</line>
+          <line>654</line>
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>654</line>
+          <line>675</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -598,13 +609,38 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
-          <line>397</line>
+          <line>398</line>
           <option name="timeStamp" value="260" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/kittireader/kittireader.py</url>
+          <line>164</line>
+          <option name="timeStamp" value="264" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
-          <line>482</line>
-          <option name="timeStamp" value="262" />
+          <line>439</line>
+          <option name="timeStamp" value="277" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
+          <line>469</line>
+          <option name="timeStamp" value="280" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_ekf_remote_overlap.py</url>
+          <line>438</line>
+          <option name="timeStamp" value="284" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/kittireader/kittireader.py</url>
+          <line>17</line>
+          <option name="timeStamp" value="289" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/kittireader/kittireader.py</url>
+          <line>44</line>
+          <option name="timeStamp" value="290" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

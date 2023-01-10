@@ -2,10 +2,10 @@ do_debug: False
 load_saved_overlap: False
 
 plot_maps:
-  trajectory: True
-  overlap: True
+  trajectory: False
+  overlap: False
 
 plot_scans:
-  initial_transform: False
+  initial_transform: True
   registration_result: False
   overlap: False

@@ -10,7 +10,7 @@ from tools.homogeneousmatrix import HomogeneousMatrix
 import matplotlib.pyplot as plt
 import open3d as o3d
 import copy
-from config import ICP_PARAMETERS, DEBUGGING_PARAMETERS
+from config import ICP_PARAMETERS, DEBUGGING_PARAMETERS, EXP_PARAMETERS
 
 
 class KeyFrame():
@@ -31,7 +31,11 @@ class KeyFrame():
         # self.dims_bbox = [40, 40, 40]
         self.index = index
         self.timestamp = scan_time
-        self.filename = directory + '/robot0/lidar/data/' + str(scan_time) + '.pcd'
+        if directory.find('Kitti') == -1:
+            self.filename = directory + '/robot0/lidar/data/' + str(scan_time) + '.pcd'
+
+        else:
+            self.filename = directory + '/velodyne/' + '{:06d}'.format(scan_time) + '.bin'
         # all points
         self.pointcloud = None
         self.pointcloud_normalized = None
@@ -44,8 +48,25 @@ class KeyFrame():
 
         # save the pointcloud for Scan context description
 
+    def convert_kitti_bin_to_pcd(self, binFilePath):
+        import struct
+        size_float = 4
+        list_pcd = []
+        with open(binFilePath, "rb") as f:
+            byte = f.read(size_float * 4)
+            while byte:
+                x, y, z, intensity = struct.unpack("ffff", byte)
+                list_pcd.append([x, y, z])
+                byte = f.read(size_float * 4)
+        np_pcd = np.asarray(list_pcd)
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(np_pcd)
+        return pcd
     def load_pointcloud(self):
-        pointcloud = o3d.io.read_point_cloud(self.filename)
+        if self.filename.find('pcd') == -1:
+            pointcloud = self.convert_kitti_bin_to_pcd(self.filename)
+        else:
+            pointcloud = o3d.io.read_point_cloud(self.filename)
         success = False
         if len(np.asarray(pointcloud.points)) != 0:
             self.pointcloud = pointcloud
@@ -729,13 +750,13 @@ class KeyFrame():
         source_matches, source_indices = self.overlap(target_temp1, source_temp1, np.linalg.inv(transformation.array))
 
         overlap = (source_matches + target_matches) / (len(source_temp0.points) + len(target_temp0.points))
-        print('Pairwise overlap:', overlap)
-        print('Source overlap:', source_matches/len(source_temp0.points))
-        print('Target overlap:', target_matches / len(target_temp0.points))
+        # print('Pairwise overlap:', overlap)
+        # print('Source overlap:', source_matches/len(source_temp0.points))
+        # print('Target overlap:', target_matches / len(target_temp0.points))
 
         if DEBUGGING_PARAMETERS.plot_scan_overlap:
-            np.asarray(target_temp0.colors)[target_indices[1:], :] = [1, 0, 0]
-            np.asarray(source_temp0.colors)[source_indices[1:], :] = [0, 1, 0]
+            np.asarray(target_temp0.colors)[target_indices[1:], :] = [1, 0, 0] #points matched in red
+            np.asarray(source_temp0.colors)[source_indices[1:], :] = [1, 0, 0] #points matched in red
             o3d.visualization.draw_geometries([source_temp0, target_temp0])
         return overlap
 

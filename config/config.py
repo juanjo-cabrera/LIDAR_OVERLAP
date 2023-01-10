@@ -41,7 +41,8 @@ class Exp_ParametersConfig():
             self.exp_deltaxy = config.get('experiment').get('deltaxy')
             self.exp_deltath = config.get('experiment').get('deltath')
             self.exp_long = config.get('experiment').get('long')
-            self.local_environment = config.get('experiment').get('local_environment')
+            self.local_dist = config.get('local_environment').get('dist')
+            self.local_angle = config.get('local_environment').get('angle')
 
             self.gps_status = config.get('gps').get('reference_status')
 

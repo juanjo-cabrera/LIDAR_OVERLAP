@@ -1,7 +1,9 @@
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-21-12-03-42_ekf_paper'
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-21-12-03-42_ekf_own'
-directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-save_overlap_in: 'ekf_overlap'
+
+#directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
+directory: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/07'
+save_overlap_in: 'ekf_overlap1'
 
 do_offline_ekf: False
 scan_idx: 0
@@ -11,7 +13,9 @@ experiment:
 #  deltath: 0.3
   deltath: 0.2
   long: null # Number or None
-  local_environment: 30
+local_environment:
+  dist: 60 # meters
+  angle: 90 # degrees
 
 gps:
   reference_status: 2 # 2 rtk

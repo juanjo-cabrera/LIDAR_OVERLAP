@@ -20,6 +20,7 @@ Parameters:
 """
 from google_maps_plotter.custom_plotter import CustomGoogleMapPlotter
 from eurocreader.eurocreader_outdoors import EurocReader
+from kittireader.kittireader import KittiReader
 from scan_tools.keyframemanager import KeyFrameManager
 from tools.homogeneousmatrix import HomogeneousMatrix
 from tools.quaternion import Quaternion
@@ -398,7 +399,7 @@ def pos_error(gt_transform, icp_transform):
     error = np.linalg.norm(icp_pos - gt_pos)
     return error
 
-def read_data():
+def read_custom_dataset():
     directory = EXP_PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
@@ -418,6 +419,31 @@ def read_data():
     gt_poses, euler = compute_homogeneous_transforms(odom_pos, odom_orient)
 
     return scan_times, gt_poses, odom_pos, keyframe_manager, gps_pos
+
+def read_kitti_dataset():
+    directory = EXP_PARAMETERS.directory
+    kitti_read = KittiReader(directory=directory)
+
+    scan_times, pos, orient, poses = kitti_read.prepare_kitti_data(
+        deltaxy=EXP_PARAMETERS.exp_deltaxy,
+        deltath=EXP_PARAMETERS.exp_deltath,
+        nmax_scans=EXP_PARAMETERS.exp_long)
+
+    # create KeyFrameManager
+    # start = 0
+    # end = len(scan_times)
+    # scan_times = scan_times[start:end]
+
+    keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
+    keyframe_manager.add_all_keyframes()
+    scan_times = keyframe_manager.load_pointclouds()
+    # pos = pos[start:end]
+    # orient = orient[start:end]
+    # gt_poses, euler = compute_homogeneous_transforms(pos, orient)
+
+
+    return scan_times, poses, pos, keyframe_manager
+
 
 def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
@@ -442,9 +468,11 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
         dist = np.linalg.norm(transformation_matrix[0:2, 3])
+        _, _, angle = rot2euler(transformation_matrix)
+        angle = angle * (180/np.pi)
         if dist == 0:
             overlap = 1.0
-        elif dist < EXP_PARAMETERS.local_environment:
+        elif dist < EXP_PARAMETERS.local_dist and angle < EXP_PARAMETERS.local_angle:
 
             atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                                initial_transform=transformation_matrix)
@@ -473,14 +501,25 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
         overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
     return overlaps
 
+def reader_manager():
+    if EXP_PARAMETERS.directory.find('Kitti') == -1:
+        scan_times, poses, pos, keyframe_manager, gps_pos = read_custom_dataset()
+        lat = gps_pos[:, 0]
+        lon = gps_pos[:, 1]
+
+    else:
+        scan_times, poses, pos, keyframe_manager = read_kitti_dataset()
+        lat = lon = 0
+
+    return scan_times, poses, pos, keyframe_manager, lat, lon
+
 def process_scans(scan_idx):
     saved_overlaps = DEBUGGING_PARAMETERS.load_overlap
     plot_trajectories = DEBUGGING_PARAMETERS.plot_trajectory
-    plot_overlap = DEBUGGING_PARAMETERS.plot_overlap
+    do_plot_overlap = DEBUGGING_PARAMETERS.plot_overlap
 
-    scan_times, poses, pos, keyframe_manager, gps_pos = read_data()
-    lat = gps_pos[:, 0]
-    lon = gps_pos[:, 1]
+
+    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
 
     if plot_trajectories:
         gmap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
@@ -491,18 +530,19 @@ def process_scans(scan_idx):
 
 
     if saved_overlaps:
-        overlaps = load_saved_overlap(name='gps_odom_overlaps')
+        overlaps = load_saved_overlap(name='ekf_overlap')
+        xys = pos[:, 0:2]
+        plot_overlap(scan_idx, xys, overlaps)
     else:
         overlaps = overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D')
         save_overlaps(directory=EXP_PARAMETERS.save_overlap_in, overlaps=overlaps)
 
-    if plot_overlap:
+    if do_plot_overlap:
         gmap_overlap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
                                       map_type='satellite')
         gmap_overlap.plot_overlap(lat, lon, scan_idx, overlaps,
-                           directory=EXP_PARAMETERS.directory + '/ekf_overlap_map.html')
-        # xys = pos[:, 0:2]
-        # plot_overlap(scan_idx, xys, overlaps)
+                           directory=EXP_PARAMETERS.directory + '/ekf_overlap_map60_1.html')
+
 
     scan_times_reference = scan_times[scan_idx]
     scan_times_reference = np.repeat(scan_times_reference, len(scan_times))

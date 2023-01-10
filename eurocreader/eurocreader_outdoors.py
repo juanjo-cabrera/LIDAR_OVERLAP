@@ -55,7 +55,6 @@ class EurocReader():
 
     def prepare_ekf_data(self, deltaxy, deltath, nmax_scans=None):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
-        # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
         odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)
         # gps_times = self.sample_gps(PARAMETERS.gps_status)
