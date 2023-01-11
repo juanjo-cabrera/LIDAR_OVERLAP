@@ -1,25 +1,47 @@
-from run_ekf_remote_overlap import compute_overlap
+from run_3D_overlap import *
+import itertools as it
 import csv
-from config import PARAMETERS
-from eurocreader.eurocreader_outdoors import EurocReader
+from config import EXP_PARAMETERS
 
 
-directory = PARAMETERS.directory
-euroc_read = EurocReader(directory=directory)
-scan_times, _, _ = euroc_read.prepare_ekf_data(deltaxy=PARAMETERS.exp_deltaxy,
-                                                deltath=PARAMETERS.exp_deltath,
-                                                nmax_scans=PARAMETERS.exp_long)
+def process_overlap(keyframe_manager, poses, scan_idx, i):
+    pre_process = True
+
+    current_pose = poses[scan_idx].array
+    reference_pose = poses[i].array
+
+    if pre_process:
+        keyframe_manager.keyframes[scan_idx].pre_process()
+        keyframe_manager.keyframes[i].pre_process()
 
 
+    transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
+    atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
+                                                                           initial_transform=transformation_matrix)
+    overlap_pose = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+    atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
+    overlap_fpfh = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+    overlap = np.maximum(overlap_pose, overlap_fpfh)
+    return overlap, overlap_pose, overlap_fpfh
 
 
+if __name__ == "__main__":
+    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
+    scan_indices = np.arange(0, len(scan_times))
 
-with open('/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/prueba1.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Reference Scan", "Others Scans", "Overlap"])
-    for scan_idx in range(0, len(scan_times)):
-        overlaps, scan_times_reference, scan_times_others = compute_overlap(scan_idx)
-        for i in range(0, len(overlaps)):
-            writer.writerow([scan_times_reference[i], scan_times_others[i], overlaps[i]])
+    scan_comninations = list(it.combinations(scan_indices, 2))
+
+    with open(EXP_PARAMETERS.directory + '/labelling.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Reference Scan", "Other Scan", "Overlap", "Overlap poses", "Overlap fpfh"])
+        for i in range(0, len(scan_comninations)):
+        # for i in range(0, 5):
+            idx_reference = scan_comninations[i][0]
+            idx_other = scan_comninations[i][1]
+            overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
+            writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh])
+
 
 

@@ -446,7 +446,7 @@ def read_kitti_dataset():
     return scan_times, poses, pos, keyframe_manager
 
 
-def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
+def process_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
     pre_process = True
     debug = DEBUGGING_PARAMETERS.do_debug
@@ -469,18 +469,19 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
         dist = np.linalg.norm(transformation_matrix[0:2, 3])
-        _, _, angle = rot2euler(transformation_matrix)
-        angle = angle * (180/np.pi)
+        # _, _, angle = rot2euler(transformation_matrix)
+        # angle = angle * (180/np.pi)
         if dist == 0:
             overlap = 1.0
-        elif dist < EXP_PARAMETERS.local_dist and angle < EXP_PARAMETERS.local_angle:
-
-            atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
-                                                                               initial_transform=transformation_matrix)
-            overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
         else:
+            atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
+                                                                                   initial_transform=transformation_matrix)
+            overlap_pose = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
             atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
-            overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+            overlap_fpfh = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+            overlap = np.maximum(overlap_pose, overlap_fpfh)
 
         print('Current overlap with icp: ', overlap)
         overlaps.append(overlap)
@@ -494,10 +495,9 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
             print(positional_error)
     return overlaps
 
-
 def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D'):
     if method == '3D':
-        overlaps = compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
+        overlaps = process_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
     else:
         overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
     return overlaps
@@ -519,7 +519,6 @@ def process_scans(scan_idx):
     plot_trajectories = DEBUGGING_PARAMETERS.plot_trajectory
     do_plot_overlap = DEBUGGING_PARAMETERS.plot_overlap
 
-
     scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
 
     if plot_trajectories:
@@ -529,14 +528,12 @@ def process_scans(scan_idx):
         gmap.plot_trajectories(lat, lon,
                                directory=EXP_PARAMETERS.directory + '/map.html')
 
-
     if saved_overlaps:
-        overlaps = load_saved_overlap(name='ekf_overlap')
-        # xys = pos[:, 0:2]
+        overlaps = load_saved_overlap(name='3d_overlap_kitti07')
         plot_overlap(scan_idx, pos, overlaps)
     else:
         overlaps = overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D')
-        save_overlaps(directory=EXP_PARAMETERS.save_overlap_in, overlaps=overlaps)
+        save_overlaps(directory=EXP_PARAMETERS.save_overlap_as, overlaps=overlaps)
 
     if do_plot_overlap:
         plot_overlap(scan_idx, pos, overlaps)

@@ -714,7 +714,7 @@ class KeyFrame():
         debug = False
         target_temp.transform(transformation)
         pcd_tree = o3d.geometry.KDTreeFlann(target_temp)
-        radio = 0.2
+        radio = EXP_PARAMETERS.overlap_radius
         # print("Find its neighbors with distance less than 0.2, and paint them green.")
         matches = 0
 

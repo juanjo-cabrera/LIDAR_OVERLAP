@@ -34,7 +34,8 @@ class Exp_ParametersConfig():
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
             self.directory = config.get('directory')
-            self.save_overlap_in = config.get('save_overlap_in')
+            self.save_overlap_as = config.get('overlap').get('save_as')
+            self.overlap_radius = config.get('overlap').get('radius')
             self.scan_idx = config.get('scan_idx')
             self.do_offline_ekf = config.get('do_offline_ekf')
 
