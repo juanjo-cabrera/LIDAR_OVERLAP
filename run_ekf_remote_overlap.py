@@ -34,7 +34,7 @@ from tools.euler import Euler
 import pickle
 import time
 
-def plot_overlap(scan_idx, xys, overlaps):
+def plot_overlap(scan_idx, pos, overlaps):
     """Visualize the overlap value on trajectory"""
     # set up plot
     fig, ax = plt.subplots()
@@ -45,6 +45,7 @@ def plot_overlap(scan_idx, xys, overlaps):
 
     # sort according to overlap
     indices = np.argsort(overlaps)
+    xys = pos[:, 0:2]
 
     #sort the indices corresponding to the 5 largest values
     # n_largest_values = 50
@@ -457,7 +458,7 @@ def compute_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
     for i in range(0, len(scan_times)):
         if debug:
-            i = len(scan_times) - 1
+            i = len(scan_times) - 1  # para comprobar el primer scan con el ultimo
             xys = pos[:, 0:2]
             vis_poses(scan_idx, i, xys)
 
@@ -531,13 +532,14 @@ def process_scans(scan_idx):
 
     if saved_overlaps:
         overlaps = load_saved_overlap(name='ekf_overlap')
-        xys = pos[:, 0:2]
-        plot_overlap(scan_idx, xys, overlaps)
+        # xys = pos[:, 0:2]
+        plot_overlap(scan_idx, pos, overlaps)
     else:
         overlaps = overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='3D')
         save_overlaps(directory=EXP_PARAMETERS.save_overlap_in, overlaps=overlaps)
 
     if do_plot_overlap:
+        plot_overlap(scan_idx, pos, overlaps)
         gmap_overlap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
                                       map_type='satellite')
         gmap_overlap.plot_overlap(lat, lon, scan_idx, overlaps,

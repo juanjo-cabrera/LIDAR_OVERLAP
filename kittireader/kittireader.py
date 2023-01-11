@@ -93,7 +93,6 @@ class KittiReader():
             qz = q[3]
 
             orientation = [qx, qy, qz, qw]
-            euler = rot2euler(poses[ind])
             q = Quaternion(q)
             position = poses[ind][0:3, 3]
 
@@ -102,6 +101,9 @@ class KittiReader():
 
             if ind == 0:
                 sampled_times.append(ind)
+                sampled_pos.append(position)
+                sampled_orient.append(orientation)
+                tranforms.append(HomogeneousMatrix(poses[ind]))
                 odoi = odo
             odoi1 = odo
 

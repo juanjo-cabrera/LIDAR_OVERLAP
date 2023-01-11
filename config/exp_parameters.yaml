@@ -1,8 +1,8 @@
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-21-12-03-42_ekf_paper'
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-21-12-03-42_ekf_own'
 
-#directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-directory: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/07'
+directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
+#directory: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/07'
 save_overlap_in: 'ekf_overlap1'
 
 do_offline_ekf: False
