@@ -14,7 +14,6 @@ def process_overlap(keyframe_manager, poses, scan_idx, i):
         keyframe_manager.keyframes[scan_idx].pre_process()
         keyframe_manager.keyframes[i].pre_process()
 
-
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
     atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                            initial_transform=transformation_matrix)
@@ -30,19 +29,18 @@ def process_overlap(keyframe_manager, poses, scan_idx, i):
 if __name__ == "__main__":
     scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
     scan_indices = np.arange(0, len(scan_times))
-
-    scan_comninations = list(it.combinations(scan_indices, 2))
+    scan_combinations = list(it.combinations(scan_indices, 2))
 
     with open(EXP_PARAMETERS.directory + '/labelling.csv', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Reference Scan", "Other Scan", "Overlap", "Overlap poses", "Overlap fpfh"])
+        writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
         for idx in scan_indices:
-            writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0])
-        for i in range(0, len(scan_comninations)):
-            idx_reference = scan_comninations[i][0]
-            idx_other = scan_comninations[i][1]
+            writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0, pos[idx, 0], pos[idx, 1], pos[idx, 0], pos[idx, 1]])
+        for i in range(0, len(scan_combinations)):
+            idx_reference = scan_combinations[i][0]
+            idx_other = scan_combinations[i][1]
             overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
-            writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh])
+            writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh, pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]])
 
 
 

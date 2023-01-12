@@ -510,7 +510,7 @@ def reader_manager():
 
     else:
         scan_times, poses, pos, keyframe_manager = read_kitti_dataset()
-        lat = lon = 0
+        lat = lon = -1
 
     return scan_times, poses, pos, keyframe_manager, lat, lon
 
