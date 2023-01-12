@@ -37,6 +37,7 @@ if __name__ == "__main__":
         for idx in scan_indices:
             writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0, pos[idx, 0], pos[idx, 1], pos[idx, 0], pos[idx, 1]])
         for i in range(0, len(scan_combinations)):
+            print('Calculated: ', i, 'overlaps out of ', len(scan_combinations))
             idx_reference = scan_combinations[i][0]
             idx_other = scan_combinations[i][1]
             overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)

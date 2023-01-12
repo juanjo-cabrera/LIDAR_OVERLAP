@@ -57,19 +57,15 @@ def plot_overlap(scan_idx, pos, overlaps):
     x_actual = xys[scan_idx, 0]
     y_actual = xys[scan_idx, 1]
 
-
-
     # map poses
     xys = xys[indices]
     ax.scatter(xys[:, 0], xys[:, 1], c=colors[indices], s=10)
     # ax.scatter(x_5max, y_5max, c='black', marker='X', s=15)
     ax.scatter(x_actual, y_actual, c='red', marker='X', s=5)
-
-
     ax.axis('square')
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')
-    ax.set_title('Demo 4: Generate ground truth for training')
+    ax.set_title('Overlap for training')
     cbar = fig.colorbar(mapper, ax=ax)
     cbar.set_label('Overlap', rotation=270, weight='bold')
     plt.show()
@@ -94,13 +90,10 @@ def vis_poses(scan_i, scan_j, xys):
     x_j = xys[scan_j, 0]
     y_j = xys[scan_j, 1]
 
-
     # map poses
     ax.scatter(xys[:, 0], xys[:, 1], c='grey', s=10)
     ax.scatter(x_i, y_i, c='red', marker='X', s=15)
     ax.scatter(x_j, y_j, c='blue', marker='X', s=15)
-
-
     ax.axis('square')
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')

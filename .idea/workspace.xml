@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="data labelling added itself combinations">
-      <change afterPath="$PROJECT_DIR$/plotting_labelled_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_3D_overlap.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_3D_overlap.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_data_labelling.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_data_labelling.py" afterDir="false" />
-    </list>
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="plot overlap from labels" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -58,7 +53,7 @@
       <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run_data_labelling">
+  <component name="RunManager" selected="Python.plotting_labelled_data">
     <configuration name="eurocreader_outdoors" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -166,8 +161,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.run_data_labelling" />
         <item itemvalue="Python.plotting_labelled_data" />
+        <item itemvalue="Python.run_data_labelling" />
         <item itemvalue="Python.run_3D_overlap" />
         <item itemvalue="Python.kittireader" />
         <item itemvalue="Python.eurocreader_outdoors" />
@@ -358,7 +353,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673515242859</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="plot overlap from labels">
+      <created>1673523908145</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1673523908145</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -394,7 +396,8 @@
     <MESSAGE value="kitti reader error solved" />
     <MESSAGE value="data labelling prepared for all possible combinations" />
     <MESSAGE value="data labelling added itself combinations" />
-    <option name="LAST_COMMIT_MESSAGE" value="data labelling added itself combinations" />
+    <MESSAGE value="plot overlap from labels" />
+    <option name="LAST_COMMIT_MESSAGE" value="plot overlap from labels" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
