@@ -36,8 +36,9 @@ if __name__ == "__main__":
     with open(EXP_PARAMETERS.directory + '/labelling.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Reference Scan", "Other Scan", "Overlap", "Overlap poses", "Overlap fpfh"])
+        for idx in scan_indices:
+            writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0])
         for i in range(0, len(scan_comninations)):
-        # for i in range(0, 5):
             idx_reference = scan_comninations[i][0]
             idx_other = scan_comninations[i][1]
             overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
