@@ -21,16 +21,33 @@ def read_labelled_data():
 if __name__ == "__main__":
     reference_timestamps, other_timestamps, overlap, reference_poses, other_poses = read_labelled_data()
     reference_timestamp = reference_timestamps[EXP_PARAMETERS.scan_idx]
-    reference_idx = np.where(reference_timestamp == reference_timestamps)[0]
-    other_poses = other_poses[reference_idx]
-    other_idx = np.where(reference_timestamp == other_timestamps)[0]
-    reference_poses = reference_poses[other_idx]
-    result_poses = np.vstack((other_poses, reference_poses))
 
-    overlap_idx = np.unique(reference_idx, other_idx)
-    result_poses = np.unique(result_poses, axis=0)
+    reference_idx = np.where(reference_timestamp == reference_timestamps)[0]
+    reference_idx = reference_idx[1:len(reference_idx)] # Me quito el primero que se repite con other
+    ref_row = np.repeat('ref', len(reference_idx)).T
+    ref_labelled = np.vstack((reference_idx, ref_row))
+
+    other_idx = np.where(reference_timestamp == other_timestamps)[0]
+    other_row = np.repeat('other', len(other_idx)).T
+    other_labelled = np.vstack((other_idx, other_row))
+
+    idx_labelled = np.hstack((other_labelled, ref_labelled))
+
+    overlap_idx = np.hstack((reference_idx, other_idx))
+    overlap_idx = np.unique(overlap_idx)
     overlap = overlap[overlap_idx]
 
-    plot_overlap(EXP_PARAMETERS.scan_idx, result_poses, overlap)
+    poses = []
+    for i in overlap_idx:
+        idx = np.where(idx_labelled[0, :] == str(i))
+        column = idx_labelled[1, idx]
+        if column == 'ref':
+            pose = other_poses[i]
+        else:
+            pose = reference_poses[i]
+        poses.append(pose)
+
+    poses = np.array(poses)
+    plot_overlap(EXP_PARAMETERS.scan_idx, poses, overlap)
 
 
