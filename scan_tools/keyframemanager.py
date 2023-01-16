@@ -47,7 +47,7 @@ class KeyFrameManager():
         return self.scan_times
 
     def add_keyframe(self, index):
-        kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index], index=index)
+        kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index])
         self.keyframes.append(kf)
 
     def save_solution(self, transforms):

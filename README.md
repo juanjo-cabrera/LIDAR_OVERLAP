@@ -1,2 +1,3 @@
-# LIDAR_SLAM
-SLAM using LIDAR data
+# 3D 
+Ideas a probar: Outlayer removal para quitar puntos dispersos
+

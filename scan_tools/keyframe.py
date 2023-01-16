@@ -14,7 +14,7 @@ from config import ICP_PARAMETERS, DEBUGGING_PARAMETERS, EXP_PARAMETERS
 
 
 class KeyFrame():
-    def __init__(self, directory, scan_time, index):
+    def __init__(self, directory, scan_time):
         # the estimated transform of this keyframe with respect to global coordinates
         self.transform = None
         # max radius to filter points
@@ -29,7 +29,7 @@ class KeyFrame():
         self.fpfh_threshold = ICP_PARAMETERS.fpfh_threshold
         # crop point cloud to this bounding box
         # self.dims_bbox = [40, 40, 40]
-        self.index = index
+        # self.index = index
         self.timestamp = scan_time
         if directory.find('Kitti') == -1:
             self.filename = directory + '/robot0/lidar/data/' + str(scan_time) + '.pcd'
@@ -92,13 +92,30 @@ class KeyFrame():
         self.pointcloud_ground_plane = pcd_ground_plane
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
         # calcular las normales a cada punto
-        self.pointcloud_filtered.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
-                                                                              max_nn=ICP_PARAMETERS.max_nn))
+        # self.pointcloud_filtered.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
+        #                                                                       max_nn=ICP_PARAMETERS.max_nn))
         self.pointcloud_ground_plane.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals_ground_plane,
                                                                               max_nn=ICP_PARAMETERS.max_nn_gd))
         self.pointcloud_non_ground_plane.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
                                                                               max_nn=ICP_PARAMETERS.max_nn))
         self.pcd_fpfh = self.estimate_fpfh(radius=self.voxel_size_normals * 5, max_nn=100)
+
+    def training_preprocess(self):
+        self.pointcloud_filtered = self.filter_by_radius(self.min_radius, self.max_radius)
+        # self.pointcloud_normalized = self.normalize2center()
+        # self.draw_pointcloud()
+        # downsample pointcloud and save to pointcloud in keyframe
+        if self.voxel_downsample_size is not None:
+            self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
+
+        # segment ground plane
+        _, pcd_non_ground_plane = self.segment_plane()
+        self.pointcloud_non_ground_plane = pcd_non_ground_plane
+        pcd = self.fix_points_number(4096)
+
+        pcd = self.normalize(pcd)
+        return pcd
+
 
     def estimate_fpfh(self, radius, max_nn):
         # radius_feature = voxel_size * 5
@@ -120,14 +137,11 @@ class KeyFrame():
         homogeneous_points[:, 0:3] = points #points mas la columna de 1
         return homogeneous_points
 
-
     def filter_by_radius(self, min_radius, max_radius):
         points = np.asarray(self.pointcloud.points)
         [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
         r2 = x**2 + y**2
         idx = np.where(r2 < max_radius**2) and np.where(r2 > min_radius ** 2)
-
-
         return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points[idx]))
 
     def normalize2center(self):
@@ -156,6 +170,60 @@ class KeyFrame():
         # print(self.pointcloud_filtered.points)
 
         # return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+
+    def normalize(self, pcd):
+        """
+        Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points
+        """
+        # self.pointcloud_normalized = copy.deepcopy(self.pointcloud_non_ground_plane)
+        # points = np.asarray(self.pointcloud_normalized.points)
+        points = np.asarray(pcd.points)
+
+        [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+        z_mean = np.mean(z)
+
+        x = x - x_mean
+        y = y - y_mean
+        z = z - z_mean
+
+        x_max = np.max(x)
+        y_max = np.max(y)
+        z_max = np.max(z)
+        x_min = np.abs(np.min(x))
+        y_min = np.abs(np.min(y))
+        z_min = np.abs(np.min(z))
+        max_value = np.max([x_max, y_max, z_max, x_min, y_min, z_min])
+
+        x = x / max_value
+        y = y / max_value
+        z = z / max_value
+
+        points[:, 0] = x
+        points[:, 1] = y
+        points[:, 2] = z
+
+        self.pointcloud_normalized = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+
+
+        return points
+
+    def fix_points_number(self, number_neighbours):
+        """
+        Return a pcd filtered to the k points idx more close to the scan center
+        """
+        pcd = self.pointcloud_non_ground_plane
+        pcd_tree = o3d.geometry.KDTreeFlann(pcd)
+        center_point = np.array([0, 0, 0]).reshape(1, 3)
+        center_point = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(center_point))
+
+        [k, idx, _] = pcd_tree.search_knn_vector_3d(center_point.points[0], number_neighbours)
+        # np.asarray(pcd.colors)[idx[1:], :] = [1, 0, 0]
+
+        return pcd.select_by_index(idx)
+
+
 
     def normalize2maxbound(self):
         self.pointcloud_normalized = copy.deepcopy(self.pointcloud_non_ground_plane)

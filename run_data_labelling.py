@@ -3,7 +3,6 @@ import itertools as it
 import csv
 from config import EXP_PARAMETERS
 
-
 def process_overlap(keyframe_manager, poses, scan_idx, i):
     pre_process = True
 

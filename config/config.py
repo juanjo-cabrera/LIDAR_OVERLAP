@@ -64,8 +64,18 @@ class Debugging_ParametersConfig():
             self.plot_initial_tranform = config.get('plot_scans').get('initial_transform')
             self.plot_scan_overlap = config.get('plot_scans').get('overlap')
 
+class Training_ParametersConfig():
+    """
+    Clase en la que se almacenan los parametros de entrenamiento
+    """
+    def __init__(self, yaml_file='config/training_parameters.yaml'):
+        with open(yaml_file) as file:
+            config = yaml.load(file, Loader=yaml.FullLoader)
+            print(config)
+            self.directory = config.get('directory')
 
 
 ICP_PARAMETERS = ICP_ParametersConfig()
 EXP_PARAMETERS = Exp_ParametersConfig()
 DEBUGGING_PARAMETERS = Debugging_ParametersConfig()
+TRAINING_PARAMETERS = Training_ParametersConfig()
