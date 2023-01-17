@@ -49,21 +49,28 @@ class PCDDataset(Dataset):
     def __len__(self):
         return len(self.overlap)
 
-class SimpleCNN(nn.Module):
+class PointCloudCNN(nn.Module):
     def __init__(self):
-        super(SimpleCNN, self).__init__()
-        self.conv1 = nn.Conv1d(3, 64, kernel_size=3, stride=1, padding=1)
-        self.pool = nn.MaxPool1d(kernel_size=2, stride=2)
-        self.conv2 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1)
-        self.fc1 = nn.Linear(128 * 8 * 8, 512)
-        self.fc2 = nn.Linear(512, 10)
+        super(PointCloudCNN, self).__init__()
+        self.conv1 = nn.Conv3d(1, 64, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
+        self.pool1 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
+        self.conv2 = nn.Conv3d(64, 128, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
+        self.pool2 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
+        self.conv3 = nn.Conv3d(128, 256, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
+        self.pool3 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
+        self.fc = nn.Linear(256, 10)
+
+    def forward_once(self, x):
+        x = self.pool1(torch.relu(self.conv1(x)))
+        x = self.pool2(torch.relu(self.conv2(x)))
+        x = self.pool3(torch.relu(self.conv3(x)))
+        x = x.view(-1, 256)
+        x = self.fc(x)
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 128 * 8 * 8)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+
+
+
         return x
 
 # load data
@@ -82,7 +89,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 num_epochs = 10
 for epoch in range(num_epochs):
     for i, data in enumerate(train_dataloader):
-        pointclouds, labels = data
+        reference_pcd, other_pcd, overlap = data
 #         optimizer.zero_grad()
 #         outputs = model(pointclouds)
 #         loss = F.cross_entropy(outputs, labels)
