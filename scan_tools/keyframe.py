@@ -10,7 +10,7 @@ from tools.homogeneousmatrix import HomogeneousMatrix
 import matplotlib.pyplot as plt
 import open3d as o3d
 import copy
-from config import ICP_PARAMETERS, DEBUGGING_PARAMETERS, EXP_PARAMETERS
+from config import ICP_PARAMETERS, DEBUGGING_PARAMETERS, EXP_PARAMETERS, TRAINING_PARAMETERS
 
 
 class KeyFrame():
@@ -111,10 +111,10 @@ class KeyFrame():
         # segment ground plane
         _, pcd_non_ground_plane = self.segment_plane()
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
-        pcd = self.fix_points_number(4096)
+        # pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
-        pcd = self.normalize(pcd)
-        return pcd
+        self.normalize(self.pointcloud_non_ground_plane)
+        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(self.pointcloud_normalized.points)
 
 
     def estimate_fpfh(self, radius, max_nn):
@@ -175,7 +175,7 @@ class KeyFrame():
         """
         Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points
         """
-        # self.pointcloud_normalized = copy.deepcopy(self.pointcloud_non_ground_plane)
+        pcd = copy.deepcopy(pcd)
         # points = np.asarray(self.pointcloud_normalized.points)
         points = np.asarray(pcd.points)
 
@@ -207,7 +207,6 @@ class KeyFrame():
         self.pointcloud_normalized = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
 
 
-        return points
 
     def fix_points_number(self, number_neighbours):
         """

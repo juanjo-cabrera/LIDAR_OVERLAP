@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="Dataloader done">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="Prueba">
+      <change afterPath="$PROJECT_DIR$/ml_tools/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ml_tools/pointnet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/debugging_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,14 +45,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Escritorio/develop/LIDAR_OVERLAP/config&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/home/arvc/Escritorio/develop/MinkowskiEngine",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PythonContentEntriesConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/config" />
@@ -384,7 +392,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673874437853</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Prueba">
+      <created>1673944980535</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1673944980535</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -399,7 +414,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="juanjo" />
     <MESSAGE value="parametrizacion actualizada" />
     <MESSAGE value="initial commit" />
     <MESSAGE value="borrado graphslam" />
@@ -424,7 +438,8 @@
     <MESSAGE value="Some details" />
     <MESSAGE value="Poses error solved" />
     <MESSAGE value="Dataloader done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Dataloader done" />
+    <MESSAGE value="Prueba" />
+    <option name="LAST_COMMIT_MESSAGE" value="Prueba" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -476,12 +491,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>345</line>
+          <line>344</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>343</line>
+          <line>342</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -511,7 +526,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>232</line>
+          <line>231</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -521,27 +536,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>325</line>
+          <line>324</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>244</line>
+          <line>243</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>268</line>
+          <line>267</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>282</line>
+          <line>281</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>278</line>
+          <line>277</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -581,12 +596,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>390</line>
+          <line>389</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>382</line>
+          <line>381</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -646,12 +661,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>722</line>
+          <line>721</line>
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>743</line>
+          <line>742</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -746,8 +761,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>91</line>
-          <option name="timeStamp" value="332" />
+          <line>226</line>
+          <option name="timeStamp" value="360" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

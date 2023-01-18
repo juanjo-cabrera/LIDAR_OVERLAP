@@ -3,16 +3,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-from torch.utils.data import TensorDataset
 from torch.utils.data import Dataset
-from torch.utils.data import random_split
 from config import TRAINING_PARAMETERS, EXP_PARAMETERS, ICP_PARAMETERS
 import pandas as pd
 import numpy as np
-import open3d as o3d
 from scan_tools.keyframe import KeyFrame
+import MinkowskiEngine as ME
 
-class PCDDataset(Dataset):
+class ReferenceDataset(Dataset):
     def __init__(self, transform=None):
         self.root_dir = TRAINING_PARAMETERS.directory
         labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
@@ -20,95 +18,164 @@ class PCDDataset(Dataset):
 
         df = pd.read_csv(labels_dir)
         self.reference_timestamps = np.array(df["Reference timestamp"])
+        self.overlap = np.array(df["Overlap"])
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        reference_timestamp = self.reference_timestamps[idx]
+        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
+        reference_kf.load_pointcloud()
+        reference_pcd, reference_features = reference_kf.training_preprocess()
+
+        # if self.transform:
+        #     pointcloud = self.transform(pointcloud)
+        return reference_pcd, reference_features, np.array([self.overlap[idx]])
+
+    def __len__(self):
+        return len(self.overlap)
+
+
+class OtherDataset(Dataset):
+    def __init__(self, transform=None):
+        self.root_dir = TRAINING_PARAMETERS.directory
+        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
+        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
+
+        df = pd.read_csv(labels_dir)
         self.other_timestamps = np.array(df["Other timestamp"])
         self.overlap = np.array(df["Overlap"])
         self.transform = transform
 
     def __getitem__(self, idx):
-
-        reference_timestamp = self.reference_timestamps[idx]
-        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
-        reference_kf.load_pointcloud()
-        reference_pcd = reference_kf.training_preprocess()
-        # reference_pcd = o3d.io.read_point_cloud(self.scans_dir + str(reference_timestamp) + '.pcd')
-        # reference_pcd = torch.from_numpy(np.asarray(reference_pcd.points))
-
         other_timestamp = self.other_timestamps[idx]
         other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
         other_kf.load_pointcloud()
-        other_pcd = other_kf.training_preprocess()
-
-        # other_timestamp = self.other_timestamps[idx]
-        # other_pcd = o3d.io.read_point_cloud(self.scans_dir + str(other_timestamp) + '.pcd')
-        # other_pcd = torch.from_numpy(np.asarray(other_pcd.points))
+        other_pcd, other_features = other_kf.training_preprocess()
 
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, other_pcd, torch.from_numpy(np.array([self.overlap[idx]], dtype=np.float32))
+        return other_pcd, other_features
 
     def __len__(self):
         return len(self.overlap)
 
-class PointCloudCNN(nn.Module):
-    def __init__(self):
-        super(PointCloudCNN, self).__init__()
-        self.conv1 = nn.Conv3d(1, 64, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
-        self.pool1 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
-        self.conv2 = nn.Conv3d(64, 128, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
-        self.pool2 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
-        self.conv3 = nn.Conv3d(128, 256, kernel_size=(3,3,3), stride=(1,1,1), padding=(1,1,1))
-        self.pool3 = nn.MaxPool3d(kernel_size=(2,2,2), stride=(2,2,2))
-        self.fc = nn.Linear(256, 10)
+class VGG16_3DNetwork(nn.Module):
+    def __init__(self, in_feat, out_feat, D):
+        super(VGG16_3DNetwork, self).__init__()
+        self.net = nn.Sequential(
+            ME.MinkowskiConvolution(
+                in_channels=in_feat,
+                out_channels=64,
+                kernel_size=3,
+                stride=2,
+                dilation=1,
+                bias=False,
+                dimension=D), ME.MinkowskiBatchNorm(64), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                stride=2,
+                dimension=D), ME.MinkowskiBatchNorm(128), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=3,
+                stride=2,
+                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=256,
+                out_channels=512,
+                kernel_size=3,
+                stride=2,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=2,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiGlobalPooling(),
+            ME.MinkowskiLinear(512, out_feat))
 
     def forward_once(self, x):
-        x = self.pool1(torch.relu(self.conv1(x)))
-        x = self.pool2(torch.relu(self.conv2(x)))
-        x = self.pool3(torch.relu(self.conv3(x)))
-        x = x.view(-1, 256)
-        x = self.fc(x)
+        return self.net(x)
 
-    def forward(self, x):
-
+    def forward(self, input1, input2):
+        output1 = self.forward_once(input1)
+        output2 = self.forward_once(input2)
+        return output1, output2
 
 
-        return x
+class ContrastiveLoss(torch.nn.Module):
+    def __init__(self, margin=2.0):
+        super(ContrastiveLoss, self).__init__()
+        self.margin = margin
 
-# load data
-dataset = PCDDataset()
-train_size = int(0.8 * len(dataset))
-test_size = len(dataset) - train_size
-train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
+    def forward(self, output1, output2, label):
+        euclidean_distance = F.pairwise_distance(output1, output2, keepdim=True)
 
-# initialize model and optimizer
-model = SimpleCNN()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+        loss_contrastive = torch.mean((1-label) * torch.pow(euclidean_distance, 2) +
+                                      (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
+        return loss_contrastive
 
-# train model
-num_epochs = 10
-for epoch in range(num_epochs):
-    for i, data in enumerate(train_dataloader):
-        reference_pcd, other_pcd, overlap = data
-#         optimizer.zero_grad()
-#         outputs = model(pointclouds)
-#         loss = F.cross_entropy(outputs, labels)
-#         loss.backward()
-#         optimizer.step()
-#
-#         # evaluate model on test set
-#     correct = 0
-#     total = 0
-#     with torch.no_grad():
-#         for data in test_dataloader:
-#             pointclouds, labels = data
-#             outputs = model(pointclouds)
-#             _, predicted = torch.max(outputs.data, 1)
-#             total += labels.size(0)
-#             correct += (predicted == labels).sum().item()
-#
-#     print('Epoch: {} Test Accuracy: {}%'.format(epoch + 1, 100 * correct / total))
-#
-# # save trained model
-# torch.save(model.state_dict(), 'pointcloud_cnn.pth')
+
+if __name__ == '__main__':
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("Device is: ", device)
+
+    # load data
+    ref_dataset = ReferenceDataset()
+    other_dataset = OtherDataset()
+    # train_size = int(0.8 * len(dataset))
+    # test_size = len(dataset) - train_size
+    # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    ref_dataloader = DataLoader(ref_dataset, batch_size=32, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
+    other_dataloader = DataLoader(other_dataset, batch_size=32, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
+
+    # initialize model and optimizer
+    net = VGG16_3DNetwork(
+        3,  # in channels
+        1,  # out channels
+        D=3).to(device) # Space dimension
+    criterion = ContrastiveLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+    # train model
+    num_epochs = 10
+    counter = []
+    loss_history = []
+    iteration_number = 0
+    net_name = 'CNN0'
+    for epoch in range(num_epochs):
+        i = 0
+        for ref_data, other_data in zip(ref_dataloader, other_dataloader):
+            optimizer.zero_grad()
+            # Get new data
+            ref_pcd, ref_feat, label = ref_data
+            other_pcd, other_feat, = other_data
+            ref_input = ME.SparseTensor(features=ref_feat.to(dtype=torch.float32), coordinates=ref_pcd.to(dtype=torch.float32), device=device)
+            other_input = ME.SparseTensor(features=other_feat.to(dtype=torch.float32), coordinates=other_pcd.to(dtype=torch.float32), device=device)
+
+            label = label.to(device)
+
+            # Forward
+            ref_desc, other_desc = net(ref_input, other_input)
+            loss = criterion(ref_desc.F, other_desc.F, label)
+            loss.backward()
+            optimizer.step()
+            if i % 10 == 0:
+                print("Epoch number {}\n Current loss {}\n".format(epoch, loss.item()))
+                iteration_number += 10
+                counter.append(iteration_number)
+                loss_history.append(loss.item())
+            i += 1
+
+    # save trained model
+    torch.save(net, net_name)
+
 

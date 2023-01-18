@@ -73,6 +73,7 @@ class Training_ParametersConfig():
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
             self.directory = config.get('directory')
+            self.number_of_points = config.get('number_of_points')
 
 
 ICP_PARAMETERS = ICP_ParametersConfig()
