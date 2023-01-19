@@ -67,38 +67,89 @@ class VGG16_3DNetwork(nn.Module):
                 in_channels=in_feat,
                 out_channels=64,
                 kernel_size=3,
-                stride=2,
+                stride=1,
                 dilation=1,
                 bias=False,
                 dimension=D), ME.MinkowskiBatchNorm(64), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            # ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(64), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             ME.MinkowskiConvolution(
                 in_channels=64,
                 out_channels=128,
                 kernel_size=3,
-                stride=2,
+                stride=1,
                 dimension=D), ME.MinkowskiBatchNorm(128), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            # ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(128), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             ME.MinkowskiConvolution(
                 in_channels=128,
                 out_channels=256,
                 kernel_size=3,
-                stride=2,
+                stride=1,
                 dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
+            ME.MinkowskiConvolution(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             ME.MinkowskiConvolution(
                 in_channels=256,
                 out_channels=512,
                 kernel_size=3,
-                stride=2,
+                stride=1,
                 dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
             ME.MinkowskiConvolution(
                 in_channels=512,
                 out_channels=512,
                 kernel_size=3,
-                stride=2,
+                stride=1,
                 dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiConvolution(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
+            ME.MinkowskiConvolution(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiConvolution(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiConvolution(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                stride=1,
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             ME.MinkowskiGlobalPooling(),
             ME.MinkowskiLinear(512, out_feat))
 
@@ -127,7 +178,8 @@ class ContrastiveLoss(torch.nn.Module):
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Device is: ", device)
-
+    # model = torch.hub.load('pytorch/vision:v0.10.0', 'vgg16', pretrained=False)
+    # print(model)
     # load data
     ref_dataset = ReferenceDataset()
     other_dataset = OtherDataset()
