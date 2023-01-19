@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from scan_tools.keyframe import KeyFrame
 import MinkowskiEngine as ME
+from examples.classification_modelnet40 import *
 
 class ReferenceDataset(Dataset):
     def __init__(self, transform=None):
@@ -190,10 +191,22 @@ if __name__ == '__main__':
     other_dataloader = DataLoader(other_dataset, batch_size=32, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
 
     # initialize model and optimizer
-    net = VGG16_3DNetwork(
-        3,  # in channels
-        1,  # out channels
+    # net = VGG16_3DNetwork(
+    #     3,  # in channels
+    #     16,  # out channels
+    #     D=3).to(device) # Space dimension
+    net = MinkowskiSplatFCNN(
+        3,  # in nchannel
+        16,  # out_nchannel
         D=3).to(device) # Space dimension
+    # net = STR2NETWORK['MinkowskiFCNN'](
+    #     in_channel=3, out_channel=40, embedding_channel=1024
+    # ).to(device)
+    print("===================Network===================")
+    print(net)
+    print("=============================================\n\n")
+
+
     criterion = ContrastiveLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -202,7 +215,7 @@ if __name__ == '__main__':
     counter = []
     loss_history = []
     iteration_number = 0
-    net_name = 'CNN0'
+    net_name = 'MinkowskiSplatFCNN'
     for epoch in range(num_epochs):
         i = 0
         for ref_data, other_data in zip(ref_dataloader, other_dataloader):
@@ -210,14 +223,32 @@ if __name__ == '__main__':
             # Get new data
             ref_pcd, ref_feat, label = ref_data
             other_pcd, other_feat, = other_data
-            ref_input = ME.SparseTensor(features=ref_feat.to(dtype=torch.float32), coordinates=ref_pcd.to(dtype=torch.float32), device=device)
-            other_input = ME.SparseTensor(features=other_feat.to(dtype=torch.float32), coordinates=other_pcd.to(dtype=torch.float32), device=device)
+            # ref_input = ME.SparseTensor(features=ref_feat.to(dtype=torch.float32), coordinates=ref_pcd.to(dtype=torch.float32), device=device)
+            # other_input = ME.SparseTensor(features=other_feat.to(dtype=torch.float32), coordinates=other_pcd.to(dtype=torch.float32), device=device)
+
+            ref_input = ME.TensorField(
+                features=ref_feat.to(dtype=torch.float32),
+                coordinates=ref_pcd.to(dtype=torch.float32),
+                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+                device=device,
+            )
+
+            other_input = ME.TensorField(
+                features=other_feat.to(dtype=torch.float32),
+                coordinates=other_pcd.to(dtype=torch.float32),
+                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+                device=device,
+            )
 
             label = label.to(device)
 
             # Forward
-            ref_desc, other_desc = net(ref_input, other_input)
-            loss = criterion(ref_desc.F, other_desc.F, label)
+            ref_desc = net(ref_input)
+            other_desc = net(other_input)
+            # loss = criterion(ref_desc.F, other_desc.F, label) #For sparse tensor
+            loss = criterion(ref_desc, other_desc, label)  # For tensor field
             loss.backward()
             optimizer.step()
             if i % 10 == 0:
