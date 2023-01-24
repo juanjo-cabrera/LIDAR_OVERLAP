@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="3d VGG16">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="Empleo de MinkowskiSplatFCNN">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/debugging_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MinkowskiEngine/examples/classification_modelnet40.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,8 +169,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_training_sample" />
-        <item itemvalue="Python.run_3D_overlap" />
         <item itemvalue="Python.plotting_labelled_data" />
+        <item itemvalue="Python.run_3D_overlap" />
         <item itemvalue="Python.run_data_labelling" />
         <item itemvalue="Python.kittireader" />
       </list>
@@ -406,7 +409,14 @@
       <option name="project" value="LOCAL" />
       <updated>1674115255756</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Empleo de MinkowskiSplatFCNN">
+      <created>1674131982983</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1674131982983</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,7 +431,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="borrado graphslam" />
     <MESSAGE value="fpfh overlap" />
     <MESSAGE value="ekf_overlap" />
     <MESSAGE value="data labelling" />
@@ -446,7 +455,8 @@
     <MESSAGE value="Prueba" />
     <MESSAGE value="entrenamiento funcionando" />
     <MESSAGE value="3d VGG16" />
-    <option name="LAST_COMMIT_MESSAGE" value="3d VGG16" />
+    <MESSAGE value="Empleo de MinkowskiSplatFCNN" />
+    <option name="LAST_COMMIT_MESSAGE" value="Empleo de MinkowskiSplatFCNN" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -498,12 +508,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>344</line>
+          <line>345</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>342</line>
+          <line>343</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -533,7 +543,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>231</line>
+          <line>232</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -543,27 +553,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>324</line>
+          <line>325</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>243</line>
+          <line>244</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>267</line>
+          <line>268</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>281</line>
+          <line>282</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>277</line>
+          <line>278</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -603,12 +613,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>389</line>
+          <line>390</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>381</line>
+          <line>382</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -668,12 +678,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>721</line>
+          <line>724</line>
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>742</line>
+          <line>745</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -768,28 +778,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>249</line>
+          <line>325</line>
           <option name="timeStamp" value="360" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>247</line>
+          <line>323</line>
           <option name="timeStamp" value="361" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../MinkowskiEngine/examples/classification_modelnet40.py</url>
-          <line>190</line>
-          <option name="timeStamp" value="362" />
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>299</line>
+          <option name="timeStamp" value="365" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../MinkowskiEngine/examples/classification_modelnet40.py</url>
-          <line>193</line>
-          <option name="timeStamp" value="363" />
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>327</line>
+          <option name="timeStamp" value="367" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../MinkowskiEngine/examples/classification_modelnet40.py</url>
-          <line>205</line>
-          <option name="timeStamp" value="364" />
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>298</line>
+          <option name="timeStamp" value="368" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

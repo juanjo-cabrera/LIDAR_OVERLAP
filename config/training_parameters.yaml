@@ -1,2 +1,11 @@
 directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-number_of_points: 4096
+
+fixed_n_points:
+  sample2n: False
+  n_points: 4096
+  max_radius: 120
+
+output_size: 16
+batch_size: 16
+number_epochs: 10
+

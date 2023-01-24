@@ -101,7 +101,7 @@ class KeyFrame():
         self.pcd_fpfh = self.estimate_fpfh(radius=self.voxel_size_normals * 5, max_nn=100)
 
     def training_preprocess(self):
-        self.pointcloud_filtered = self.filter_by_radius(self.min_radius, self.max_radius)
+        self.pointcloud_filtered = self.filter_by_radius(self.min_radius, TRAINING_PARAMETERS.max_radius)
         # self.pointcloud_normalized = self.normalize2center()
         # self.draw_pointcloud()
         # downsample pointcloud and save to pointcloud in keyframe
@@ -111,7 +111,8 @@ class KeyFrame():
         # segment ground plane
         _, pcd_non_ground_plane = self.segment_plane()
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
-        # pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
+        if TRAINING_PARAMETERS.sample_points:
+            pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
         self.normalize(self.pointcloud_non_ground_plane)
         return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(self.pointcloud_normalized.points)
@@ -635,8 +636,10 @@ class KeyFrame():
         target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
         # source_temp = copy.deepcopy(self.pointcloud_filtered)
         # target_temp = copy.deepcopy(other.pointcloud_filtered)
-        source_temp.paint_uniform_color([1, 0, 0])
-        target_temp.paint_uniform_color([0, 0, 1])
+        # source_temp.paint_uniform_color([1, 0, 0])
+        # target_temp.paint_uniform_color([0, 0, 1])
+        source_temp.paint_uniform_color([0.0, 0.7, 0.8])
+        target_temp.paint_uniform_color([0.5, 0.5, 0.5])
         source_temp.transform(transformation)
         o3d.visualization.draw_geometries([source_temp, target_temp])
 

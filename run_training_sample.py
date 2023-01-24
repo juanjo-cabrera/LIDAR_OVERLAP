@@ -11,6 +11,66 @@ from scan_tools.keyframe import KeyFrame
 import MinkowskiEngine as ME
 from examples.classification_modelnet40 import *
 
+class TrainingDataset(Dataset):
+    def __init__(self, transform=None):
+        self.root_dir = TRAINING_PARAMETERS.directory
+        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
+        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
+
+        df = pd.read_csv(labels_dir)
+        self.reference_timestamps = np.array(df["Reference timestamp"])
+        self.other_timestamps = np.array(df["Other timestamp"])
+        self.overlap = np.array(df["Overlap"])
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        reference_timestamp = self.reference_timestamps[idx]
+        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
+        reference_kf.load_pointcloud()
+        reference_pcd, reference_features = reference_kf.training_preprocess()
+
+        other_timestamp = self.other_timestamps[idx]
+        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
+        other_kf.load_pointcloud()
+        other_pcd, other_features = other_kf.training_preprocess()
+
+        # if self.transform:
+        #     pointcloud = self.transform(pointcloud)
+        return reference_pcd, reference_features, other_pcd, other_features, np.array([self.overlap[idx]])
+
+    def __len__(self):
+        return len(self.overlap)
+
+class ValidationDataset(Dataset):
+    def __init__(self, transform=None):
+        self.root_dir = TRAINING_PARAMETERS.directory
+        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
+        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
+
+        df = pd.read_csv(labels_dir)
+        self.reference_timestamps = np.array(df["Reference timestamp"])
+        self.other_timestamps = np.array(df["Other timestamp"])
+        self.overlap = np.array(df["Overlap"])
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        reference_timestamp = self.reference_timestamps[idx]
+        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
+        reference_kf.load_pointcloud()
+        reference_pcd, reference_features = reference_kf.training_preprocess()
+
+        other_timestamp = self.other_timestamps[idx]
+        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
+        other_kf.load_pointcloud()
+        other_pcd, other_features = other_kf.training_preprocess()
+
+        # if self.transform:
+        #     pointcloud = self.transform(pointcloud)
+        return reference_pcd, reference_features, other_pcd, other_features, np.array([self.overlap[idx]])
+
+    def __len__(self):
+        return len(self.overlap)
+
 class ReferenceDataset(Dataset):
     def __init__(self, transform=None):
         self.root_dir = TRAINING_PARAMETERS.directory
@@ -35,7 +95,6 @@ class ReferenceDataset(Dataset):
     def __len__(self):
         return len(self.overlap)
 
-
 class OtherDataset(Dataset):
     def __init__(self, transform=None):
         self.root_dir = TRAINING_PARAMETERS.directory
@@ -59,6 +118,7 @@ class OtherDataset(Dataset):
 
     def __len__(self):
         return len(self.overlap)
+
 
 class VGG16_3DNetwork(nn.Module):
     def __init__(self, in_feat, out_feat, D):
@@ -175,6 +235,19 @@ class ContrastiveLoss(torch.nn.Module):
                                       (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
         return loss_contrastive
 
+def custom_collation_fn(data_labels):
+    reference_pcd, reference_features, other_pcd, other_features,  labels = list(zip(*data_labels))
+
+    # Create batched coordinates for the SparseTensor input
+    reference_pcd_batch = ME.utils.batched_coordinates(reference_pcd)
+    other_pcd_batch = ME.utils.batched_coordinates(other_pcd)
+
+    # Concatenate all lists
+    ref_feats_batch = torch.from_numpy(np.concatenate(reference_features, 0)).float()
+    other_feats_batch = torch.from_numpy(np.concatenate(other_features, 0)).float()
+    labels_batch = torch.from_numpy(np.concatenate(labels, 0)).int()
+
+    return reference_pcd_batch, ref_feats_batch, other_pcd_batch, other_feats_batch, labels_batch
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -182,22 +255,24 @@ if __name__ == '__main__':
     # model = torch.hub.load('pytorch/vision:v0.10.0', 'vgg16', pretrained=False)
     # print(model)
     # load data
+    train_dataset = TrainingDataset()
     ref_dataset = ReferenceDataset()
     other_dataset = OtherDataset()
     # train_size = int(0.8 * len(dataset))
     # test_size = len(dataset) - train_size
     # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-    ref_dataloader = DataLoader(ref_dataset, batch_size=32, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
-    other_dataloader = DataLoader(other_dataset, batch_size=32, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
+    ref_dataloader = DataLoader(ref_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
+    train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=custom_collation_fn)
+    other_dataloader = DataLoader(other_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
 
     # initialize model and optimizer
     # net = VGG16_3DNetwork(
     #     3,  # in channels
     #     16,  # out channels
     #     D=3).to(device) # Space dimension
-    net = MinkowskiSplatFCNN(
+    net = MinkowskiFCNN(
         3,  # in nchannel
-        16,  # out_nchannel
+        TRAINING_PARAMETERS.output_size,  # out_nchannel
         D=3).to(device) # Space dimension
     # net = STR2NETWORK['MinkowskiFCNN'](
     #     in_channel=3, out_channel=40, embedding_channel=1024
@@ -211,18 +286,19 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     # train model
-    num_epochs = 10
     counter = []
     loss_history = []
     iteration_number = 0
-    net_name = 'MinkowskiSplatFCNN'
-    for epoch in range(num_epochs):
+    net_name = 'MinkowskiFCNN'
+    for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
         i = 0
-        for ref_data, other_data in zip(ref_dataloader, other_dataloader):
+        # for ref_data, other_data in zip(ref_dataloader, other_dataloader):
+        for data in train_dataloader:
             optimizer.zero_grad()
             # Get new data
-            ref_pcd, ref_feat, label = ref_data
-            other_pcd, other_feat, = other_data
+            ref_pcd, ref_feat, other_pcd, other_feat, label = data
+            # ref_pcd, ref_feat, label = ref_data
+            # other_pcd, other_feat = other_data
             # ref_input = ME.SparseTensor(features=ref_feat.to(dtype=torch.float32), coordinates=ref_pcd.to(dtype=torch.float32), device=device)
             # other_input = ME.SparseTensor(features=other_feat.to(dtype=torch.float32), coordinates=other_pcd.to(dtype=torch.float32), device=device)
 
