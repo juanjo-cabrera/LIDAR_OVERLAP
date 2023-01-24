@@ -26,7 +26,7 @@ def process_overlap(keyframe_manager, poses, scan_idx, i):
 
 
 if __name__ == "__main__":
-    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
+    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
     scan_indices = np.arange(0, len(scan_times))
     scan_combinations = list(it.combinations(scan_indices, 2))
 

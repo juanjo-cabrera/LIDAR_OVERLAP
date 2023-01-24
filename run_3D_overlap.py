@@ -393,8 +393,8 @@ def pos_error(gt_transform, icp_transform):
     error = np.linalg.norm(icp_pos - gt_pos)
     return error
 
-def read_custom_dataset():
-    directory = EXP_PARAMETERS.directory
+def read_custom_dataset(directory):
+    # directory = EXP_PARAMETERS.directory
     # Prepare data
     euroc_read = EurocReader(directory=directory)
     scan_times, odom_ekf_pos, odom_ekf_orient, gps_pos = euroc_read.prepare_ekf_data(deltaxy=EXP_PARAMETERS.exp_deltaxy,
@@ -414,8 +414,8 @@ def read_custom_dataset():
 
     return scan_times, gt_poses, odom_pos, keyframe_manager, gps_pos
 
-def read_kitti_dataset():
-    directory = EXP_PARAMETERS.directory
+def read_kitti_dataset(directory):
+    # directory = EXP_PARAMETERS.directory
     kitti_read = KittiReader(directory=directory)
 
     scan_times, pos, orient, poses = kitti_read.prepare_kitti_data(
@@ -495,14 +495,14 @@ def overlap_manager(keyframe_manager, poses, pos, scan_idx, scan_times, method='
         overlaps = compute_range_overlap(keyframe_manager, poses, pos, scan_idx, scan_times)
     return overlaps
 
-def reader_manager():
-    if EXP_PARAMETERS.directory.find('Kitti') == -1:
-        scan_times, poses, pos, keyframe_manager, gps_pos = read_custom_dataset()
+def reader_manager(directory):
+    if directory.find('Kitti') == -1:
+        scan_times, poses, pos, keyframe_manager, gps_pos = read_custom_dataset(directory)
         lat = gps_pos[:, 0]
         lon = gps_pos[:, 1]
 
     else:
-        scan_times, poses, pos, keyframe_manager = read_kitti_dataset()
+        scan_times, poses, pos, keyframe_manager = read_kitti_dataset(directory)
         lat = lon = -1
 
     return scan_times, poses, pos, keyframe_manager, lat, lon
@@ -512,7 +512,7 @@ def process_scans(scan_idx):
     plot_trajectories = DEBUGGING_PARAMETERS.plot_trajectory
     do_plot_overlap = DEBUGGING_PARAMETERS.plot_overlap
 
-    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager()
+    scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 
     if plot_trajectories:
         gmap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
