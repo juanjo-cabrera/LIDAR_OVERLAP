@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="Empleo de MinkowskiSplatFCNN">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="unique training_dataset added&#10;custom collate fn added">
       <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/debugging_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -416,7 +413,14 @@
       <option name="project" value="LOCAL" />
       <updated>1674131982983</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="unique training_dataset added&#10;custom collate fn added">
+      <created>1674572153909</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1674572153909</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -431,7 +435,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fpfh overlap" />
     <MESSAGE value="ekf_overlap" />
     <MESSAGE value="data labelling" />
     <MESSAGE value="eliminando archivos no utiles" />
@@ -456,7 +459,8 @@
     <MESSAGE value="entrenamiento funcionando" />
     <MESSAGE value="3d VGG16" />
     <MESSAGE value="Empleo de MinkowskiSplatFCNN" />
-    <option name="LAST_COMMIT_MESSAGE" value="Empleo de MinkowskiSplatFCNN" />
+    <MESSAGE value="unique training_dataset added&#10;custom collate fn added" />
+    <option name="LAST_COMMIT_MESSAGE" value="unique training_dataset added&#10;custom collate fn added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

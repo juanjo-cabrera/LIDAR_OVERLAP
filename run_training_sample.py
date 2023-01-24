@@ -13,9 +13,9 @@ from examples.classification_modelnet40 import *
 
 class TrainingDataset(Dataset):
     def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.directory
-        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
-        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
+        self.root_dir = TRAINING_PARAMETERS.training_path
+        labels_dir = self.root_dir + '/labelling.csv'
+        self.scans_dir = self.root_dir + '/robot0/lidar/data/'
 
         df = pd.read_csv(labels_dir)
         self.reference_timestamps = np.array(df["Reference timestamp"])
@@ -43,9 +43,9 @@ class TrainingDataset(Dataset):
 
 class ValidationDataset(Dataset):
     def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.directory
-        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
-        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
+        self.root_dir = TRAINING_PARAMETERS.validation_path
+        labels_dir = self.root_dir + '/labelling.csv'
+        self.scans_dir = self.root_dir + '/robot0/lidar/data/'
 
         df = pd.read_csv(labels_dir)
         self.reference_timestamps = np.array(df["Reference timestamp"])

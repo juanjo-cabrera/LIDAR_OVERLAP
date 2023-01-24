@@ -72,7 +72,11 @@ class Training_ParametersConfig():
         with open(yaml_file) as file:
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
-            self.directory = config.get('directory')
+            self.training_path = config.get('training_path')
+            self.validation_path = config.get('validation_path')
+            self.testing_path = config.get('testing_path')
+            self.ground_truth_path = config.get('ground_truth_path')
+
             self.sample_points = config.get('fixed_n_points').get('sample2n')
             self.number_of_points = config.get('fixed_n_points').get('n_points')
             self.max_radius = config.get('fixed_n_points').get('max_radius')
