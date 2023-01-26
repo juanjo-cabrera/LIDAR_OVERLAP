@@ -439,14 +439,13 @@ if __name__ == '__main__':
             label = label.to(device)
 
             # Forward
-            """
             ref_desc = net(ref_input)
             other_desc = net(other_input)
             # loss = criterion(ref_desc.F, other_desc.F, label) #For sparse tensor
             loss = criterion(ref_desc, other_desc, label)  # For tensor field
             loss.backward()
             optimizer.step()
-            """
+
             if i % 10 == 0:
                 # print("Epoch number {}\n Current loss {}\n".format(epoch, loss.item()))
                 # iteration_number += 10
