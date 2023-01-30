@@ -5,7 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="validation dataset added">
+      <change afterPath="$PROJECT_DIR$/ml_tools/FCNN.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/multigpu_ddp_try.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/multigpu_example.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_multigpu_training.py" afterDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/common.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/completion.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/convolution.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/download_modelnet40.sh" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/example.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/indoor.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/minkunet.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/multigpu.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/multigpu_ddp.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/multigpu_lightning.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/pointnet.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/reconstruction.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/resnet.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/sparse_tensor_basic.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/stack_unet.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/training.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/unet.py" beforeDir="false" />
+      <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/vae.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/exp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,18 +68,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/home/arvc/Escritorio/develop/MinkowskiEngine",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PythonContentEntriesConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Juanjo/LIDAR_OVERLAP&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PythonContentEntriesConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/config" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/config" />
       <recent name="$PROJECT_DIR$/eurocreader" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -56,7 +88,7 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.run_training_sample">
-    <configuration name="kittireader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="multigpu_ddp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -64,11 +96,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/kittireader" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kittireader/kittireader.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -77,7 +109,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="plotting_labelled_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="multigpu_ddp_try" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -89,7 +121,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plotting_labelled_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/multigpu_ddp_try.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -98,7 +130,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_3D_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="multigpu_example" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -110,7 +142,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_3D_overlap.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/multigpu_example.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -119,7 +151,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_data_labelling" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_multigpu_training" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -131,7 +163,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_data_labelling.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_multigpu_training.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,10 +196,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_training_sample" />
-        <item itemvalue="Python.run_3D_overlap" />
-        <item itemvalue="Python.plotting_labelled_data" />
-        <item itemvalue="Python.run_data_labelling" />
-        <item itemvalue="Python.kittireader" />
+        <item itemvalue="Python.multigpu_ddp_try" />
+        <item itemvalue="Python.run_multigpu_training" />
+        <item itemvalue="Python.multigpu_example" />
+        <item itemvalue="Python.multigpu_ddp" />
       </list>
     </recent_temporary>
   </component>
@@ -800,34 +832,79 @@
           <option name="timeStamp" value="314" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>444</line>
-          <option name="timeStamp" value="360" />
+          <url>file://$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py</url>
+          <line>75</line>
+          <option name="timeStamp" value="389" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py</url>
+          <line>88</line>
+          <option name="timeStamp" value="390" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py</url>
+          <line>87</line>
+          <option name="timeStamp" value="391" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py</url>
+          <line>79</line>
+          <option name="timeStamp" value="392" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py</url>
+          <line>80</line>
+          <option name="timeStamp" value="393" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_multigpu_training.py</url>
+          <line>489</line>
+          <option name="timeStamp" value="405" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_multigpu_training.py</url>
+          <line>494</line>
+          <option name="timeStamp" value="406" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ml_tools/FCNN.py</url>
+          <line>214</line>
+          <option name="timeStamp" value="407" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_multigpu_training.py</url>
+          <line>476</line>
+          <option name="timeStamp" value="408" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/multigpu_example.py</url>
+          <line>217</line>
+          <option name="timeStamp" value="409" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/multigpu_example.py</url>
+          <line>223</line>
+          <option name="timeStamp" value="411" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_multigpu_training.py</url>
+          <line>465</line>
+          <option name="timeStamp" value="412" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/multigpu_ddp_try.py</url>
+          <line>256</line>
+          <option name="timeStamp" value="415" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/multigpu_ddp_try.py</url>
+          <line>244</line>
+          <option name="timeStamp" value="416" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>442</line>
-          <option name="timeStamp" value="361" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>417</line>
-          <option name="timeStamp" value="365" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>446</line>
-          <option name="timeStamp" value="367" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>352</line>
-          <option name="timeStamp" value="387" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>353</line>
-          <option name="timeStamp" value="388" />
+          <line>505</line>
+          <option name="timeStamp" value="437" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -1,15 +1,17 @@
-training_path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-ground_truth_path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-validation_path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-testing_path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
+training_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
+ground_truth_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
+validation_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
+testing_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
 
+parallel_computing: False
+max_ngpu: 3
 
 fixed_n_points:
   sample2n: False
   n_points: 4096
   max_radius: 120
 
-output_size: 16
-batch_size: 16
-number_epochs: 10
+output_size: 5
+batch_size: 32
+number_epochs: 1
 

@@ -76,6 +76,8 @@ class Training_ParametersConfig():
             self.validation_path = config.get('validation_path')
             self.testing_path = config.get('testing_path')
             self.ground_truth_path = config.get('ground_truth_path')
+            self.parallel_computing = config.get('parallel_computing')
+            self.max_ngpu = config.get('max_ngpu')
 
             self.sample_points = config.get('fixed_n_points').get('sample2n')
             self.number_of_points = config.get('fixed_n_points').get('n_points')
