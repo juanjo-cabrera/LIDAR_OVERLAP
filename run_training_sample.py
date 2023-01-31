@@ -37,10 +37,10 @@ class TrainingDataset(Dataset):
         other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
         other_kf.load_pointcloud()
         other_pcd, other_features = other_kf.training_preprocess()
-
+        diferencia = 1 - np.array([self.overlap[idx]])
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, reference_features, other_pcd, other_features, np.array([self.overlap[idx]])
+        return reference_pcd, reference_features, other_pcd, other_features, diferencia
 
     def __len__(self):
         return len(self.overlap)
@@ -268,13 +268,14 @@ class VGG16_3DNetwork(nn.Module):
             ME.MinkowskiGlobalPooling(),
             ME.MinkowskiLinear(512, out_feat))
 
-    def forward_once(self, x):
-        return self.net(x)
+    def forward(self, x):
+        x = x.sparse()
+        return self.net(x).F
 
-    def forward(self, input1, input2):
-        output1 = self.forward_once(input1)
-        output2 = self.forward_once(input2)
-        return output1, output2
+    # def forward(self, input1, input2):
+    #     output1 = self.forward_once(input1)
+    #     output2 = self.forward_once(input2)
+    #     return output1, output2
 
 
 class ContrastiveLoss(torch.nn.Module):
@@ -414,7 +415,7 @@ if __name__ == '__main__':
     # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
     # ref_dataloader = DataLoader(ref_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
     # other_dataloader = DataLoader(other_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
-    train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True,
+    train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
                                   collate_fn=training_collation_fn)
     groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=1, shuffle=False,
                                   collate_fn=ground_collation_fn)
@@ -422,14 +423,14 @@ if __name__ == '__main__':
                                   collate_fn=ground_collation_fn)
 
     # initialize model and optimizer
-    # net = VGG16_3DNetwork(
-    #     3,  # in channels
-    #     16,  # out channels
-    #     D=3).to(device) # Space dimension
-    net = MinkowskiFCNN(
-        3,  # in nchannel
-        TRAINING_PARAMETERS.output_size,  # out_nchannel
+    net = VGG16_3DNetwork(
+        3,  # in channels
+        16,  # out channels
         D=3).to(device0) # Space dimension
+    # net = MinkowskiFCNN(
+    #     3,  # in nchannel
+    #     TRAINING_PARAMETERS.output_size,  # out_nchannel
+    #     D=3).to(device0) # Space dimension
     # if torch.cuda.device_count() > 1:
     #     print("Let's use", torch.cuda.device_count(), "GPUs!")
     #     # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
@@ -505,10 +506,9 @@ if __name__ == '__main__':
                 net.to(device0)
                 torch.cuda.set_device(device0)
                 net.train(mode=True)
-
             i += 1
 
     # save trained model
-    torch.save(net, net_name)
+    # torch.save(net, net_name)
 
 

@@ -113,9 +113,12 @@ class KeyFrame():
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
         if TRAINING_PARAMETERS.sample_points:
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
-
-        self.normalize(self.pointcloud_non_ground_plane)
-        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(self.pointcloud_normalized.points)
+        do_normalization = False
+        if do_normalization:
+            pcd_features = self.normalize(self.pointcloud_non_ground_plane)
+        else:
+            pcd_features = self.pointcloud_non_ground_plane
+        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
 
 
     def estimate_fpfh(self, radius, max_nn):
@@ -206,6 +209,7 @@ class KeyFrame():
         points[:, 2] = z
 
         self.pointcloud_normalized = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+        return self.pointcloud_normalized
 
 
 

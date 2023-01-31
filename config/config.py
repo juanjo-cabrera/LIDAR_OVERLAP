@@ -84,8 +84,8 @@ class Training_ParametersConfig():
             self.max_radius = config.get('fixed_n_points').get('max_radius')
 
             self.output_size = config.get('output_size')
-            self.batch_size = config.get('batch_size')
-            self.number_of_epochs = config.get('number_epochs')
+            self.training_batch_size = config.get('training_parameters').get('batch_size')
+            self.number_of_epochs = config.get('training_parameters').get('number_epochs')
 
 
 ICP_PARAMETERS = ICP_ParametersConfig()
