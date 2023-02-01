@@ -268,6 +268,8 @@ class VGG16_3DNetwork(nn.Module):
                 dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
             # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             ME.MinkowskiGlobalPooling(),
+            # ME.MinkowskiLinear(512, 512),
+            # ME.MinkowskiLinear(512, 128),
             ME.MinkowskiLinear(512, out_feat))
 
     def forward(self, x):
@@ -395,6 +397,7 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
         errors.append(pose_error.detach().cpu().numpy())
         k += 1
     errors = np.array(errors)
+    print(errors)
     return np.mean(errors), np.median(errors)
 
 
@@ -419,20 +422,20 @@ if __name__ == '__main__':
     # other_dataloader = DataLoader(other_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
                                   collate_fn=training_collation_fn)
-    groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=32, shuffle=False,
+    groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False,
                                   collate_fn=ground_collation_fn)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=32, shuffle=False,
+    validation_dataloader = DataLoader(validation_dataset, batch_size=TRAINING_PARAMETERS.validation_batch_size, shuffle=False,
                                   collate_fn=ground_collation_fn)
 
     # initialize model and optimizer
-    # net = VGG16_3DNetwork(
-    #     3,  # in channels
-    #     TRAINING_PARAMETERS.output_size,  # out channels
-    #     D=3).to(device0) # Space dimension
-    net = MinkowskiFCNN(
-        3,  # in nchannel
-        TRAINING_PARAMETERS.output_size,  # out_nchannel
+    net = VGG16_3DNetwork(
+        3,  # in channels
+        TRAINING_PARAMETERS.output_size,  # out channels
         D=3).to(device0) # Space dimension
+    # net = MinkowskiFCNN(
+    #     3,  # in nchannel
+    #     TRAINING_PARAMETERS.output_size,  # out_nchannel
+    #     D=3).to(device0) # Space dimension
     # net = MinkowskiPointNet(
     #     3,  # in channels
     #     TRAINING_PARAMETERS.output_size,  # out channels
