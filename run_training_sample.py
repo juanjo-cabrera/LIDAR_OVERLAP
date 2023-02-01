@@ -48,7 +48,7 @@ class TrainingDataset(Dataset):
 
 class GroundTruthDataset(Dataset):
     def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.ground_truth_path
+        self.root_dir = TRAINING_PARAMETERS.groundtruth_path
         # Prepare data
         euroc_read = EurocReader(directory=self.root_dir)
         self.scan_times, self.pos, _, _ = euroc_read.prepare_ekf_data(

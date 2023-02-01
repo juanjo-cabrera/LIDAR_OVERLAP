@@ -72,10 +72,10 @@ class Training_ParametersConfig():
         with open(yaml_file) as file:
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
-            self.training_path = config.get('training_path')
-            self.validation_path = config.get('validation_path')
+
+
             self.testing_path = config.get('testing_path')
-            self.ground_truth_path = config.get('ground_truth_path')
+
             self.parallel_computing = config.get('parallel_computing')
             self.max_ngpu = config.get('max_ngpu')
 
@@ -84,8 +84,15 @@ class Training_ParametersConfig():
             self.max_radius = config.get('fixed_n_points').get('max_radius')
 
             self.output_size = config.get('output_size')
+            self.training_path = config.get('training_parameters').get('path')
             self.training_batch_size = config.get('training_parameters').get('batch_size')
             self.number_of_epochs = config.get('training_parameters').get('number_epochs')
+
+            self.validation_path = config.get('validation_parameters').get('path')
+            self.validation_batch_size = config.get('validation_parameters').get('batch_size')
+
+            self.groundtruth_path = config.get('groundtruth_parameters').get('path')
+            self.groundtruth_batch_size = config.get('groundtruth_parameters').get('batch_size')
 
 
 ICP_PARAMETERS = ICP_ParametersConfig()
