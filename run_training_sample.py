@@ -59,6 +59,7 @@ class GroundTruthDataset(Dataset):
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
         position = self.pos[idx]
+        position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
         pcd, features = kf.training_preprocess()
@@ -84,6 +85,7 @@ class ValidationDataset(Dataset):
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
         position = self.pos[idx]
+        position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
         pcd, features = kf.training_preprocess()
@@ -358,7 +360,7 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
             all_querys_poses = querys_poses
         else:
             all_querys_descriptors = torch.cat((all_querys_descriptors, batched_querys_descriptor), dim=0)
-            all_querys_poses = torch.cat((all_querys_poses, querys_poses), dim=0)
+            all_querys_poses = torch.vstack((all_querys_poses, querys_poses))
 
     # print('Mapping')
     torch.cuda.set_device(device2)
@@ -380,7 +382,7 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
             all_map_poses = gd_poses
         else:
             map_descriptors = torch.cat((map_descriptors, submap_descriptors), dim=0)
-            all_map_poses = torch.cat((all_map_poses, gd_poses), dim=0)
+            all_map_poses = torch.vstack((all_map_poses, gd_poses))
     # print('Ambos hechos')
 
     k = 0
@@ -390,7 +392,7 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
         predicted_pose = all_map_poses[torch.argmin(descriptor_space_distances)]
         real_pose = all_querys_poses[k]
         pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
-        errors.append(pose_error.cpu().detach())
+        errors.append(pose_error.detach().cpu().numpy())
         k += 1
     errors = np.array(errors)
     return np.mean(errors), np.median(errors)
@@ -417,20 +419,24 @@ if __name__ == '__main__':
     # other_dataloader = DataLoader(other_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
                                   collate_fn=training_collation_fn)
-    groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=1, shuffle=False,
+    groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=32, shuffle=False,
                                   collate_fn=ground_collation_fn)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=1, shuffle=False,
+    validation_dataloader = DataLoader(validation_dataset, batch_size=32, shuffle=False,
                                   collate_fn=ground_collation_fn)
 
     # initialize model and optimizer
-    net = VGG16_3DNetwork(
-        3,  # in channels
-        16,  # out channels
-        D=3).to(device0) # Space dimension
-    # net = MinkowskiFCNN(
-    #     3,  # in nchannel
-    #     TRAINING_PARAMETERS.output_size,  # out_nchannel
+    # net = VGG16_3DNetwork(
+    #     3,  # in channels
+    #     TRAINING_PARAMETERS.output_size,  # out channels
     #     D=3).to(device0) # Space dimension
+    net = MinkowskiFCNN(
+        3,  # in nchannel
+        TRAINING_PARAMETERS.output_size,  # out_nchannel
+        D=3).to(device0) # Space dimension
+    # net = MinkowskiPointNet(
+    #     3,  # in channels
+    #     TRAINING_PARAMETERS.output_size,  # out channels
+    #     dimension=3).to(device0)  # Space dimension
     # if torch.cuda.device_count() > 1:
     #     print("Let's use", torch.cuda.device_count(), "GPUs!")
     #     # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs

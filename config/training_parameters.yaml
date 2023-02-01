@@ -11,8 +11,8 @@ fixed_n_points:
   n_points: 4096
   max_radius: 120
 
-output_size: 32
+output_size: 16
 training_parameters:
-  batch_size: 32
+  batch_size: 8
   number_epochs: 1
 
