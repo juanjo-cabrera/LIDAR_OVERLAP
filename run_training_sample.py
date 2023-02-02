@@ -413,11 +413,19 @@ def visualize_trajectories():
         nmax_scans=EXP_PARAMETERS.exp_long,
         gps_mode='lat_long')
 
-    gmap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
+    euroc_read_groundtrutn = EurocReader(directory=TRAINING_PARAMETERS.groundtruth_path)
+    scan_times_groundtruth, pos_groundtruth, _, _ = euroc_read_groundtrutn.prepare_experimental_data(
+        deltaxy=EXP_PARAMETERS.exp_deltaxy,
+        deltath=EXP_PARAMETERS.exp_deltath,
+        nmax_scans=EXP_PARAMETERS.exp_long,
+        gps_mode='lat_long')
+
+    gmap = CustomGoogleMapPlotter(EXP_PARAMETERS.origin_lat, EXP_PARAMETERS.origin_lon, zoom=20,
                                   map_type='satellite')
 
-    gmap.plot_trajectories(pos_validation[0], pos_validation[1],
-                           directory=EXP_PARAMETERS.directory + '/map.html')
+    gmap.pos_scatter(pos_validation[:, 0], pos_validation[:, 1], color='orange')
+    gmap.pos_scatter(pos_groundtruth[:, 0], pos_groundtruth[:, 1], color='blue')
+    gmap.draw(TRAINING_PARAMETERS.validation_path + '/map.html')
 
 
 if __name__ == '__main__':
