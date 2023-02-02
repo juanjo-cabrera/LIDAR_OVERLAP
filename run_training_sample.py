@@ -51,7 +51,7 @@ class GroundTruthDataset(Dataset):
         self.root_dir = TRAINING_PARAMETERS.groundtruth_path
         # Prepare data
         euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos, _, _ = euroc_read.prepare_ekf_data(
+        self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
             deltaxy=EXP_PARAMETERS.exp_deltaxy,
             deltath=EXP_PARAMETERS.exp_deltath,
             nmax_scans=EXP_PARAMETERS.exp_long)
@@ -77,7 +77,7 @@ class ValidationDataset(Dataset):
         self.root_dir = TRAINING_PARAMETERS.validation_path
         # Prepare data
         euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos, _, _ = euroc_read.prepare_ekf_data(
+        self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
             deltaxy=5,
             deltath=EXP_PARAMETERS.exp_deltath,
             nmax_scans=EXP_PARAMETERS.exp_long)

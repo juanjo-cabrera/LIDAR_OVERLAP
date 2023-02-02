@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="position errors fixed">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="config parameters added to training">
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
@@ -27,8 +27,8 @@
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/unet.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/vae.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,14 +61,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/home/arvc/Fran/PycharmProjects/arvc_PointNet",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PythonContentEntriesConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Fran/PycharmProjects/arvc_PointNet&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PythonContentEntriesConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -485,7 +485,21 @@
       <option name="project" value="LOCAL" />
       <updated>1675244065482</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="Some config parameters added">
+      <created>1675245502537</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1675245502537</updated>
+    </task>
+    <task id="LOCAL-00042" summary="config parameters added to training">
+      <created>1675249340936</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1675249340936</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -500,8 +514,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="google maps plotter" />
-    <MESSAGE value="google maps plotter overlap" />
     <MESSAGE value="overlap colors fixed" />
     <MESSAGE value="yaw errors" />
     <MESSAGE value="distribucion de parametros en diferentes ficheros" />
@@ -525,7 +537,9 @@
     <MESSAGE value="some new changes" />
     <MESSAGE value="label fixed, difference instead of similarity" />
     <MESSAGE value="position errors fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="position errors fixed" />
+    <MESSAGE value="Some config parameters added" />
+    <MESSAGE value="config parameters added to training" />
+    <option name="LAST_COMMIT_MESSAGE" value="config parameters added to training" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -756,11 +770,6 @@
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py</url>
-          <line>15</line>
-          <option name="timeStamp" value="251" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_3D_overlap.py</url>
           <line>399</line>
           <option name="timeStamp" value="260" />
@@ -917,18 +926,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>512</line>
-          <option name="timeStamp" value="437" />
+          <line>78</line>
+          <option name="timeStamp" value="457" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>396</line>
-          <option name="timeStamp" value="453" />
+          <line>85</line>
+          <option name="timeStamp" value="459" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>397</line>
-          <option name="timeStamp" value="454" />
+          <line>86</line>
+          <option name="timeStamp" value="460" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>87</line>
+          <option name="timeStamp" value="461" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>88</line>
+          <option name="timeStamp" value="462" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -26,13 +26,14 @@ class EurocReader():
         df_odometry = self.read_odometry_data()
         df_scan_times = self.read_scan_times()
         df_gps = self.read_gps_data()
+        # utm_x, utm_y = self.gps2utm(df_gps)
         # df_ground_truth = self.read_ground_truth_data()
         # for every time in odometry_times, find the closest times of a scan.
         # next, for every time of the scan, find again the closest odometry and the closest ground truth
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, reference_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
-        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='WGS84')
+        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='utm')
         # gps_pos = self.normalize_gps_data(gps_pos)
         # odo_pos = self.normalize_odom_data(odo_pos)
 
@@ -92,31 +93,33 @@ class EurocReader():
         odom_pos = odom_pos - odom_pos[0]
         return odom_pos
 
+    def gps2utm(self, df_gps):
 
+        latitude = df_gps['latitude']
+        longitude = df_gps['longitude']
+        status = df_gps['status']
+
+        status_array = np.array(status)
+        idx = np.where(status_array == 2)
+        myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
+
+        lat = np.array(latitude)
+        lon = np.array(longitude)
+        lat_ref = 38.275064630154375
+        lon_ref = -0.6861944724090255
+
+        UTMx_ref, UTMy_ref = myProj(lon_ref, lat_ref)
+        UTMx, UTMy = myProj(lon, lat)
+        UTMx = UTMx[idx]
+        UTMy = UTMy[idx]
+
+        UTMx = UTMx - UTMx_ref
+        UTMy = UTMy - UTMy_ref
+
+        return UTMx, UTMy
     def read_gps_data(self):
         gps_csv_filename = self.directory + '/robot0/gps0/data.csv'
         df_gps = pd.read_csv(gps_csv_filename)
-        # timestamp = gps['#timestamp [ns]']
-        # latitude = gps['latitude']
-        # longitude = gps['longitude']
-        # altitude = gps['altitude']
-        # covariance_d1 = gps['covariance_d1']
-        # covariance_d2 = gps['covariance_d2']
-        # covariance_d3 = gps['covariance_d3']
-        # status = gps['status']
-        #
-        # status_array = np.array(status)
-        # idx = np.where(status_array == 2)
-        # myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
-        #
-        # lat = np.array(latitude)
-        # lon = np.array(longitude)
-        # UTMx, UTMy = myProj(lon, lat)
-        #
-        # UTMx = UTMx[idx]
-        # UTMy = UTMy[idx]
-
-
         return df_gps
 
     def sample_gps(self, reference_status):
@@ -224,7 +227,11 @@ class EurocReader():
         corresp_time_list = []
         if gps_mode == 'utm':
             myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
-        # now find odo corresponding to closest times
+            lat_ref = 38.275064630154375
+            lon_ref = -0.6861944724090255
+            UTMx_ref, UTMy_ref = myProj(lon_ref, lat_ref)
+
+            # now find odo corresponding to closest times
         for timestamp in time_list:
             # find the closest timestamp in df
             ind = df_data['#timestamp [ns]'].sub(timestamp).abs().idxmin()
@@ -248,7 +255,9 @@ class EurocReader():
                 alt = np.array(altitude)
                 if gps_mode == 'utm':
                     [x, y] = myProj(lon, lat)
-                    position = [x, y, altitude]
+                    x = x - UTMx_ref
+                    y = y - UTMy_ref
+                    position = [x, y, 0]
                 else:
                     position = [lat, lon, alt]
                 positions.append(position)

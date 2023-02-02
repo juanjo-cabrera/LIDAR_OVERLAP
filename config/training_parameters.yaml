@@ -1,6 +1,3 @@
-
-
-
 testing_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
 
 parallel_computing: False
@@ -19,7 +16,7 @@ training_parameters:
   number_epochs: 1
 
 validation_parameters:
-  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
+  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-21-12-03-42'
   batch_size: 32
 
 groundtruth_parameters:
