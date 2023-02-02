@@ -13,6 +13,7 @@ import MinkowskiEngine as ME
 from scripts.examples.classification_modelnet40 import *
 # from ml_tools.FCNN import MinkowskiFCNN
 from eurocreader.eurocreader_outdoors import EurocReader
+from google_maps_plotter.custom_plotter import *
 from kittireader.kittireader import KittiReader
 
 class TrainingDataset(Dataset):
@@ -54,7 +55,8 @@ class GroundTruthDataset(Dataset):
         self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
             deltaxy=EXP_PARAMETERS.exp_deltaxy,
             deltath=EXP_PARAMETERS.exp_deltath,
-            nmax_scans=EXP_PARAMETERS.exp_long)
+            nmax_scans=EXP_PARAMETERS.exp_long,
+            gps_mode='utm')
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -80,7 +82,8 @@ class ValidationDataset(Dataset):
         self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
             deltaxy=5,
             deltath=EXP_PARAMETERS.exp_deltath,
-            nmax_scans=EXP_PARAMETERS.exp_long)
+            nmax_scans=EXP_PARAMETERS.exp_long,
+            gps_mode='utm')
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -400,8 +403,25 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     print(errors)
     return np.mean(errors), np.median(errors)
 
+def visualize_trajectories():
+
+    # Prepare data
+    euroc_read_validation = EurocReader(directory=TRAINING_PARAMETERS.validation_path)
+    scan_times_validation, pos_validation, _, _ = euroc_read_validation.prepare_experimental_data(
+        deltaxy=5,
+        deltath=EXP_PARAMETERS.exp_deltath,
+        nmax_scans=EXP_PARAMETERS.exp_long,
+        gps_mode='lat_long')
+
+    gmap = CustomGoogleMapPlotter(lat[0], lon[0], zoom=20,
+                                  map_type='satellite')
+
+    gmap.plot_trajectories(pos_validation[0], pos_validation[1],
+                           directory=EXP_PARAMETERS.directory + '/map.html')
+
 
 if __name__ == '__main__':
+    visualize_trajectories()
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device is: ", device0)

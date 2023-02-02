@@ -9,7 +9,7 @@ class EurocReader():
     def __init__(self, directory):
         self.directory = directory
 
-    def prepare_experimental_data(self, deltaxy, deltath, nmax_scans=None):
+    def prepare_experimental_data(self, deltaxy, deltath, nmax_scans=None, gps_mode='utm'):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
         # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
@@ -33,7 +33,7 @@ class EurocReader():
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, reference_times)
         _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
-        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='utm')
+        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode=gps_mode)
         # gps_pos = self.normalize_gps_data(gps_pos)
         # odo_pos = self.normalize_odom_data(odo_pos)
 
@@ -227,8 +227,8 @@ class EurocReader():
         corresp_time_list = []
         if gps_mode == 'utm':
             myProj = Proj(proj='utm', zone='30', ellps='WGS84', datum='WGS84', preserve_units=False, units='m')
-            lat_ref = 38.275064630154375
-            lon_ref = -0.6861944724090255
+            lat_ref = EXP_PARAMETERS.origin_lat
+            lon_ref = EXP_PARAMETERS.origin_lon
             UTMx_ref, UTMy_ref = myProj(lon_ref, lat_ref)
 
             # now find odo corresponding to closest times

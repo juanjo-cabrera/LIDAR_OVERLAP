@@ -33,9 +33,9 @@ class CustomGoogleMapPlotter(GoogleMapPlotter):
             '\t\tvar map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);\n')
         f.write('\n')
 
-    def pos_scatter(self, lats, lngs):
+    def pos_scatter(self, lats, lngs, color='orange'):
         for lat, lon in zip(lats, lngs):
-            self.scatter(lats=[lat], lngs=[lon], c='orange', size=0.3, marker=False,
+            self.scatter(lats=[lat], lngs=[lon], c=color, size=0.3, marker=False,
                          s=None)
 
     def overlap_scatter(self, lats, lons, scan_idx, overlaps):
@@ -60,7 +60,7 @@ class CustomGoogleMapPlotter(GoogleMapPlotter):
                      s=None)
 
     def plot_trajectories(self, lats, lons, directory='/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/map.html'):
-        self.pos_scatter(lats, lons)
+        self.pos_scatter(lats, lons, color='orange')
         self.draw(directory)
 
     def plot_overlap(self, lats, lons, scan_idx, overlaps, directory='/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/map.html'):

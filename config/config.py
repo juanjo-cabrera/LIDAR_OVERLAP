@@ -46,6 +46,8 @@ class Exp_ParametersConfig():
             self.local_angle = config.get('local_environment').get('angle')
 
             self.gps_status = config.get('gps').get('reference_status')
+            self.origin_lat = config.get('origin_coordinates').get('lat')
+            self.origin_lon = config.get('origin_coordinates').get('lon')
 
 class Debugging_ParametersConfig():
     """
