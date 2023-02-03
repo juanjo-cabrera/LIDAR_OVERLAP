@@ -79,10 +79,7 @@ class ValidationDataset(Dataset):
         self.root_dir = TRAINING_PARAMETERS.validation_path
         # Prepare data
         euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
-            deltaxy=5,
-            deltath=EXP_PARAMETERS.exp_deltath,
-            nmax_scans=EXP_PARAMETERS.exp_long,
+        self.scan_times, self.pos = euroc_read.prepare_gps_data(deltaxy=5,
             gps_mode='utm')
 
     def __getitem__(self, idx):
@@ -399,10 +396,7 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
 def visualize_trajectories():
     # Prepare data
     euroc_read_validation = EurocReader(directory=TRAINING_PARAMETERS.validation_path)
-    scan_times_validation, pos_validation, _, _ = euroc_read_validation.prepare_experimental_data(
-        deltaxy=5,
-        deltath=EXP_PARAMETERS.exp_deltath,
-        nmax_scans=EXP_PARAMETERS.exp_long,
+    scan_times_validation, pos_validation = euroc_read_validation.prepare_gps_data(deltaxy=5,
         gps_mode='lat_long')
 
     euroc_read_groundtrutn = EurocReader(directory=TRAINING_PARAMETERS.groundtruth_path)
@@ -432,7 +426,7 @@ if __name__ == '__main__':
     train_dataset = TrainingDataset()
     groudtruth_dataset = GroundTruthDataset()
     validation_dataset = ValidationDataset()
-    validation_example = ValidationExample()
+    # validation_example = ValidationExample()
     # ref_dataset = ReferenceDataset()
     # other_dataset = OtherDataset()
     # train_size = int(0.8 * len(dataset))

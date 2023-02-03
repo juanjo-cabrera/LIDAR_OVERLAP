@@ -14,7 +14,7 @@ class EurocReader():
         # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
         odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)
-        gps_times = self.sample_gps(EXP_PARAMETERS.gps_status)
+        gps_times = self.filter_gps(EXP_PARAMETERS.gps_status)
         reference_times = self.get_common_times(odometry_times, gps_times)
 
         if nmax_scans is not None:
@@ -41,21 +41,15 @@ class EurocReader():
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
         return scan_times, gps_pos, odo_pos, odo_orient
 
-    def prepare_gps_data(self, gps_mode='utm'):
+    def prepare_gps_data(self, deltaxy, gps_mode='utm'):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS WITHOUT ODOMETRY")
         # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
-        # odometry_times = self.sample_odometry(deltaxy=deltaxy, deltath=deltath)
-        reference_times = self.sample_gps(EXP_PARAMETERS.gps_status)
-        # reference_times = self.get_common_times(odometry_times, gps_times)
+        times_downsampled = self.sample_gps(deltaxy=deltaxy)
+        times_filtered = self.filter_gps(EXP_PARAMETERS.gps_status)
+        reference_times = self.get_common_times(times_downsampled, times_filtered)
 
-        # if nmax_scans is not None:
-            # print("CAUTION: CROPPING DATA TO: ", nmax_scans)
-            # odometry_times = odometry_times[0:nmax_scans]
 
-        # read dfs from data
-
-        # df_odometry = self.read_odometry_data()
         df_scan_times = self.read_scan_times()
         df_gps = self.read_gps_data()
         # utm_x, utm_y = self.gps2utm(df_gps)
@@ -124,8 +118,28 @@ class EurocReader():
         odom_pos = odom_pos - odom_pos[0]
         return odom_pos
 
-    def gps2utm(self, df_gps):
+    def sample_gps(self, deltaxy=0.5):
+        """
+        Get odometry times separated by dxy (m) and dth (rad)
+        """
+        df = self.read_gps_data()
+        UTMx, UTMy = self.gps2utm(df)
+        odo_times = []
+        for ind in df.index:
+            odo = np.array([UTMx[ind], UTMy[ind]])
+            current_time = df['#timestamp [ns]'][ind]
+            if ind == 0:
+                odo_times.append(current_time)
+                odoi = odo
+            odoi1 = odo
 
+            dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
+            if dxy > deltaxy:
+                odo_times.append(current_time)
+                odoi = odoi1
+        return np.array(odo_times)
+
+    def gps2utm(self, df_gps):
         latitude = df_gps['latitude']
         longitude = df_gps['longitude']
         status = df_gps['status']
@@ -153,7 +167,7 @@ class EurocReader():
         df_gps = pd.read_csv(gps_csv_filename)
         return df_gps
 
-    def sample_gps(self, reference_status):
+    def filter_gps(self, reference_status):
         df_gps = self.read_gps_data()
         status = df_gps['status']
         timestamp = df_gps['#timestamp [ns]']
