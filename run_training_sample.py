@@ -328,15 +328,8 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     device2 = torch.device("cuda:2")
     device3 = torch.device("cuda:3")
     torch.cuda.set_device(device1)
-    # model = MinkowskiFCNN(
-    #     3,  # in nchannel
-    #     TRAINING_PARAMETERS.output_size,  # out_nchannel
-    #     D=3).to(device1)
-    # model.load_state_dict(torch.load('red_prueba', map_location=device1))
     model.to(device1)
     model.eval()
-    # net = torch.load('red_prueba', map_location='cuda:1')
-
 
     all_querys_descriptors = []
     all_querys_poses = []
@@ -404,7 +397,6 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     return np.mean(errors), np.median(errors)
 
 def visualize_trajectories():
-
     # Prepare data
     euroc_read_validation = EurocReader(directory=TRAINING_PARAMETERS.validation_path)
     scan_times_validation, pos_validation, _, _ = euroc_read_validation.prepare_experimental_data(
