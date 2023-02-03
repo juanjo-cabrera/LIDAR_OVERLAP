@@ -14,9 +14,11 @@ training_parameters:
   path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
   batch_size: 8
   number_epochs: 1
+  do_normalization: False
 
 validation_parameters:
-  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-11-30-15-30-57'
+#  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-11-30-15-30-57'
+  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
   batch_size: 32
 
 groundtruth_parameters:
