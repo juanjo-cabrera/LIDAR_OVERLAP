@@ -320,65 +320,46 @@ def ground_collation_fn(data_labels):
 
     return pcd_batch, feats_batch, position_batch
 
+def get_latent_vectors(dataloader, model, main_device, secondary_device):
+    torch.cuda.set_device(main_device)
+    model.to(main_device)
+    model.eval()
+
+    all_descriptors = []
+    all_poses = []
+    with torch.no_grad():
+        for i, data in enumerate(dataloader, 0):
+            pcd, feat, poses = data
+            poses = poses.to(secondary_device)
+
+            input = ME.TensorField(
+                features=feat.to(dtype=torch.float32),
+                coordinates=pcd.to(dtype=torch.float32),
+                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+                device=main_device,
+            )
+            batched_descriptor = model(input)
+            batched_descriptor = batched_descriptor.to(secondary_device)
+            if i == 0:
+                all_descriptors = batched_descriptor
+                all_poses = poses
+                continue
+
+            all_descriptors = torch.cat((all_descriptors, batched_descriptor), dim=0)
+            all_poses = torch.vstack((all_poses, poses))
+
+    return all_descriptors, all_poses
+
 def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     device1 = torch.device("cuda:1")
     device2 = torch.device("cuda:2")
     device3 = torch.device("cuda:3")
-    torch.cuda.set_device(device1)
-    model.to(device1)
-    model.eval()
 
-    all_querys_descriptors = []
-    all_querys_poses = []
-    map_descriptors = []
-    all_map_poses = []
-
-    # for val_data in validation_dataloader:
-    for i, val_data in enumerate(validation_dataloader, 0):
-        querys_pcd, querys_feat, querys_poses = val_data
-        querys_poses = querys_poses.to(device3)
-
-        input_querys = ME.TensorField(
-            features=querys_feat.to(dtype=torch.float32),
-            coordinates=querys_pcd.to(dtype=torch.float32),
-            quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-            minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-            device=device1,
-        )
-        # print(input_querys.device)
-        # print(model.parameters())
-        batched_querys_descriptor = model(input_querys)
-        batched_querys_descriptor = batched_querys_descriptor.to(device3)
-        # print(batched_querys_descriptor.device)
-        if i == 0:
-            all_querys_descriptors = batched_querys_descriptor
-            all_querys_poses = querys_poses
-        else:
-            all_querys_descriptors = torch.cat((all_querys_descriptors, batched_querys_descriptor), dim=0)
-            all_querys_poses = torch.vstack((all_querys_poses, querys_poses))
-
-    # print('Mapping')
-    torch.cuda.set_device(device2)
-    model.to(device2)
-    for i, gd_data in enumerate(groundtruth_dataloader, 0):
-        gd_pcd, gd_feat, gd_poses = gd_data
-        gd_poses = gd_poses.to(device3)
-        gd_input = ME.TensorField(
-            features=gd_feat.to(dtype=torch.float32),
-            coordinates=gd_pcd.to(dtype=torch.float32),
-            quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-            minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-            device=device2,
-        )
-        submap_descriptors = model(gd_input)
-        submap_descriptors = submap_descriptors.to(device3)
-        if i == 0:
-            map_descriptors = submap_descriptors
-            all_map_poses = gd_poses
-        else:
-            map_descriptors = torch.cat((map_descriptors, submap_descriptors), dim=0)
-            all_map_poses = torch.vstack((all_map_poses, gd_poses))
-    # print('Ambos hechos')
+    all_querys_descriptors, all_querys_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
+                                                                  main_device=device1, secondary_device=device3)
+    map_descriptors, all_map_poses = get_latent_vectors(dataloader=groundtruth_dataloader, model=model,
+                                                                  main_device=device2, secondary_device=device3)
 
     k = 0
     errors = []
