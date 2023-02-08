@@ -14,6 +14,7 @@ from scripts.examples.classification_modelnet40 import *
 # from ml_tools.FCNN import MinkowskiFCNN
 from eurocreader.eurocreader_outdoors import EurocReader
 from google_maps_plotter.custom_plotter import *
+from sklearn.neighbors import KDTree
 from kittireader.kittireader import KittiReader
 
 class TrainingDataset(Dataset):
@@ -354,6 +355,47 @@ def get_latent_vectors(dataloader, model, main_device, secondary_device):
 
     return all_descriptors, all_poses
 
+
+def get_recall(database_output, queries_output, query_sets):
+    #con las poses saco los true_neighbors, esto lo puedo hacer antes y cargarlo
+    map_poses_tree = KDTree(map_poses.detach().cpu().numpy())
+    index = map_poses_tree.query_radius(np.array([querys_poses.detach().cpu().numpy()]), r=25)
+    # When embeddings are normalized, using Euclidean distance gives the same
+    # nearest neighbour search results as using cosine distance
+    database_nbrs = KDTree(database_output)
+
+    num_neighbors = 25
+    recall = [0] * num_neighbors
+
+    top1_similarity_score = []
+    one_percent_retrieved = 0
+    threshold = max(int(round(len(database_output)/100.0)), 1)
+
+    num_evaluated = 0
+    for i in range(len(queries_output)):
+        # i is query element ndx
+        query_details = query_sets[n][i]    # {'query': path, 'northing': , 'easting': }
+        true_neighbors = query_details[m]
+        if len(true_neighbors) == 0:
+            continue
+        num_evaluated += 1
+        distances, indices = database_nbrs.query(np.array([queries_output[i]]), k=num_neighbors)
+
+        for j in range(len(indices[0])):
+            if indices[0][j] in true_neighbors:
+                if j == 0:
+                    similarity = np.dot(queries_output[i], database_output[indices[0][j]])
+                    top1_similarity_score.append(similarity)
+                recall[j] += 1
+                break
+
+        if len(list(set(indices[0][0:threshold]).intersection(set(true_neighbors)))) > 0:
+            one_percent_retrieved += 1
+
+    one_percent_recall = (one_percent_retrieved/float(num_evaluated))*100
+    recall = (np.cumsum(recall)/float(num_evaluated))*100
+    return recall, top1_similarity_score, one_percent_recall
+
 def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     device1 = torch.device("cuda:1")
     device2 = torch.device("cuda:2")
@@ -366,15 +408,26 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
 
     k = 0
     errors = []
+    map_feat_tree = KDTree(map_descriptors.detach().cpu().numpy(), metric='euclidean')
+    num_neighbors = 25
     for query_descriptor in querys_descriptors:
         descriptor_space_distances = F.pairwise_distance(query_descriptor, map_descriptors, keepdim=True)
         predicted_pose = map_poses[torch.argmin(descriptor_space_distances)]
+        distances, indices = map_feat_tree.query(np.array([query_descriptor.detach().cpu().numpy()]), k=num_neighbors)
+        kd_tree_pose = map_poses[indices]
+
         real_pose = querys_poses[k]
         pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
         errors.append(pose_error.detach().cpu().numpy())
         k += 1
     errors = np.array(errors)
     print(errors)
+
+    map_poses_tree = KDTree(map_poses.detach().cpu().numpy())
+    index = map_poses_tree.query_radius(np.array([querys_poses.detach().cpu().numpy()]), r=25)
+
+
+
     return np.mean(errors), np.median(errors)
 
 def visualize_trajectories():
