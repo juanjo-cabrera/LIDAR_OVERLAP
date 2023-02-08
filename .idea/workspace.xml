@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="coordinates origin added in exp config">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="computed validation refactored">
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
@@ -27,8 +27,10 @@
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/unet.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/vae.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,8 +66,8 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Fran/PycharmProjects/arvc_PointNet&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PythonContentEntriesConfigurable&quot;
+    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Juanjo/MinkLoc3D&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -80,27 +82,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.run_training_sample">
-    <configuration name="multigpu_ddp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/scripts/examples/multigpu_ddp.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="multigpu_ddp_try" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -135,6 +116,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/multigpu_example.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="run_labelling_representation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_labelling_representation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -188,10 +190,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.run_training_sample" />
+        <item itemvalue="Python.run_labelling_representation" />
         <item itemvalue="Python.multigpu_ddp_try" />
         <item itemvalue="Python.run_multigpu_training" />
         <item itemvalue="Python.multigpu_example" />
-        <item itemvalue="Python.multigpu_ddp" />
       </list>
     </recent_temporary>
   </component>
@@ -203,20 +205,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00001" summary="juanjo">
-      <created>1654074980449</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1654074980449</updated>
-    </task>
-    <task id="LOCAL-00002" summary="parametrizacion actualizada">
-      <created>1654167356711</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1654167356711</updated>
     </task>
     <task id="LOCAL-00003" summary="initial commit">
       <created>1667815769185</created>
@@ -512,7 +500,56 @@
       <option name="project" value="LOCAL" />
       <updated>1675353509510</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="plotting validation and grountruth before train added">
+      <created>1675357051001</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1675357051001</updated>
+    </task>
+    <task id="LOCAL-00046" summary="some commented lines removed">
+      <created>1675413682650</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1675413682650</updated>
+    </task>
+    <task id="LOCAL-00047" summary="parameters added to config">
+      <created>1675414711588</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1675414711588</updated>
+    </task>
+    <task id="LOCAL-00048" summary="gps only and lidar data reader added">
+      <created>1675416007687</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1675416007687</updated>
+    </task>
+    <task id="LOCAL-00049" summary="last changes">
+      <created>1675427650252</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1675427650252</updated>
+    </task>
+    <task id="LOCAL-00050" summary="evaluation a medias">
+      <created>1675843831392</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1675843831393</updated>
+    </task>
+    <task id="LOCAL-00051" summary="computed validation refactored">
+      <created>1675849108890</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1675849108890</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -527,13 +564,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="distribucion de parametros en diferentes ficheros" />
-    <MESSAGE value="ultimos cambios" />
-    <MESSAGE value="kitti reader added" />
-    <MESSAGE value="kitti reader error solved" />
-    <MESSAGE value="data labelling prepared for all possible combinations" />
-    <MESSAGE value="data labelling added itself combinations" />
-    <MESSAGE value="plot overlap from labels" />
     <MESSAGE value="Some details" />
     <MESSAGE value="Poses error solved" />
     <MESSAGE value="Dataloader done" />
@@ -552,7 +582,14 @@
     <MESSAGE value="config parameters added to training" />
     <MESSAGE value="position from lat long referred to innova" />
     <MESSAGE value="coordinates origin added in exp config" />
-    <option name="LAST_COMMIT_MESSAGE" value="coordinates origin added in exp config" />
+    <MESSAGE value="plotting validation and grountruth before train added" />
+    <MESSAGE value="some commented lines removed" />
+    <MESSAGE value="parameters added to config" />
+    <MESSAGE value="gps only and lidar data reader added" />
+    <MESSAGE value="last changes" />
+    <MESSAGE value="evaluation a medias" />
+    <MESSAGE value="computed validation refactored" />
+    <option name="LAST_COMMIT_MESSAGE" value="computed validation refactored" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -939,12 +976,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>425</line>
+          <line>395</line>
           <option name="timeStamp" value="463" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>422</line>
+          <line>392</line>
           <option name="timeStamp" value="465" />
         </line-breakpoint>
       </breakpoints>

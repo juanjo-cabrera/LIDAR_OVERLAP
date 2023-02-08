@@ -274,7 +274,10 @@ class VGG16_3DNetwork(nn.Module):
 
     def forward(self, x):
         x = x.sparse()
-        return self.net(x).F
+        embedding = self.net(x).F
+        if TRAINING_PARAMETERS.normalize_embeddings:
+            embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
+        return embedding
 
     # def forward(self, input1, input2):
     #     output1 = self.forward_once(input1)
@@ -356,17 +359,17 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     device2 = torch.device("cuda:2")
     device3 = torch.device("cuda:3")
 
-    all_querys_descriptors, all_querys_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
+    querys_descriptors, querys_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
                                                                   main_device=device1, secondary_device=device3)
-    map_descriptors, all_map_poses = get_latent_vectors(dataloader=groundtruth_dataloader, model=model,
+    map_descriptors, map_poses = get_latent_vectors(dataloader=groundtruth_dataloader, model=model,
                                                                   main_device=device2, secondary_device=device3)
 
     k = 0
     errors = []
-    for query_descriptor in all_querys_descriptors:
+    for query_descriptor in querys_descriptors:
         descriptor_space_distances = F.pairwise_distance(query_descriptor, map_descriptors, keepdim=True)
-        predicted_pose = all_map_poses[torch.argmin(descriptor_space_distances)]
-        real_pose = all_querys_poses[k]
+        predicted_pose = map_poses[torch.argmin(descriptor_space_distances)]
+        real_pose = querys_poses[k]
         pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
         errors.append(pose_error.detach().cpu().numpy())
         k += 1

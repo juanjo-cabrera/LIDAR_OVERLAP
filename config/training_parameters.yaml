@@ -3,18 +3,20 @@ testing_path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
 parallel_computing: False
 max_ngpu: 3
 
-fixed_n_points:
+input_data_preprocessing:
   sample2n: False
   n_points: 4096
   max_radius: 120
+  normalize_coords: True
 
-output_size: 32
+output_data:
+  embedding_size: 32
+  normalize_embeddings: False
 
 training_parameters:
   path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
   batch_size: 8
   number_epochs: 1
-  do_normalization: True
 
 validation_parameters:
 #  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2023-01-24-12-25-00'

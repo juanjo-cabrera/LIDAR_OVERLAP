@@ -81,15 +81,18 @@ class Training_ParametersConfig():
             self.parallel_computing = config.get('parallel_computing')
             self.max_ngpu = config.get('max_ngpu')
 
-            self.sample_points = config.get('fixed_n_points').get('sample2n')
-            self.number_of_points = config.get('fixed_n_points').get('n_points')
-            self.max_radius = config.get('fixed_n_points').get('max_radius')
+            self.sample_points = config.get('input_data_preprocessing').get('sample2n')
+            self.number_of_points = config.get('input_data_preprocessing').get('n_points')
+            self.max_radius = config.get('input_data_preprocessing').get('max_radius')
+            self.normalize_coords = config.get('input_data_preprocessing').get('normalize_coords')
 
-            self.output_size = config.get('output_size')
+            self.normalize_embeddings = config.get('output_data').get('normalize_embeddings')
+            self.output_size = config.get('output_data').get('embedding_size')
+
             self.training_path = config.get('training_parameters').get('path')
             self.training_batch_size = config.get('training_parameters').get('batch_size')
             self.number_of_epochs = config.get('training_parameters').get('number_epochs')
-            self.do_normalization = config.get('training_parameters').get('do_normalization')
+
 
             self.validation_path = config.get('validation_parameters').get('path')
             self.validation_batch_size = config.get('validation_parameters').get('batch_size')

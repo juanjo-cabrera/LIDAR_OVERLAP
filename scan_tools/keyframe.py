@@ -114,7 +114,7 @@ class KeyFrame():
         if TRAINING_PARAMETERS.sample_points:
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
-        if TRAINING_PARAMETERS.do_normalization:
+        if TRAINING_PARAMETERS.normalize_coords:
             pcd_features = self.normalize(self.pointcloud_non_ground_plane)
         else:
             pcd_features = self.pointcloud_non_ground_plane
