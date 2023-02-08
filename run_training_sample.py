@@ -478,7 +478,7 @@ if __name__ == '__main__':
     counter = []
     loss_history = []
     iteration_number = 0
-    net_name = 'MinkowskiFCNN'
+    net_name = '3DVGG16'
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
         i = 0
@@ -528,6 +528,8 @@ if __name__ == '__main__':
                 print('Validation results \n Mean pose error: {} meters, Median error: {} meters \n'.format(mean_error, median_error))
                 net.to(device0)
                 torch.cuda.set_device(device0)
+                # save trained model
+                torch.save(net.state_dict(), net_name)
                 net.train(mode=True)
             i += 1
 
