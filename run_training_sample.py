@@ -49,15 +49,16 @@ class TrainingDataset(Dataset):
         # return 10000
 
 class GroundTruthDataset(Dataset):
-    def __init__(self, transform=None):
+    def __init__(self, data, transform=None):
         self.root_dir = TRAINING_PARAMETERS.groundtruth_path
         # Prepare data
-        euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
-            deltaxy=EXP_PARAMETERS.exp_deltaxy,
-            deltath=EXP_PARAMETERS.exp_deltath,
-            nmax_scans=EXP_PARAMETERS.exp_long,
-            gps_mode='utm')
+        # euroc_read = EurocReader(directory=self.root_dir)
+        # self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
+        #     deltaxy=EXP_PARAMETERS.exp_deltaxy,
+        #     deltath=EXP_PARAMETERS.exp_deltath,
+        #     nmax_scans=EXP_PARAMETERS.exp_long,
+        #     gps_mode='utm')
+        self.scan_times, _, self.pos = data
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -76,12 +77,12 @@ class GroundTruthDataset(Dataset):
 
 
 class ValidationDataset(Dataset):
-    def __init__(self, transform=None):
+    def __init__(self, data, transform=None):
         self.root_dir = TRAINING_PARAMETERS.validation_path
         # Prepare data
-        euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos = euroc_read.prepare_gps_data(deltaxy=5,
-            gps_mode='utm')
+        # euroc_read = EurocReader(directory=self.root_dir)
+        # self.scan_times, _, self.pos = euroc_read.prepare_gps_data(deltaxy=5)
+        self.scan_times, _, self.pos = data
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -280,11 +281,6 @@ class VGG16_3DNetwork(nn.Module):
             embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
         return embedding
 
-    # def forward(self, input1, input2):
-    #     output1 = self.forward_once(input1)
-    #     output2 = self.forward_once(input2)
-    #     return output1, output2
-
 
 class ContrastiveLoss(torch.nn.Module):
     def __init__(self, margin=2.0):
@@ -324,17 +320,14 @@ def ground_collation_fn(data_labels):
 
     return pcd_batch, feats_batch, position_batch
 
-def get_latent_vectors(dataloader, model, main_device, secondary_device):
+def get_latent_vectors(dataloader, model, main_device):
     torch.cuda.set_device(main_device)
     model.to(main_device)
     model.eval()
-
     all_descriptors = []
-    all_poses = []
     with torch.no_grad():
         for i, data in enumerate(dataloader, 0):
             pcd, feat, poses = data
-            poses = poses.to(secondary_device)
 
             input = ME.TensorField(
                 features=feat.to(dtype=torch.float32),
@@ -344,16 +337,14 @@ def get_latent_vectors(dataloader, model, main_device, secondary_device):
                 device=main_device,
             )
             batched_descriptor = model(input)
-            batched_descriptor = batched_descriptor.to(secondary_device)
+            batched_descriptor = batched_descriptor.detach().cpu()
             if i == 0:
                 all_descriptors = batched_descriptor
-                all_poses = poses
                 continue
 
             all_descriptors = torch.cat((all_descriptors, batched_descriptor), dim=0)
-            all_poses = torch.vstack((all_poses, poses))
 
-    return all_descriptors, all_poses
+    return all_descriptors.numpy()
 
 
 def get_recall(map_output, queries_output, all_true_neighbors):
@@ -396,69 +387,75 @@ def get_recall(map_output, queries_output, all_true_neighbors):
     recall = (np.cumsum(recall)/float(num_evaluated))*100
     return recall, top1_similarity_score, one_percent_recall
 
-def compute_validation(model, validation_dataloader, groundtruth_dataloader):
+def get_position_error(queries_descriptors, map_descriptors, queries_poses, map_poses):
+    k = 0
+    errors = []
+    map_feat_tree = KDTree(map_descriptors)
+    num_neighbors = 1
+    for query_descriptor in queries_descriptors:
+        desc_distances, indices = map_feat_tree.query(np.array([query_descriptor]), k=num_neighbors)
+        predicted_pose = map_poses[indices]
+        real_pose = queries_poses[k]
+        pose_error = np.linalg.norm(predicted_pose - real_pose)
+        errors.append(pose_error)
+        k += 1
+    errors = np.array(errors)
+    mean_error = np.mean(errors)
+    median_error = np.median(errors)
+    return mean_error, median_error
+
+def compute_validation(model, query_dataloader, map_dataloader, true_neighbors, queries_poses, map_poses):
     device1 = torch.device("cuda:1")
     device2 = torch.device("cuda:2")
     device3 = torch.device("cuda:3")
 
-    queries_descriptors, queries_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
-                                                                  main_device=device1, secondary_device=device3)
-    map_descriptors, map_poses = get_latent_vectors(dataloader=groundtruth_dataloader, model=model,
-                                                                  main_device=device2, secondary_device=device3)
+    queries_descriptors = get_latent_vectors(dataloader=query_dataloader, model=model,
+                                                                  main_device=device1)
+    map_descriptors = get_latent_vectors(dataloader=map_dataloader, model=model,
+                                                                  main_device=device2)
 
-    # k = 0
-    # errors = []
-    # map_feat_tree = KDTree(map_descriptors.detach().cpu().numpy())
-    # num_neighbors = 25
-    # for query_descriptor in queries_descriptors:
-    #     descriptor_space_distances = F.pairwise_distance(query_descriptor, map_descriptors, keepdim=True)
-    #     predicted_pose = map_poses[torch.argmin(descriptor_space_distances)]
-    #     distances, indices = map_feat_tree.query(np.array([query_descriptor.detach().cpu().numpy()]), k=num_neighbors)
-    #     kd_tree_pose = map_poses[indices]
-    #
-    #     real_pose = queries_poses[k]
-    #     pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
-    #     errors.append(pose_error.detach().cpu().numpy())
-    #     k += 1
-    # errors = np.array(errors)
-    # print(errors)
+    mean_error, median_error = get_position_error(queries_descriptors, map_descriptors, queries_poses, map_poses)
+    print('Validation results \n Mean pose error: {} meters, Median error: {} meters'.format(mean_error, median_error))
 
-    map_poses_tree = KDTree(map_poses.detach().cpu().numpy())
-    all_true_neighbors = []
-    for query_pose in queries_poses:
-        indexes = map_poses_tree.query_radius(np.array([query_pose.detach().cpu().numpy()]), r=25)
-        np.asarray(indexes[0])
-        all_true_neighbors.append(indexes)
-
-    recall, top1_similarity_score, one_percent_recall = get_recall(map_descriptors.detach().cpu().numpy(), queries_descriptors.detach().cpu().numpy(), all_true_neighbors)
+    recall, top1_similarity_score, one_percent_recall = get_recall(map_descriptors, queries_descriptors, true_neighbors)
+    average_similarity = np.mean(top1_similarity_score)
+    print(' Avg.top 1 % recall: {} %, Avg.similarity: {}, Avg.recall @ N: {} \n'.format(one_percent_recall, average_similarity, recall))
 
 
-    return recall, top1_similarity_score, one_percent_recall
-    # return np.mean(errors), np.median(errors)
-
-def visualize_trajectories():
+def load_validation_data():
     # Prepare data
     euroc_read_validation = EurocReader(directory=TRAINING_PARAMETERS.validation_path)
-    scan_times_validation, pos_validation = euroc_read_validation.prepare_gps_data(deltaxy=5,
-        gps_mode='lat_long')
+    scan_times_val, lat_lon_val, utm_val = euroc_read_validation.prepare_gps_data(deltaxy=5)
+    val_data = [scan_times_val, lat_lon_val, utm_val]
 
-    euroc_read_groundtrutn = EurocReader(directory=TRAINING_PARAMETERS.groundtruth_path)
-    scan_times_groundtruth, pos_groundtruth, _, _ = euroc_read_groundtrutn.prepare_experimental_data(
-        deltaxy=EXP_PARAMETERS.exp_deltaxy,
-        deltath=EXP_PARAMETERS.exp_deltath,
-        nmax_scans=EXP_PARAMETERS.exp_long,
-        gps_mode='lat_long')
+    euroc_read_groundtruth = EurocReader(directory=TRAINING_PARAMETERS.groundtruth_path)
+    scan_times_map, lat_lon_map, utm_map = euroc_read_groundtruth.prepare_gps_data(deltaxy=EXP_PARAMETERS.exp_deltaxy)
+    map_data = [scan_times_map, lat_lon_map, utm_map]
+
+    map_poses_tree = KDTree(utm_map)
+    all_true_neighbors = []
+    for query_pose in utm_val:
+        indexes = map_poses_tree.query_radius(np.array([query_pose]), r=25)
+        all_true_neighbors.append(indexes)
+    return val_data, map_data, all_true_neighbors
+
+
+def visualize_trajectories(val_data, map_data):
+    # Prepare data
+    scan_times_val, lat_lon_val, utm_val = val_data
+    scan_times_map, lat_lon_map, utm_map = map_data
 
     gmap = CustomGoogleMapPlotter(EXP_PARAMETERS.origin_lat, EXP_PARAMETERS.origin_lon, zoom=20,
                                   map_type='satellite')
 
-    gmap.pos_scatter(pos_validation[:, 0], pos_validation[:, 1], color='orange')
-    gmap.pos_scatter(pos_groundtruth[:, 0], pos_groundtruth[:, 1], color='blue')
-    gmap.draw(TRAINING_PARAMETERS.validation_path + '/map.html')
+    gmap.pos_scatter(lat_lon_val[:, 0], lat_lon_val[:, 1], color='orange')
+    gmap.pos_scatter(lat_lon_map[:, 0], lat_lon_map[:, 1], color='blue')
+    gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
 
 
 if __name__ == '__main__':
-    visualize_trajectories()
+    val_data, map_data, true_neighbors = load_validation_data()
+    visualize_trajectories(val_data, map_data)
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device is: ", device0)
@@ -467,8 +464,8 @@ if __name__ == '__main__':
     # print(model)
     # load data
     train_dataset = TrainingDataset()
-    groudtruth_dataset = GroundTruthDataset()
-    validation_dataset = ValidationDataset()
+    groudtruth_dataset = GroundTruthDataset(data=map_data)
+    validation_dataset = ValidationDataset(data=val_data)
     # validation_example = ValidationExample()
     # ref_dataset = ReferenceDataset()
     # other_dataset = OtherDataset()
@@ -567,11 +564,12 @@ if __name__ == '__main__':
                 counter.append(iteration_number)
                 loss_history.append(loss.item())
                 print("Epoch number {}\n Iteration number {}\n Current loss {}".format(epoch, iteration_number, loss.item()))
-                recall, top1_similarity_score, one_percent_recall = compute_validation(net, validation_dataloader, groundtruth_dataloader)
-                # print('Validation results \n Mean pose error: {} meters, Median error: {} meters \n'.format(mean_error, median_error))
-                print(recall)
-                print(top1_similarity_score)
-                print(one_percent_recall)
+
+                compute_validation(model=net, query_dataloader=validation_dataloader,
+                                   map_dataloader=groundtruth_dataloader, true_neighbors=true_neighbors,
+                                   queries_poses=val_data[2], map_poses=map_data[2])
+
+                # net, validation_dataloader, groundtruth_dataloader, true_neighbors)
                 net.to(device0)
                 torch.cuda.set_device(device0)
                 # save trained model

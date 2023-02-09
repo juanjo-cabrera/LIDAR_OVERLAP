@@ -41,9 +41,8 @@ class EurocReader():
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
         return scan_times, gps_pos, odo_pos, odo_orient
 
-    def prepare_gps_data(self, deltaxy, gps_mode='utm'):
+    def prepare_gps_data(self, deltaxy):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS WITHOUT ODOMETRY")
-        # eurocreader = EurocReader(directory=directory)
         # sample odometry at deltaxy and deltatheta
         times_downsampled = self.sample_gps(deltaxy=deltaxy)
         times_filtered = self.filter_gps(EXP_PARAMETERS.gps_status)
@@ -52,19 +51,15 @@ class EurocReader():
 
         df_scan_times = self.read_scan_times()
         df_gps = self.read_gps_data()
-        # utm_x, utm_y = self.gps2utm(df_gps)
-        # df_ground_truth = self.read_ground_truth_data()
-        # for every time in odometry_times, find the closest times of a scan.
-        # next, for every time of the scan, find again the closest odometry and the closest ground truth
 
         scan_times, _, _ = self.get_closest_data(df_scan_times, reference_times)
         # _, odo_pos, odo_orient = self.get_closest_data(df_odometry, scan_times)
-        _, gps_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode=gps_mode)
-        # gps_pos = self.normalize_gps_data(gps_pos)
-        # odo_pos = self.normalize_odom_data(odo_pos)
+        _, lat_lon, _ = self.get_closest_data(df_gps, scan_times, gps_mode='lat_lon')
+        _, utm_pos, _ = self.get_closest_data(df_gps, scan_times, gps_mode='utm')
+
 
         print("FOUND: ", len(scan_times), "TOTAL SCANS")
-        return scan_times, gps_pos
+        return scan_times, lat_lon, utm_pos
 
 
     def offline_ekf(self, odometry_times, df_odometry, scan_times):

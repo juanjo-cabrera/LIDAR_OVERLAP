@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="recall a medias">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="recall done">
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
@@ -27,6 +27,7 @@
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/unet.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/vae.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" beforeDir="false" afterPath="$PROJECT_DIR$/eurocreader/eurocreader_outdoors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -59,14 +60,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/arvc/Juanjo/MinkLoc3D&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/home/arvc/Escritorio/Marcos/TFG",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -202,13 +203,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00005" summary="fpfh overlap">
-      <created>1668774999692</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1668774999692</updated>
     </task>
     <task id="LOCAL-00006" summary="ekf_overlap">
       <created>1669969922390</created>
@@ -546,7 +540,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675867759808</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="recall done">
+      <created>1675935923203</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1675935923204</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -561,7 +562,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Dataloader done" />
     <MESSAGE value="Prueba" />
     <MESSAGE value="entrenamiento funcionando" />
     <MESSAGE value="3d VGG16" />
@@ -586,7 +586,8 @@
     <MESSAGE value="computed validation refactored" />
     <MESSAGE value="new params added" />
     <MESSAGE value="recall a medias" />
-    <option name="LAST_COMMIT_MESSAGE" value="recall a medias" />
+    <MESSAGE value="recall done" />
+    <option name="LAST_COMMIT_MESSAGE" value="recall done" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -973,12 +974,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>363</line>
+          <line>354</line>
           <option name="timeStamp" value="474" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>394</line>
+          <line>385</line>
           <option name="timeStamp" value="479" />
         </line-breakpoint>
       </breakpoints>
