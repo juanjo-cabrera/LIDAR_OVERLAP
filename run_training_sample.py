@@ -457,23 +457,11 @@ if __name__ == '__main__':
     val_data, map_data, true_neighbors = load_validation_data()
     visualize_trajectories(val_data, map_data)
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     print("Device is: ", device0)
-    # device1 = torch.device("cuda:1")
-    # model = torch.hub.load('pytorch/vision:v0.10.0', 'vgg16', pretrained=False)
-    # print(model)
-    # load data
     train_dataset = TrainingDataset()
     groudtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
-    # validation_example = ValidationExample()
-    # ref_dataset = ReferenceDataset()
-    # other_dataset = OtherDataset()
-    # train_size = int(0.8 * len(dataset))
-    # test_size = len(dataset) - train_size
-    # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-    # ref_dataloader = DataLoader(ref_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
-    # other_dataloader = DataLoader(other_dataset, batch_size=TRAINING_PARAMETERS.batch_size, shuffle=True, collate_fn=ME.utils.batch_sparse_collate)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
                                   collate_fn=training_collation_fn)
     groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False,
@@ -481,7 +469,7 @@ if __name__ == '__main__':
     validation_dataloader = DataLoader(validation_dataset, batch_size=TRAINING_PARAMETERS.validation_batch_size, shuffle=False,
                                   collate_fn=ground_collation_fn)
 
-    # initialize model and optimizer
+    # initialize model
     net = VGG16_3DNetwork(
         3,  # in channels
         TRAINING_PARAMETERS.output_size,  # out channels
@@ -494,22 +482,14 @@ if __name__ == '__main__':
     #     3,  # in channels
     #     TRAINING_PARAMETERS.output_size,  # out channels
     #     dimension=3).to(device0)  # Space dimension
-    # if torch.cuda.device_count() > 1:
-    #     print("Let's use", torch.cuda.device_count(), "GPUs!")
-    #     # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-    #     net = nn.DataParallel(net)
 
     # net.to(device)
-
-
-
     # net = STR2NETWORK['MinkowskiFCNN'](
     #     in_channel=3, out_channel=40, embedding_channel=1024
     # ).to(device)
     print("===================Network===================")
     print(net)
     print("=============================================\n\n")
-
 
     criterion = ContrastiveLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
@@ -525,13 +505,9 @@ if __name__ == '__main__':
         # for ref_data, other_data in zip(ref_dataloader, other_dataloader):
         for training_data in train_dataloader:
             optimizer.zero_grad()
+
             # Get new data
             ref_pcd, ref_feat, other_pcd, other_feat, label = training_data
-            # ref_pcd, ref_feat, label = ref_data
-            # other_pcd, other_feat = other_data
-            # ref_input = ME.SparseTensor(features=ref_feat.to(dtype=torch.float32), coordinates=ref_pcd.to(dtype=torch.float32), device=device)
-            # other_input = ME.SparseTensor(features=other_feat.to(dtype=torch.float32), coordinates=other_pcd.to(dtype=torch.float32), device=device)
-
             ref_input = ME.TensorField(
                 features=ref_feat.to(dtype=torch.float32),
                 coordinates=ref_pcd.to(dtype=torch.float32),
@@ -539,7 +515,6 @@ if __name__ == '__main__':
                 minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
                 device=device0,
             )
-
             other_input = ME.TensorField(
                 features=other_feat.to(dtype=torch.float32),
                 coordinates=other_pcd.to(dtype=torch.float32),
@@ -549,17 +524,14 @@ if __name__ == '__main__':
             )
 
             label = label.to(device0)
-
             # Forward
             ref_desc = net(ref_input)
             other_desc = net(other_input)
-            # loss = criterion(ref_desc.F, other_desc.F, label) #For sparse tensor
             loss = criterion(ref_desc, other_desc, label)  # For tensor field
             loss.backward()
             optimizer.step()
 
             if i % 10 == 0:
-                # torch.save(net.state_dict(), 'red_prueba')
                 iteration_number += 10
                 counter.append(iteration_number)
                 loss_history.append(loss.item())
@@ -568,8 +540,6 @@ if __name__ == '__main__':
                 compute_validation(model=net, query_dataloader=validation_dataloader,
                                    map_dataloader=groundtruth_dataloader, true_neighbors=true_neighbors,
                                    queries_poses=val_data[2], map_poses=map_data[2])
-
-                # net, validation_dataloader, groundtruth_dataloader, true_neighbors)
                 net.to(device0)
                 torch.cuda.set_device(device0)
                 # save trained model
