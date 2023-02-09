@@ -356,40 +356,40 @@ def get_latent_vectors(dataloader, model, main_device, secondary_device):
     return all_descriptors, all_poses
 
 
-def get_recall(database_output, queries_output, query_sets):
-    #con las poses saco los true_neighbors, esto lo puedo hacer antes y cargarlo
-    map_poses_tree = KDTree(map_poses.detach().cpu().numpy())
-    index = map_poses_tree.query_radius(np.array([querys_poses.detach().cpu().numpy()]), r=25)
+def get_recall(map_output, queries_output, all_true_neighbors):
+    # Evaluation code adapted from PointNetVlad code: https://github.com/mikacuy/pointnetvlad
+
     # When embeddings are normalized, using Euclidean distance gives the same
     # nearest neighbour search results as using cosine distance
-    database_nbrs = KDTree(database_output)
+    database_nbrs = KDTree(map_output)
 
     num_neighbors = 25
     recall = [0] * num_neighbors
 
     top1_similarity_score = []
     one_percent_retrieved = 0
-    threshold = max(int(round(len(database_output)/100.0)), 1)
+    threshold = max(int(round(len(map_output)/100.0)), 1)
 
     num_evaluated = 0
     for i in range(len(queries_output)):
         # i is query element ndx
-        query_details = query_sets[n][i]    # {'query': path, 'northing': , 'easting': }
-        true_neighbors = query_details[m]
+        true_neighbors = all_true_neighbors[i]
         if len(true_neighbors) == 0:
             continue
         num_evaluated += 1
         distances, indices = database_nbrs.query(np.array([queries_output[i]]), k=num_neighbors)
 
-        for j in range(len(indices[0])):
-            if indices[0][j] in true_neighbors:
-                if j == 0:
-                    similarity = np.dot(queries_output[i], database_output[indices[0][j]])
+        for j in range(len(indices[0])): # recorremos cada uno de los 25 vecinos más cercanos
+            if indices[0][j] in true_neighbors[0]: # si el indice del vecino predicho esta entre los reales:
+                if j == 0: # Si acertamos en el vecino más cercano
+                    similarity = np.dot(queries_output[i], map_output[indices[0][j]])
                     top1_similarity_score.append(similarity)
                 recall[j] += 1
                 break
 
-        if len(list(set(indices[0][0:threshold]).intersection(set(true_neighbors)))) > 0:
+        if len(list(set(indices[0][0:threshold]).intersection(set(true_neighbors[0])))) > 0:
+            # de indices coges los n elementos más cercanos, donde n viende dado el threshold
+            # si estos indices seleccionados coinciden con algun vecino verdadero, entonces entra
             one_percent_retrieved += 1
 
     one_percent_recall = (one_percent_retrieved/float(num_evaluated))*100
@@ -401,34 +401,40 @@ def compute_validation(model, validation_dataloader, groundtruth_dataloader):
     device2 = torch.device("cuda:2")
     device3 = torch.device("cuda:3")
 
-    querys_descriptors, querys_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
+    queries_descriptors, queries_poses = get_latent_vectors(dataloader=validation_dataloader, model=model,
                                                                   main_device=device1, secondary_device=device3)
     map_descriptors, map_poses = get_latent_vectors(dataloader=groundtruth_dataloader, model=model,
                                                                   main_device=device2, secondary_device=device3)
 
-    k = 0
-    errors = []
-    map_feat_tree = KDTree(map_descriptors.detach().cpu().numpy(), metric='euclidean')
-    num_neighbors = 25
-    for query_descriptor in querys_descriptors:
-        descriptor_space_distances = F.pairwise_distance(query_descriptor, map_descriptors, keepdim=True)
-        predicted_pose = map_poses[torch.argmin(descriptor_space_distances)]
-        distances, indices = map_feat_tree.query(np.array([query_descriptor.detach().cpu().numpy()]), k=num_neighbors)
-        kd_tree_pose = map_poses[indices]
-
-        real_pose = querys_poses[k]
-        pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
-        errors.append(pose_error.detach().cpu().numpy())
-        k += 1
-    errors = np.array(errors)
-    print(errors)
+    # k = 0
+    # errors = []
+    # map_feat_tree = KDTree(map_descriptors.detach().cpu().numpy())
+    # num_neighbors = 25
+    # for query_descriptor in queries_descriptors:
+    #     descriptor_space_distances = F.pairwise_distance(query_descriptor, map_descriptors, keepdim=True)
+    #     predicted_pose = map_poses[torch.argmin(descriptor_space_distances)]
+    #     distances, indices = map_feat_tree.query(np.array([query_descriptor.detach().cpu().numpy()]), k=num_neighbors)
+    #     kd_tree_pose = map_poses[indices]
+    #
+    #     real_pose = queries_poses[k]
+    #     pose_error =  F.pairwise_distance(predicted_pose, real_pose, keepdim=True)
+    #     errors.append(pose_error.detach().cpu().numpy())
+    #     k += 1
+    # errors = np.array(errors)
+    # print(errors)
 
     map_poses_tree = KDTree(map_poses.detach().cpu().numpy())
-    index = map_poses_tree.query_radius(np.array([querys_poses.detach().cpu().numpy()]), r=25)
+    all_true_neighbors = []
+    for query_pose in queries_poses:
+        indexes = map_poses_tree.query_radius(np.array([query_pose.detach().cpu().numpy()]), r=25)
+        np.asarray(indexes[0])
+        all_true_neighbors.append(indexes)
+
+    recall, top1_similarity_score, one_percent_recall = get_recall(map_descriptors.detach().cpu().numpy(), queries_descriptors.detach().cpu().numpy(), all_true_neighbors)
 
 
-
-    return np.mean(errors), np.median(errors)
+    return recall, top1_similarity_score, one_percent_recall
+    # return np.mean(errors), np.median(errors)
 
 def visualize_trajectories():
     # Prepare data
@@ -561,8 +567,11 @@ if __name__ == '__main__':
                 counter.append(iteration_number)
                 loss_history.append(loss.item())
                 print("Epoch number {}\n Iteration number {}\n Current loss {}".format(epoch, iteration_number, loss.item()))
-                mean_error, median_error = compute_validation(net, validation_dataloader, groundtruth_dataloader)
-                print('Validation results \n Mean pose error: {} meters, Median error: {} meters \n'.format(mean_error, median_error))
+                recall, top1_similarity_score, one_percent_recall = compute_validation(net, validation_dataloader, groundtruth_dataloader)
+                # print('Validation results \n Mean pose error: {} meters, Median error: {} meters \n'.format(mean_error, median_error))
+                print(recall)
+                print(top1_similarity_score)
+                print(one_percent_recall)
                 net.to(device0)
                 torch.cuda.set_device(device0)
                 # save trained model

@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="new params added">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="recall a medias">
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
@@ -202,13 +202,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00004" summary="borrado graphslam">
-      <created>1667823136339</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1667823136339</updated>
     </task>
     <task id="LOCAL-00005" summary="fpfh overlap">
       <created>1668774999692</created>
@@ -546,7 +539,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675850127098</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="recall a medias">
+      <created>1675867759808</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1675867759808</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -561,7 +561,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Poses error solved" />
     <MESSAGE value="Dataloader done" />
     <MESSAGE value="Prueba" />
     <MESSAGE value="entrenamiento funcionando" />
@@ -586,7 +585,8 @@
     <MESSAGE value="evaluation a medias" />
     <MESSAGE value="computed validation refactored" />
     <MESSAGE value="new params added" />
-    <option name="LAST_COMMIT_MESSAGE" value="new params added" />
+    <MESSAGE value="recall a medias" />
+    <option name="LAST_COMMIT_MESSAGE" value="recall a medias" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -973,23 +973,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>429</line>
-          <option name="timeStamp" value="466" />
+          <line>363</line>
+          <option name="timeStamp" value="474" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>425</line>
-          <option name="timeStamp" value="467" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>418</line>
-          <option name="timeStamp" value="471" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>417</line>
-          <option name="timeStamp" value="472" />
+          <line>394</line>
+          <option name="timeStamp" value="479" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
