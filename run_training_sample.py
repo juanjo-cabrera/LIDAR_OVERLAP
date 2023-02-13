@@ -179,11 +179,11 @@ class ValidationExample():
 
 
 class VGG16_3DNetwork(nn.Module):
-    def __init__(self, in_feat, out_feat, D):
+    def __init__(self, in_channel, out_channel, D):
         super(VGG16_3DNetwork, self).__init__()
         self.net = nn.Sequential(
             ME.MinkowskiConvolution(
-                in_channels=in_feat,
+                in_channels=in_channel,
                 out_channels=64,
                 kernel_size=3,
                 stride=1,
@@ -272,7 +272,7 @@ class VGG16_3DNetwork(nn.Module):
             ME.MinkowskiGlobalPooling(),
             # ME.MinkowskiLinear(512, 512),
             # ME.MinkowskiLinear(512, 128),
-            ME.MinkowskiLinear(512, out_feat))
+            ME.MinkowskiLinear(512, out_channel))
 
     def forward(self, x):
         x = x.sparse()
@@ -452,6 +452,13 @@ def visualize_trajectories(val_data, map_data):
     gmap.pos_scatter(lat_lon_map[:, 0], lat_lon_map[:, 1], color='blue')
     gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
 
+STR2NETWORK = dict(
+    pointnet=PointNet,
+    minkpointnet=MinkowskiPointNet,
+    minkfcnn=MinkowskiFCNN,
+    minksplatfcnn=MinkowskiSplatFCNN,
+    VGG16=VGG16_3DNetwork
+)
 
 if __name__ == '__main__':
     val_data, map_data, true_neighbors = load_validation_data()
@@ -460,33 +467,19 @@ if __name__ == '__main__':
 
     print("Device is: ", device0)
     train_dataset = TrainingDataset()
-    groudtruth_dataset = GroundTruthDataset(data=map_data)
+    groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
                                   collate_fn=training_collation_fn)
-    groundtruth_dataloader = DataLoader(groudtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False,
+    groundtruth_dataloader = DataLoader(groundtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False,
                                   collate_fn=ground_collation_fn)
     validation_dataloader = DataLoader(validation_dataset, batch_size=TRAINING_PARAMETERS.validation_batch_size, shuffle=False,
                                   collate_fn=ground_collation_fn)
 
     # initialize model
-    net = VGG16_3DNetwork(
-        3,  # in channels
-        TRAINING_PARAMETERS.output_size,  # out channels
-        D=3).to(device0) # Space dimension
-    # net = MinkowskiFCNN(
-    #     3,  # in nchannel
-    #     TRAINING_PARAMETERS.output_size,  # out_nchannel
-    #     D=3).to(device0) # Space dimension
-    # net = MinkowskiPointNet(
-    #     3,  # in channels
-    #     TRAINING_PARAMETERS.output_size,  # out channels
-    #     dimension=3).to(device0)  # Space dimension
+    net = STR2NETWORK['VGG16'](
+        in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
 
-    # net.to(device)
-    # net = STR2NETWORK['MinkowskiFCNN'](
-    #     in_channel=3, out_channel=40, embedding_channel=1024
-    # ).to(device)
     print("===================Network===================")
     print(net)
     print("=============================================\n\n")
@@ -502,10 +495,8 @@ if __name__ == '__main__':
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
         i = 0
-        # for ref_data, other_data in zip(ref_dataloader, other_dataloader):
         for training_data in train_dataloader:
             optimizer.zero_grad()
-
             # Get new data
             ref_pcd, ref_feat, other_pcd, other_feat, label = training_data
             ref_input = ME.TensorField(
