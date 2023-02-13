@@ -15,6 +15,8 @@ from scripts.examples.classification_modelnet40 import *
 from eurocreader.eurocreader_outdoors import EurocReader
 from google_maps_plotter.custom_plotter import *
 from sklearn.neighbors import KDTree
+from tqdm import tqdm
+from time import sleep
 from kittireader.kittireader import KittiReader
 
 class TrainingDataset(Dataset):
@@ -415,11 +417,12 @@ def compute_validation(model, query_dataloader, map_dataloader, true_neighbors, 
                                                                   main_device=device2)
 
     mean_error, median_error = get_position_error(queries_descriptors, map_descriptors, queries_poses, map_poses)
-    print('Validation results \n Mean pose error: {} meters, Median error: {} meters'.format(mean_error, median_error))
+    print('\n\nValidation results \n Mean pose error: {} meters, Median error: {} meters'.format(mean_error, median_error))
 
     recall, top1_similarity_score, one_percent_recall = get_recall(map_descriptors, queries_descriptors, true_neighbors)
     average_similarity = np.mean(top1_similarity_score)
     print(' Avg.top 1 % recall: {} %, Avg.similarity: {}, Avg.recall @ N: {} \n'.format(one_percent_recall, average_similarity, recall))
+    return recall[0], mean_error
 
 
 def load_validation_data():
@@ -489,56 +492,83 @@ if __name__ == '__main__':
 
     # train model
     counter = []
-    loss_history = []
-    iteration_number = 0
-    net_name = '3DVGG16'
+    error_history = []
+    last_errors = []
+    error_history.append(1000)
+    net_name = '3DVGG16_'
+    net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
-        i = 0
-        for training_data in train_dataloader:
-            optimizer.zero_grad()
-            # Get new data
-            ref_pcd, ref_feat, other_pcd, other_feat, label = training_data
-            ref_input = ME.TensorField(
-                features=ref_feat.to(dtype=torch.float32),
-                coordinates=ref_pcd.to(dtype=torch.float32),
-                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-                device=device0,
-            )
-            other_input = ME.TensorField(
-                features=other_feat.to(dtype=torch.float32),
-                coordinates=other_pcd.to(dtype=torch.float32),
-                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-                device=device0,
-            )
+        with tqdm(train_dataloader, unit="batch") as tepoch:
+            i = 0
+            for training_data in tepoch:
+                tepoch.set_description(f"Epoch {epoch}")
+                optimizer.zero_grad()
+                # Get new data
+                ref_pcd, ref_feat, other_pcd, other_feat, label = training_data
+                ref_input = ME.TensorField(
+                    features=ref_feat.to(dtype=torch.float32),
+                    coordinates=ref_pcd.to(dtype=torch.float32),
+                    quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+                    minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+                    device=device0,
+                )
+                other_input = ME.TensorField(
+                    features=other_feat.to(dtype=torch.float32),
+                    coordinates=other_pcd.to(dtype=torch.float32),
+                    quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+                    minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+                    device=device0,
+                )
+                label = label.to(device0)
 
-            label = label.to(device0)
-            # Forward
-            ref_desc = net(ref_input)
-            other_desc = net(other_input)
-            loss = criterion(ref_desc, other_desc, label)  # For tensor field
-            loss.backward()
-            optimizer.step()
+                # Forward
+                ref_desc = net(ref_input)
+                other_desc = net(other_input)
+                loss = criterion(ref_desc, other_desc, label)  # For tensor field
+                loss.backward()
+                optimizer.step()
 
-            if i % 10 == 0:
-                iteration_number += 10
-                counter.append(iteration_number)
-                loss_history.append(loss.item())
-                print("Epoch number {}\n Iteration number {}\n Current loss {}".format(epoch, iteration_number, loss.item()))
+                if i % 50 == 0:
+                    recall_at1, mean_error = compute_validation(model=net, query_dataloader=validation_dataloader,
+                                       map_dataloader=groundtruth_dataloader, true_neighbors=true_neighbors,
+                                       queries_poses=val_data[2], map_poses=map_data[2])
 
-                compute_validation(model=net, query_dataloader=validation_dataloader,
-                                   map_dataloader=groundtruth_dataloader, true_neighbors=true_neighbors,
-                                   queries_poses=val_data[2], map_poses=map_data[2])
-                net.to(device0)
-                torch.cuda.set_device(device0)
-                # save trained model
-                torch.save(net.state_dict(), net_name)
-                net.train(mode=True)
-            i += 1
 
-    # save trained model
-    # torch.save(net, net_name)
+                    min_error = np.min(error_history)
+                    error_history.append(mean_error)
+
+                    if mean_error < min_error:
+                        # save model
+                        torch.save(net.state_dict(), net_name + str(mean_error))
+                    # Model to training device
+                    net.to(device0)
+                    torch.cuda.set_device(device0)
+                    net.train(mode=True)
+
+                    if len(last_errors) < 5:
+                        last_errors.append(mean_error)
+                        counter.append(i)
+                    elif len(last_errors) == 5:
+                        del last_errors[0]
+                        del counter[0]
+                        last_errors.append(mean_error)
+                        counter.append(i)
+
+                    if len(last_errors) > 2:
+                        error_tendency = np.polyfit(x=np.array(last_errors), y=np.array(counter), deg=1)
+                        error_tendency = error_tendency[0]
+                        if error_tendency < 0:
+                            print('\nAprendiendo\n')
+                        else:
+                            break
+                            break
+
+                i += 1
+
+
+                tepoch.set_postfix(loss=loss.item())
+                sleep(0.1)
+
 
 
