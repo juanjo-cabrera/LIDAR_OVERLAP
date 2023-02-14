@@ -546,10 +546,10 @@ if __name__ == '__main__':
                     torch.cuda.set_device(device0)
                     net.train(mode=True)
 
-                    if len(last_errors) < 5:
+                    if len(last_errors) < 10:
                         last_errors.append(mean_error)
                         counter.append(i)
-                    elif len(last_errors) == 5:
+                    elif len(last_errors) == 10:
                         del last_errors[0]
                         del counter[0]
                         last_errors.append(mean_error)
