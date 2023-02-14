@@ -438,7 +438,7 @@ def load_validation_data():
     map_poses_tree = KDTree(utm_map)
     all_true_neighbors = []
     for query_pose in utm_val:
-        indexes = map_poses_tree.query_radius(np.array([query_pose]), r=25)
+        indexes = map_poses_tree.query_radius(np.array([query_pose]), r=TRAINING_PARAMETERS.success_radius)
         all_true_neighbors.append(indexes)
     return val_data, map_data, all_true_neighbors
 

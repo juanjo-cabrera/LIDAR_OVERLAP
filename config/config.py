@@ -100,6 +100,9 @@ class Training_ParametersConfig():
             self.groundtruth_path = config.get('groundtruth_parameters').get('path')
             self.groundtruth_batch_size = config.get('groundtruth_parameters').get('batch_size')
 
+            self.success_radius = config.get('evaluation_parameters').get('success_boundary_radius')
+
+
 
 ICP_PARAMETERS = ICP_ParametersConfig()
 EXP_PARAMETERS = Exp_ParametersConfig()

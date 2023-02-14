@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="training code refactored">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="tqdm and stop decision criteria added">
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/README.md" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/__init__.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/classification_modelnet40.py" beforeDir="false" />
@@ -27,6 +27,7 @@
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/unet.py" beforeDir="false" />
       <change beforePath="$USER_HOME$/Antonio/virtual_environments/model_minkowski/MinkowskiEngine/examples/vae.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_training_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_training_sample.py" afterDir="false" />
     </list>
@@ -203,20 +204,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00008" summary="data labelling">
-      <created>1670928811368</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1670928811368</updated>
-    </task>
-    <task id="LOCAL-00009" summary="data labelling">
-      <created>1670929041896</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1670929041896</updated>
     </task>
     <task id="LOCAL-00010" summary="data labelling">
       <created>1670929053466</created>
@@ -547,7 +534,21 @@
       <option name="project" value="LOCAL" />
       <updated>1675951316545</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="str2network dictionary added">
+      <created>1676282181886</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1676282181887</updated>
+    </task>
+    <task id="LOCAL-00058" summary="tqdm and stop decision criteria added">
+      <created>1676298634859</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1676298634859</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -562,8 +563,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="3d VGG16" />
-    <MESSAGE value="Empleo de MinkowskiSplatFCNN" />
     <MESSAGE value="unique training_dataset added&#10;custom collate fn added" />
     <MESSAGE value="validation, testing and ground truth paths added in yaml" />
     <MESSAGE value="ground truth dataset added" />
@@ -587,7 +586,9 @@
     <MESSAGE value="recall done" />
     <MESSAGE value="validation refactored" />
     <MESSAGE value="training code refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="training code refactored" />
+    <MESSAGE value="str2network dictionary added" />
+    <MESSAGE value="tqdm and stop decision criteria added" />
+    <option name="LAST_COMMIT_MESSAGE" value="tqdm and stop decision criteria added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -974,23 +975,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>354</line>
-          <option name="timeStamp" value="474" />
+          <line>540</line>
+          <option name="timeStamp" value="485" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>385</line>
-          <option name="timeStamp" value="479" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>455</line>
-          <option name="timeStamp" value="480" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>459</line>
-          <option name="timeStamp" value="481" />
+          <line>388</line>
+          <option name="timeStamp" value="487" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

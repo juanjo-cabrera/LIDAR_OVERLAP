@@ -27,3 +27,6 @@ validation_parameters:
 groundtruth_parameters:
   path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
   batch_size: 32
+
+evaluation_parameters:
+  success_boundary_radius: 25 #meters
