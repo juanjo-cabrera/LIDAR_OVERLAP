@@ -43,6 +43,7 @@ class KeyFrame():
         self.pointcloud_filtered = None
         self.pointcloud_ground_plane = None
         self.pointcloud_non_ground_plane = None
+        self.pointcloud_training = None
         self.pcd_fpfh = None
 
 
@@ -87,8 +88,10 @@ class KeyFrame():
         # downsample pointcloud and save to pointcloud in keyframe
         if self.voxel_downsample_size is not None:
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
+
         # segment ground plane
-        pcd_ground_plane, pcd_non_ground_plane = self.segment_plane()
+        pcd_ground_plane, pcd_non_ground_plane = self.segment_plane(self.pointcloud_filtered)
+        _, self.pointcloud_training = self.segment_plane(self.pointcloud)
         self.pointcloud_ground_plane = pcd_ground_plane
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
         # calcular las normales a cada punto
@@ -335,7 +338,7 @@ class KeyFrame():
         idx = points[:, 2] < height
         return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points[idx]))
 
-    def segment_plane(self, height=-0.5, thresholdA=0.01, thresholdB=0.4):
+    def segment_plane(self, pcd, height=-0.5, thresholdA=0.01, thresholdB=0.4):
         """
         filter roughly the points that may belong to the plane.
         then estimate the plane with these points.
@@ -358,7 +361,7 @@ class KeyFrame():
         c=1
         d=0.7
 
-        points = np.asarray(self.pointcloud_filtered.points)
+        points = np.asarray(pcd.points)
         # inliers_final = []
         # for i in range(len(points)):
         #     dist = np.abs(a*points[i, 0] + b*points[i, 1] + c*points[i, 2] + d)/np.sqrt(a*a+b*b+c*c)
@@ -371,8 +374,8 @@ class KeyFrame():
         inliers_final = inliers_final[0]
 
         # now select the final pointclouds
-        plane_cloud = self.pointcloud_filtered.select_by_index(inliers_final)
-        non_plane_cloud = self.pointcloud_filtered.select_by_index(inliers_final, invert=True)
+        plane_cloud = pcd.select_by_index(inliers_final)
+        non_plane_cloud = pcd.select_by_index(inliers_final, invert=True)
         return plane_cloud, non_plane_cloud
 
     def fpfh_similarity(self, other):
@@ -809,10 +812,15 @@ class KeyFrame():
         return matches, indices
 
     def pairwise_overlap(self, other, transformation):
-        source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
-        target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
-        source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)
-        target_temp1 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        # source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        # target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        # source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        # target_temp1 = copy.deepcopy(other.pointcloud_non_ground_plane)
+
+        source_temp0 = copy.deepcopy(self.pointcloud_training)
+        target_temp0 = copy.deepcopy(other.pointcloud_training)
+        source_temp1 = copy.deepcopy(self.pointcloud_training)
+        target_temp1 = copy.deepcopy(other.pointcloud_training)
 
         if DEBUGGING_PARAMETERS.plot_scan_overlap:
             source_temp0.paint_uniform_color([0.5, 0.5, 0.5])
@@ -827,7 +835,6 @@ class KeyFrame():
         # print('Pairwise overlap:', overlap)
         # print('Source overlap:', source_matches/len(source_temp0.points))
         # print('Target overlap:', target_matches / len(target_temp0.points))
-
         if DEBUGGING_PARAMETERS.plot_scan_overlap:
             np.asarray(target_temp0.colors)[target_indices[1:], :] = [1, 0, 0] #points matched in red
             np.asarray(source_temp0.colors)[source_indices[1:], :] = [1, 0, 0] #points matched in red
