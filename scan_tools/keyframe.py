@@ -91,9 +91,10 @@ class KeyFrame():
 
         # segment ground plane
         pcd_ground_plane, pcd_non_ground_plane = self.segment_plane(self.pointcloud_filtered)
-        _, self.pointcloud_training = self.segment_plane(self.pointcloud)
+        # _, self.pointcloud_training = self.segment_plane(self.pointcloud)
         self.pointcloud_ground_plane = pcd_ground_plane
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
+        # self.draw_pointcloud(self.pointcloud_non_ground_plane)
         # calcular las normales a cada punto
         # self.pointcloud_filtered.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=self.voxel_size_normals,
         #                                                                       max_nn=ICP_PARAMETERS.max_nn))
@@ -346,7 +347,7 @@ class KeyFrame():
         """
         # find a plane by removing some of the points at a given height
         # this best estimates a ground plane.
-        # points = np.asarray(self.pointcloud_filtered.points)
+        points = np.asarray(pcd.points)
         # idx = points[:, 2] < height
         # pcd_plane = o3d.geometry.PointCloud()
         # pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
@@ -356,12 +357,12 @@ class KeyFrame():
         """
         Ecuacion del plano para un entorno en concreto: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
         """
-        a=0
-        b=0
-        c=1
-        d=0.7
+        a=-0.01265
+        b=-0.006
+        d=1.74877
+        c=0.9999
 
-        points = np.asarray(pcd.points)
+        # points = np.asarray(pcd.points)
         # inliers_final = []
         # for i in range(len(points)):
         #     dist = np.abs(a*points[i, 0] + b*points[i, 1] + c*points[i, 2] + d)/np.sqrt(a*a+b*b+c*c)
@@ -697,8 +698,8 @@ class KeyFrame():
         o3d.visualization.draw_geometries([source_temp, target_temp, source_point, target_point, source_points_bbox, target_points_bbox])
         # o3d.visualization.draw_geometries([source_temp, target_temp, source_point, target_point])
 
-    def draw_pointcloud(self):
-        o3d.visualization.draw_geometries([self.pointcloud])
+    def draw_pointcloud(self, pcd):
+        o3d.visualization.draw_geometries([pcd])
 
     def numpy2pointcloud(self, xyz):
         self.pointcloud.points = o3d.utility.Vector3dVector(xyz)
@@ -812,15 +813,15 @@ class KeyFrame():
         return matches, indices
 
     def pairwise_overlap(self, other, transformation):
-        # source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
-        # target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
-        # source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)
-        # target_temp1 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        source_temp0 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp0 = copy.deepcopy(other.pointcloud_non_ground_plane)
+        source_temp1 = copy.deepcopy(self.pointcloud_non_ground_plane)
+        target_temp1 = copy.deepcopy(other.pointcloud_non_ground_plane)
 
-        source_temp0 = copy.deepcopy(self.pointcloud_training)
-        target_temp0 = copy.deepcopy(other.pointcloud_training)
-        source_temp1 = copy.deepcopy(self.pointcloud_training)
-        target_temp1 = copy.deepcopy(other.pointcloud_training)
+        # source_temp0 = copy.deepcopy(self.pointcloud_training)
+        # target_temp0 = copy.deepcopy(other.pointcloud_training)
+        # source_temp1 = copy.deepcopy(self.pointcloud_training)
+        # target_temp1 = copy.deepcopy(other.pointcloud_training)
 
         if DEBUGGING_PARAMETERS.plot_scan_overlap:
             source_temp0.paint_uniform_color([0.5, 0.5, 0.5])
