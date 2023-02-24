@@ -30,7 +30,7 @@ if __name__ == "__main__":
     scan_indices = np.arange(0, len(scan_times))
     scan_combinations = list(it.combinations(scan_indices, 2))
 
-    with open(EXP_PARAMETERS.directory + '/labelling.csv', 'w', newline='') as file:
+    with open(EXP_PARAMETERS.directory + '/labelling_prueba.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
         for idx in scan_indices:
