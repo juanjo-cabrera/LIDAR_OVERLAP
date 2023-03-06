@@ -1,10 +1,13 @@
+"""
+In this script we assess the labelling of all the possible combinations of a given trajectory, but in this case with multiprocessing
+"""
+
 from run_3D_overlap import *
 import itertools as it
 import csv
 from config import EXP_PARAMETERS
 import multiprocessing as mp
-import os
-from multiprocessing import get_context, set_start_method
+from multiprocessing import set_start_method
 
 scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 scan_indices = np.arange(0, len(scan_times))

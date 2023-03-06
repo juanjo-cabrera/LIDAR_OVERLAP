@@ -1,3 +1,8 @@
+"""
+In this script we assess the labelling of all the possible combinations of a given trajectory
+"""
+
+
 from run_3D_overlap import *
 import itertools as it
 import csv
