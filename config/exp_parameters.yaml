@@ -5,7 +5,8 @@ origin_coordinates:
   lon: -0.6861944724090255
 
 
-directory: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04'
+directory: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
+
 #directory: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-21-12-03-42'
 do_offline_ekf: False
 scan_idx: 0
