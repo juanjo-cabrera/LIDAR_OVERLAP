@@ -403,7 +403,7 @@ def read_custom_dataset(directory):
     # create KeyFrameManager
     start = 0
     end = len(scan_times)
-    scan_times = scan_times[start:end]
+    # scan_times = scan_times[start:end]
 
     keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
     keyframe_manager.add_all_keyframes()
