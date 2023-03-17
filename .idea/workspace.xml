@@ -4,19 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="some scripts moved and renamed">
-      <change afterPath="$PROJECT_DIR$/some_combinations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LIDAR_SLAM.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="new approach">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/exp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/labelling/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/labelling/all_possible_combinations.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_possible_combinations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/labelling/mult_all_possible_combinations.py" beforeDir="false" afterPath="$PROJECT_DIR$/mult_all_possible_combinations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oxfordreader/PointnetVLAD_submaps.py" beforeDir="false" afterPath="$PROJECT_DIR$/oxfordreader/PointnetVLAD_submaps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_labelling_representation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_labelling_representation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +60,7 @@
       <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.PointnetVLAD_submaps">
+  <component name="RunManager" selected="Python.run_labelling_representation">
     <configuration name="PointnetVLAD_submaps" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -134,7 +124,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_3D_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_labelling_representation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -146,7 +136,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_3D_overlap.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_labelling_representation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -178,11 +168,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.run_labelling_representation" />
+        <item itemvalue="Python.some_combinations" />
         <item itemvalue="Python.PointnetVLAD_submaps" />
         <item itemvalue="Python.all_possible_combinations" />
         <item itemvalue="Python.mult_all_possible_combinations" />
-        <item itemvalue="Python.some_combinations" />
-        <item itemvalue="Python.run_3D_overlap" />
       </list>
     </recent_temporary>
   </component>
@@ -194,27 +184,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00017" summary="google maps plotter overlap">
-      <created>1671441745236</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1671441745236</updated>
-    </task>
-    <task id="LOCAL-00018" summary="overlap colors fixed">
-      <created>1671545004404</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1671545004404</updated>
-    </task>
-    <task id="LOCAL-00019" summary="yaw errors">
-      <created>1671551093523</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1671551093523</updated>
     </task>
     <task id="LOCAL-00020" summary="distribucion de parametros en diferentes ficheros">
       <created>1671791897513</created>
@@ -538,7 +507,28 @@
       <option name="project" value="LOCAL" />
       <updated>1678093460464</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="some changes">
+      <created>1678701135482</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1678701135482</updated>
+    </task>
+    <task id="LOCAL-00067" summary="reducdant line commented">
+      <created>1679040059227</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1679040059227</updated>
+    </task>
+    <task id="LOCAL-00068" summary="new approach">
+      <created>1679040079251</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1679040079251</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -553,9 +543,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Some config parameters added" />
-    <MESSAGE value="config parameters added to training" />
-    <MESSAGE value="position from lat long referred to innova" />
     <MESSAGE value="coordinates origin added in exp config" />
     <MESSAGE value="plotting validation and grountruth before train added" />
     <MESSAGE value="some commented lines removed" />
@@ -578,7 +565,10 @@
     <MESSAGE value="read and plot Oxford Robotcar trayectories" />
     <MESSAGE value="some notes added" />
     <MESSAGE value="some scripts moved and renamed" />
-    <option name="LAST_COMMIT_MESSAGE" value="some scripts moved and renamed" />
+    <MESSAGE value="some changes" />
+    <MESSAGE value="reducdant line commented" />
+    <MESSAGE value="new approach" />
+    <option name="LAST_COMMIT_MESSAGE" value="new approach" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -960,23 +950,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/some_combinations.py</url>
-          <line>39</line>
-          <option name="timeStamp" value="496" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/kittireader/kittireader.py</url>
-          <line>44</line>
-          <option name="timeStamp" value="498" />
+          <line>140</line>
+          <option name="timeStamp" value="520" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/some_combinations.py</url>
-          <line>34</line>
-          <option name="timeStamp" value="499" />
+          <line>133</line>
+          <option name="timeStamp" value="521" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/config/config.py</url>
-          <line>9</line>
-          <option name="timeStamp" value="500" />
+          <url>file://$PROJECT_DIR$/some_combinations.py</url>
+          <line>132</line>
+          <option name="timeStamp" value="522" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
