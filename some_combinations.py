@@ -12,6 +12,8 @@ from sklearn.neighbors import KDTree
 from scipy.spatial.distance import pdist
 import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib
+import matplotlib.cm as cm
 
 def process_overlap(keyframe_manager, poses, scan_idx, i):
     pre_process = True
@@ -76,11 +78,42 @@ def vis_poses(xys):
     fig, ax = plt.subplots()
 
     # map poses
-    ax.scatter(xys[:, 0], xys[:, 1], c='grey', s=10)
+    ax.scatter(xys[:, 0], xys[:, 1], c='red', s=10)
     ax.axis('square')
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')
     ax.set_title('Poses')
+    plt.show()
+
+def plot_overlap(reference_positions, other_positions, overlaps):
+    """Visualize the overlap value on trajectory"""
+    # set up plot
+    fig, ax = plt.subplots()
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=1, clip=True)
+    mapper = cm.ScalarMappable(norm=norm)  # cmap="magma"
+    mapper.set_array(overlaps)
+    colors = np.array([mapper.to_rgba(a) for a in overlaps])
+
+    # sort according to overlap
+    indices = np.argsort(overlaps)
+    reference_positions = reference_positions[:, 0:2]
+    other_positions = other_positions[:, 0:2]
+
+    # pose to evaluate
+    # x_actual = xys[scan_idx, 0]
+    # y_actual = xys[scan_idx, 1]
+
+    # map poses
+    other_positions = other_positions[indices]
+    ax.scatter(other_positions[:, 0], other_positions[:, 1], c=colors[indices], s=10)
+    # ax.scatter(x_5max, y_5max, c='black', marker='X', s=15)
+    ax.scatter(reference_positions[:, 0], reference_positions[:, 1], c='red', marker='X', s=5)
+    ax.axis('square')
+    ax.set_xlabel('X [m]')
+    ax.set_ylabel('Y [m]')
+    ax.set_title('Overlap for training')
+    cbar = fig.colorbar(mapper, ax=ax)
+    cbar.set_label('Overlap', rotation=270, weight='bold')
     plt.show()
 
 def get_overlap(reference_time, other_time, reference_timestamps, other_timestamps, overlap):
@@ -131,7 +164,8 @@ if __name__ == "__main__":
             counter = hist * len(overlaps) / np.sum(hist)
 
             print(counter)
-        vis_poses(nearest_positions)
+        # vis_poses(nearest_positions)
+        plot_overlap(sampled_positions, nearest_positions, overlaps)
 
 
 
