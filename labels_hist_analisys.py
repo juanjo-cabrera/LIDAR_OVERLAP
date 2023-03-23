@@ -46,8 +46,8 @@ def downsample(positions, times, deltaxy=5):
         pos = positions[ind]
         current_time = times[ind]
         if ind == 0:
-            sampled_times.append(ind)
-            sampled_pos.append(pos)
+            # sampled_times.append(ind)
+            # sampled_pos.append(pos)
             pos_i = pos
         pos_1 = pos
 
@@ -149,9 +149,9 @@ if __name__ == "__main__":
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
 
-        _, indices = kd_tree.query(np.array([sampled_position]), k=50)
-        # indices = kd_tree.query_radius(np.array([sampled_position]), r=50)
-        # indices = np.array(list(indices))
+        # _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+        indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        indices = np.array(list(indices))
         nearest_positions = positions[indices]
         nearest_positions = np.squeeze(nearest_positions)
         nearest_times = scan_times[indices].flatten() #para que me salga del tipo (10,)
@@ -167,9 +167,6 @@ if __name__ == "__main__":
         # vis_poses(nearest_positions)
         plot_overlap(sampled_positions, nearest_positions, overlaps)
 
-
-
-        # count, bins, ignored = plt.hist(np.array(overlaps), bins='auto', density=True)
         hist, bins, ignored = plt.hist(np.array(overlaps), bins=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0], density=True)
         counter = hist*len(overlaps)/np.sum(hist)
         print(counter)

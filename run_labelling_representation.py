@@ -47,13 +47,9 @@ class VisualizeLabels():
 
     def plot_overlap_vs_disntance(self):
         fig, ax = plt.subplots()
-
-        # map poses
         ax.scatter(np.array(self.distances), self.overlap, c='grey', s=10)
-
         ax.set_xlabel('Distance')
         ax.set_ylabel('Overlap')
-
         plt.show()
 
     def plot_overlap_correlation(self, matrix):
