@@ -134,7 +134,7 @@ def get_overlap(reference_time, other_time, reference_timestamps, other_timestam
 if __name__ == "__main__":
     scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
     # delta_xy = len(scan_times) / 50
-    delta_xy = 50 # metros
+    delta_xy = 5 # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     vis_poses(sampled_positions)
 
@@ -149,8 +149,8 @@ if __name__ == "__main__":
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
 
-        # _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
-        indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+        # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
         indices = np.array(list(indices))
         nearest_positions = positions[indices]
         nearest_positions = np.squeeze(nearest_positions)
