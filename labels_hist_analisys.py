@@ -175,29 +175,3 @@ if __name__ == "__main__":
 
 
 
-
-
-    # scan_indices = np.arange(0, len(scan_times))
-    # distances = pdist(pos)
-    # distances = sorted(distances)
-    # scan_combinations = list(it.combinations(scan_indices, 2))
-    # samples = np.random.uniform(np.min(distances), np.max(distances), 5)
-    # distances = distances.reshape(1, -1) # if your data has a single feature
-
-
-
-
-    # with open(EXP_PARAMETERS.directory + '/labelling_prueba.csv', 'w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
-    #     for idx in scan_indices:
-    #         writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0, pos[idx, 0], pos[idx, 1], pos[idx, 0], pos[idx, 1]])
-    #     for i in range(0, len(scan_combinations)):
-    #         print('Calculated: ', i, 'overlaps out of ', len(scan_combinations))
-    #         idx_reference = scan_combinations[i][0]
-    #         idx_other = scan_combinations[i][1]
-    #         overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
-    #         writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh, pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]])
-
-
-
