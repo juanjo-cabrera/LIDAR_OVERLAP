@@ -1,5 +1,5 @@
 """
-Main config file of video and camera parameters.
+Main config file of debugging, experiments, ICP and training parameters.
 """
 import yaml
 
@@ -8,6 +8,7 @@ class ICP_ParametersConfig():
     Clase en la que se almacenan los parametros del registration
     """
     def __init__(self, yaml_file='config/icp_parameters.yaml'):
+
         with open(yaml_file) as file:
             config = yaml.load(file, Loader=yaml.FullLoader)
             print(config)
