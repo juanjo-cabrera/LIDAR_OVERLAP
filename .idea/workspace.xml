@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="new approach">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="first commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_labelling_representation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_labelling_representation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_sampling.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +60,7 @@
       <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run_labelling_representation">
+  <component name="RunManager" selected="Python.data_sampling">
     <configuration name="PointnetVLAD_submaps" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -103,7 +103,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mult_all_possible_combinations" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="data_sampling" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -115,7 +115,28 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mult_all_possible_combinations.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_sampling.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="labels_hist_analisys" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/labels_hist_analisys.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -145,34 +166,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="some_combinations" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/some_combinations.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.data_sampling" />
+        <item itemvalue="Python.labels_hist_analisys" />
         <item itemvalue="Python.run_labelling_representation" />
-        <item itemvalue="Python.some_combinations" />
         <item itemvalue="Python.PointnetVLAD_submaps" />
         <item itemvalue="Python.all_possible_combinations" />
-        <item itemvalue="Python.mult_all_possible_combinations" />
       </list>
     </recent_temporary>
   </component>
@@ -184,48 +184,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00020" summary="distribucion de parametros en diferentes ficheros">
-      <created>1671791897513</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1671791897513</updated>
-    </task>
-    <task id="LOCAL-00021" summary="ultimos cambios">
-      <created>1671798421438</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1671798421438</updated>
-    </task>
-    <task id="LOCAL-00022" summary="kitti reader added">
-      <created>1673366420340</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1673366420340</updated>
-    </task>
-    <task id="LOCAL-00023" summary="kitti reader error solved">
-      <created>1673427954223</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1673427954223</updated>
-    </task>
-    <task id="LOCAL-00024" summary="data labelling prepared for all possible combinations">
-      <created>1673448326012</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1673448326013</updated>
-    </task>
-    <task id="LOCAL-00025" summary="data labelling added itself combinations">
-      <created>1673515242859</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1673515242859</updated>
     </task>
     <task id="LOCAL-00026" summary="plot overlap from labels">
       <created>1673523908145</created>
@@ -528,7 +486,49 @@
       <option name="project" value="LOCAL" />
       <updated>1679040079251</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="added overlap vs distance representation">
+      <created>1679042426125</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1679042426125</updated>
+    </task>
+    <task id="LOCAL-00070" summary="overlap visualization added">
+      <created>1679045203856</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1679045203856</updated>
+    </task>
+    <task id="LOCAL-00071" summary="analisys of labelled data">
+      <created>1679582849287</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1679582849287</updated>
+    </task>
+    <task id="LOCAL-00072" summary="cleaned">
+      <created>1679583017584</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1679583017584</updated>
+    </task>
+    <task id="LOCAL-00073" summary="irrelevant changes">
+      <created>1679594555628</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1679594555628</updated>
+    </task>
+    <task id="LOCAL-00074" summary="first commit">
+      <created>1679594576892</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1679594576892</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -543,12 +543,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="coordinates origin added in exp config" />
-    <MESSAGE value="plotting validation and grountruth before train added" />
-    <MESSAGE value="some commented lines removed" />
-    <MESSAGE value="parameters added to config" />
-    <MESSAGE value="gps only and lidar data reader added" />
-    <MESSAGE value="last changes" />
     <MESSAGE value="evaluation a medias" />
     <MESSAGE value="computed validation refactored" />
     <MESSAGE value="new params added" />
@@ -568,7 +562,13 @@
     <MESSAGE value="some changes" />
     <MESSAGE value="reducdant line commented" />
     <MESSAGE value="new approach" />
-    <option name="LAST_COMMIT_MESSAGE" value="new approach" />
+    <MESSAGE value="added overlap vs distance representation" />
+    <MESSAGE value="overlap visualization added" />
+    <MESSAGE value="analisys of labelled data" />
+    <MESSAGE value="cleaned" />
+    <MESSAGE value="irrelevant changes" />
+    <MESSAGE value="first commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="first commit" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -949,19 +949,14 @@
           <option name="timeStamp" value="492" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/some_combinations.py</url>
-          <line>140</line>
-          <option name="timeStamp" value="520" />
+          <url>file://$PROJECT_DIR$/data_sampling.py</url>
+          <line>288</line>
+          <option name="timeStamp" value="532" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/some_combinations.py</url>
-          <line>133</line>
-          <option name="timeStamp" value="521" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/some_combinations.py</url>
-          <line>132</line>
-          <option name="timeStamp" value="522" />
+          <url>file://$PROJECT_DIR$/data_sampling.py</url>
+          <line>286</line>
+          <option name="timeStamp" value="556" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

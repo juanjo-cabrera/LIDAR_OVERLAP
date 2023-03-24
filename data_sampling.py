@@ -15,6 +15,8 @@ import pandas as pd
 import matplotlib
 import matplotlib.cm as cm
 import random
+from scipy import interpolate
+
 
 def process_overlap(keyframe_manager, poses, scan_idx, i):
     pre_process = True
@@ -127,7 +129,7 @@ def get_overlap(reference_time, other_time, reference_timestamps, other_timestam
     match_j = np.intersect1d(j_ref, j_other)
     match = np.unique(np.concatenate((match_i, match_j)))
     overlap_selected = overlap[int(match)]
-    return overlap_selected
+    return overlap_selected, int(match)
 
 
 def global_uniform_distribution(overlap, size=None):
@@ -158,11 +160,60 @@ def global_uniform_distribution(overlap, size=None):
     return pairs_selected
 
 
-def anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size=None):
-    delta_xy = 1  # metros
-    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+
+def partial_uniform_distribution(overlap, combination_selected,  size=None):
+    inds1 = np.where(overlap <= 0.2)
+    inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
+    inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
+    inds4 = np.where((overlap > 0.6) & (overlap <= 0.8))
+    inds5 = np.where((overlap > 0.8) & (overlap <= 1))
+
+    len_inds1 = len(inds1[0])
+    len_inds2 = len(inds2[0])
+    len_inds3 = len(inds3[0])
+    len_inds4 = len(inds4[0])
+    len_inds5 = len(inds5[0])
+
+    if size is None:
+        pairs_to_select = min(len_inds1, len_inds2, len_inds3, len_inds4, len_inds5)
+    else:
+        pairs_to_select = int(size / 5)
+
+    pairs_selected1 = np.array(random.sample(list(combination_selected[inds1[0]]), pairs_to_select))
+    pairs_selected2 = np.array(random.sample(list(combination_selected[inds2[0]]), pairs_to_select))
+    pairs_selected3 = np.array(random.sample(list(combination_selected[inds3[0]]), pairs_to_select))
+    pairs_selected4 = np.array(random.sample(list(combination_selected[inds4[0]]), pairs_to_select))
+    pairs_selected5 = np.array(random.sample(list(combination_selected[inds5[0]]), pairs_to_select))
+    pairs_selected = np.concatenate([pairs_selected1, pairs_selected2, pairs_selected3, pairs_selected4, pairs_selected5])
+
+    return pairs_selected
 
 
+def interpolate_positions(original_positions, scan_times, N):
+    kd_tree = KDTree(positions)
+    # Calculamos la distancia total recorrida a lo largo de la trayectoria original
+    distances = np.zeros(original_positions.shape[0])
+    distances[1:] = np.sqrt(np.sum(np.diff(original_positions, axis=0) ** 2, axis=1))
+    total_distance = np.sum(distances)
+
+    # Creamos una función interpolante a partir de la trayectoria original
+    interpolator = interpolate.interp1d(distances.cumsum(), original_positions, axis=0)
+
+    # Creamos un array de distancias igualmente espaciadas
+    target_distances = np.linspace(0, total_distance, N)
+
+    # Interpolamos las posiciones correspondientes a las distancias seleccionadas
+    interpolated_positions = interpolator(target_distances)
+    sampled_positions = []
+    sampled_times = []
+    for sampled_position in interpolated_positions:
+        _, indice = kd_tree.query(np.array([sampled_position]), k=1)
+        sampled_positions.append(original_positions[indice].reshape(3,))
+        sampled_times.append(scan_times[indice])
+
+    return np.array(sampled_positions), np.array(sampled_times).flatten()
+
+def get_uniform_pairs(sampled_positions, sampled_times):
     kd_tree = KDTree(positions)
     pairs_selected = []
 
@@ -172,20 +223,40 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
         _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
         # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
         indices = np.array(list(indices))
-        nearest_times = scan_times[indices].flatten() #para que me salga del tipo (10,)
+        nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
         overlaps = []
+        combinations_idxs = []
         for nearest_time in nearest_times:
             try:
-                overlap_s = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
+                overlap_s, combination_selected = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
                 overlaps.append(overlap_s)
+                combinations_idxs.append(combination_selected)
             except:
                 continue
 
-        pairs_selected_i = global_uniform_distribution(np.array(overlaps))
+        pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_idxs))
 
         pairs_selected.extend(pairs_selected_i)
-    pairs_selected = np.array(pairs_selected)
+    pairs_selected = np.unique(np.array(pairs_selected))
+    return pairs_selected
 
+def anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size=None):
+
+    if size is None:
+        print('En none')
+        delta_xy = 1  # metros
+        sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+        pairs_selected = get_uniform_pairs(sampled_positions, sampled_times)
+
+    else:
+        pairs_selected = []
+        i = 185
+        while len(pairs_selected) < size:
+            sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+            pairs_selected = get_uniform_pairs(sampled_positions, sampled_times)
+            i += 1
+
+    vis_poses(sampled_positions)
 
     return pairs_selected
 
@@ -206,8 +277,13 @@ if __name__ == "__main__":
     overlap = np.array(df["Overlap"])
 
 
-    pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size=0)
-    pairs_selected_globally = global_uniform_distribution(overlap, size=len(pairs_selected_anchor))
+
+    pairs_selected_globally = global_uniform_distribution(overlap)
+    pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,
+                                                        size=len(pairs_selected_globally))
+
+    # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
+
     pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_anchor))
 
     print(len(pairs_selected_anchor))
