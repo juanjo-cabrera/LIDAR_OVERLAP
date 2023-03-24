@@ -52,7 +52,7 @@ def worker_same(queue_out, queue_in):
 
 def listener(queue):
     i = 0
-    with open(EXP_PARAMETERS.directory + '/multi_labelling2.csv', 'w', newline='') as file:
+    with open(EXP_PARAMETERS.directory + '/multi_labelling.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
         while 1:
