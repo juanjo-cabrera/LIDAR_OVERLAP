@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="first commit">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="global uniform distribution, anchor uniform distribution and random done">
       <change beforePath="$PROJECT_DIR$/data_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_sampling.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -184,13 +183,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00026" summary="plot overlap from labels">
-      <created>1673523908145</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1673523908145</updated>
     </task>
     <task id="LOCAL-00027" summary="Some details">
       <created>1673524676928</created>
@@ -528,7 +520,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679594576892</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="global uniform distribution, anchor uniform distribution and random done">
+      <created>1679656646704</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1679656646704</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -543,7 +542,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="evaluation a medias" />
     <MESSAGE value="computed validation refactored" />
     <MESSAGE value="new params added" />
     <MESSAGE value="recall a medias" />
@@ -568,7 +566,8 @@
     <MESSAGE value="cleaned" />
     <MESSAGE value="irrelevant changes" />
     <MESSAGE value="first commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="first commit" />
+    <MESSAGE value="global uniform distribution, anchor uniform distribution and random done" />
+    <option name="LAST_COMMIT_MESSAGE" value="global uniform distribution, anchor uniform distribution and random done" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -950,12 +949,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>288</line>
+          <line>305</line>
           <option name="timeStamp" value="532" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>286</line>
+          <line>299</line>
           <option name="timeStamp" value="556" />
         </line-breakpoint>
       </breakpoints>

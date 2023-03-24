@@ -256,7 +256,7 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
             pairs_selected = get_uniform_pairs(sampled_positions, sampled_times)
             i += 1
 
-    vis_poses(sampled_positions)
+    # vis_poses(sampled_positions)
 
     return pairs_selected
 
@@ -268,6 +268,15 @@ def random_distribution(overlap, size=None):
     return pairs_selected
 
 
+def write_csv(pairs, reference_timestamp, other_timestamp, overlap, reference_x, reference_y, other_x, other_y, name):
+    with open(EXP_PARAMETERS.directory + '/' + name + '.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Reference x", "Reference y", "Other x", "Other y"])
+        for idx in pairs:
+            writer.writerow([reference_timestamp[idx], other_timestamp[idx], overlap[idx],  reference_x[idx], reference_y[idx], other_x[idx], other_y[idx]])
+
+
+
 if __name__ == "__main__":
     scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 
@@ -275,6 +284,10 @@ if __name__ == "__main__":
     reference_timestamps = np.array(df["Reference timestamp"])
     other_timestamps = np.array(df["Other timestamp"])
     overlap = np.array(df["Overlap"])
+    reference_x = np.array(df["Reference x"])
+    other_x = np.array(df["Other x"])
+    reference_y = np.array(df["Reference y"])
+    other_y= np.array(df["Other y"])
 
 
 
@@ -285,6 +298,10 @@ if __name__ == "__main__":
     # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
 
     pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_anchor))
+
+    write_csv(pairs_selected_globally, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='global_uniform')
+    write_csv(pairs_selected_anchor, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='anchor_uniform')
+    write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
 
     print(len(pairs_selected_anchor))
 
