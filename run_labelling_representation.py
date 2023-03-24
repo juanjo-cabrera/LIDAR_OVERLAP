@@ -11,6 +11,8 @@ class VisualizeLabels():
         self.reference_timestamps = np.array(df_labels["Reference timestamp"])
         self.other_timestamps = np.array(df_labels["Other timestamp"])
         self.overlap = np.array(df_labels["Overlap"])
+        self.overlap_poses = np.array(df_labels["Overlap poses"])
+        self.overlap_fpfh = np.array(df_labels["Overlap fpfh"])
 
         scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=self.root_dir)
         # indices = np.arange(0, len(scan_times))
@@ -35,31 +37,80 @@ class VisualizeLabels():
         self.plot_overlap_correlation(self.matrix_zeros)
         self.plot_overlap_correlation(self.matrix_ones)
 
-    def overlap_vs_distance(self):
-        for idx in range(0, len(self.overlap)):
+    def overlap_vs_distance(self, which_overlap):
+        if which_overlap == 'poses':
+            overlap = self.overlap_poses
+        elif which_overlap == 'fpfh':
+            overlap = self.overlap_fpfh
+        else:
+            overlap = self.overlap
+        self.distances = []
+        for idx in range(0, len(overlap)):
             ref_times = self.reference_timestamps[idx]
             other_times = self.other_timestamps[idx]
             ref_idx = np.where(self.timestamps == ref_times)
             other_idx = np.where(self.timestamps == other_times)
             self.distances.append(np.linalg.norm(self.positions[ref_idx] - self.positions[other_idx]))
 
-        self.plot_overlap_vs_disntance()
+        self.plot_overlap_vs_disntance(which_overlap)
 
-    def plot_overlap_vs_disntance(self):
+
+    def segmented_overlap_vs_distance(self):
+        self.switch = np.empty(self.overlap.shape)
+        self.distances = []
+        for idx in range(0, len(self.overlap)):
+            if self.overlap_poses[idx] >= self.overlap_fpfh[idx]:
+                self.switch[idx] = 1
+
+            else:
+                self.switch[idx] = 0
+            ref_times = self.reference_timestamps[idx]
+            other_times = self.other_timestamps[idx]
+            ref_idx = np.where(self.timestamps == ref_times)
+            other_idx = np.where(self.timestamps == other_times)
+            self.distances.append(np.linalg.norm(self.positions[ref_idx] - self.positions[other_idx]))
+
+        self.distances = np.array(self.distances)
+        self.plot_seg_overlap_distance()
+
+    def plot_seg_overlap_distance(self):
+        idx_poses = np.where(self.switch == 1)[0]
+        idx_fpfh = np.where(self.switch == 0)[0]
+
         fig, ax = plt.subplots()
-        ax.scatter(np.array(self.distances), self.overlap, c='grey', s=10)
+        ax.scatter(np.array(self.distances[idx_poses]), self.overlap[idx_poses], c='red', s=10)
+        ax.scatter(np.array(self.distances[idx_fpfh]), self.overlap[idx_fpfh], c='blue', s=10)
         ax.set_xlabel('Distance')
         ax.set_ylabel('Overlap')
-        plt.show()
+        plt.show(block=False)
+
+    def plot_overlap_vs_disntance(self, which_overlap):
+        if which_overlap == 'poses':
+            overlap = self.overlap_poses
+        elif which_overlap == 'fpfh':
+            overlap = self.overlap_fpfh
+        else:
+            overlap = self.overlap
+
+        fig, ax = plt.subplots()
+        ax.scatter(np.array(self.distances), overlap, c='grey', s=10)
+        ax.set_xlabel('Distance')
+        ax.set_ylabel('Overlap')
+        plt.show(block=False)
 
     def plot_overlap_correlation(self, matrix):
         plt.figure()
         plt.imshow(np.array(matrix, dtype=float), cmap='gray')
-        plt.show()
+        plt.show(block=False)
 
 
 if __name__ == '__main__':
     vis = VisualizeLabels(directory=TRAINING_PARAMETERS.training_path)
     # vis = VisualizeLabels(directory=EXP_PARAMETERS.directory)
     vis.overlap_correlation()
-    vis.overlap_vs_distance()
+    vis.overlap_vs_distance('poses')
+    vis.overlap_vs_distance('fpfh')
+    vis.overlap_vs_distance('max')
+    vis.segmented_overlap_vs_distance()
+
+    plt.show()

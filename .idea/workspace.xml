@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="writter csv added">
-      <change beforePath="$PROJECT_DIR$/data_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_sampling.py" afterDir="false" />
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="reader_manager added a falta de testear">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_labelling_representation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_labelling_representation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +60,7 @@
       <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.data_sampling">
+  <component name="RunManager" selected="Python.run_labelling_representation">
     <configuration name="PointnetVLAD_submaps" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -73,27 +74,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/oxfordreader/PointnetVLAD_submaps.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="all_possible_combinations" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/all_possible_combinations.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -144,6 +124,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="plotting_labelled_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plotting_labelled_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="run_labelling_representation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -167,11 +168,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.data_sampling" />
-        <item itemvalue="Python.labels_hist_analisys" />
         <item itemvalue="Python.run_labelling_representation" />
+        <item itemvalue="Python.labels_hist_analisys" />
+        <item itemvalue="Python.plotting_labelled_data" />
+        <item itemvalue="Python.data_sampling" />
         <item itemvalue="Python.PointnetVLAD_submaps" />
-        <item itemvalue="Python.all_possible_combinations" />
       </list>
     </recent_temporary>
   </component>
@@ -183,20 +184,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00028" summary="Poses error solved">
-      <created>1673602346383</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1673602346383</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Dataloader done">
-      <created>1673874437853</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1673874437853</updated>
     </task>
     <task id="LOCAL-00030" summary="Prueba">
       <created>1673944980535</created>
@@ -527,7 +514,21 @@
       <option name="project" value="LOCAL" />
       <updated>1679657415140</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="code cleaned">
+      <created>1679659209047</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1679659209047</updated>
+    </task>
+    <task id="LOCAL-00078" summary="reader_manager added a falta de testear">
+      <created>1679660579439</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1679660579439</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -542,8 +543,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="new params added" />
-    <MESSAGE value="recall a medias" />
     <MESSAGE value="recall done" />
     <MESSAGE value="validation refactored" />
     <MESSAGE value="training code refactored" />
@@ -567,7 +566,9 @@
     <MESSAGE value="first commit" />
     <MESSAGE value="global uniform distribution, anchor uniform distribution and random done" />
     <MESSAGE value="writter csv added" />
-    <option name="LAST_COMMIT_MESSAGE" value="writter csv added" />
+    <MESSAGE value="code cleaned" />
+    <MESSAGE value="reader_manager added a falta de testear" />
+    <option name="LAST_COMMIT_MESSAGE" value="reader_manager added a falta de testear" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -914,12 +915,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>540</line>
+          <line>595</line>
           <option name="timeStamp" value="485" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>388</line>
+          <line>391</line>
           <option name="timeStamp" value="487" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -949,13 +950,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>303</line>
+          <line>301</line>
           <option name="timeStamp" value="532" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>297</line>
+          <line>295</line>
           <option name="timeStamp" value="556" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_labelling_representation.py</url>
+          <line>76</line>
+          <option name="timeStamp" value="572" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_labelling_representation.py</url>
+          <line>80</line>
+          <option name="timeStamp" value="573" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
