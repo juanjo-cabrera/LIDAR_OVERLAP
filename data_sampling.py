@@ -1,15 +1,13 @@
 """
-In this script we assess the labelling of some combinations of a given trajectory
+In this script we assess the pairs selection to feed a siamese neural network departing from all overlap combinations
 """
 
 
 from run_3D_overlap import reader_manager
 import numpy as np
-import itertools as it
 import csv
 from config import EXP_PARAMETERS
 from sklearn.neighbors import KDTree
-from scipy.spatial.distance import pdist
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib
@@ -288,8 +286,6 @@ if __name__ == "__main__":
     other_x = np.array(df["Other x"])
     reference_y = np.array(df["Reference y"])
     other_y= np.array(df["Other y"])
-
-
 
     pairs_selected_globally = global_uniform_distribution(overlap)
     pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,

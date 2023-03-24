@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="global uniform distribution, anchor uniform distribution and random done">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="writter csv added">
       <change beforePath="$PROJECT_DIR$/data_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_sampling.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -183,13 +183,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00027" summary="Some details">
-      <created>1673524676928</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1673524676928</updated>
     </task>
     <task id="LOCAL-00028" summary="Poses error solved">
       <created>1673602346383</created>
@@ -527,7 +520,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679656646704</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="writter csv added">
+      <created>1679657415140</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1679657415140</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -542,7 +542,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="computed validation refactored" />
     <MESSAGE value="new params added" />
     <MESSAGE value="recall a medias" />
     <MESSAGE value="recall done" />
@@ -567,7 +566,8 @@
     <MESSAGE value="irrelevant changes" />
     <MESSAGE value="first commit" />
     <MESSAGE value="global uniform distribution, anchor uniform distribution and random done" />
-    <option name="LAST_COMMIT_MESSAGE" value="global uniform distribution, anchor uniform distribution and random done" />
+    <MESSAGE value="writter csv added" />
+    <option name="LAST_COMMIT_MESSAGE" value="writter csv added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -949,12 +949,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>305</line>
+          <line>303</line>
           <option name="timeStamp" value="532" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_sampling.py</url>
-          <line>299</line>
+          <line>297</line>
           <option name="timeStamp" value="556" />
         </line-breakpoint>
       </breakpoints>
