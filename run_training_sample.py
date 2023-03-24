@@ -26,7 +26,7 @@ class TrainingDataset(Dataset):
         if self.root_dir.find('Kitti') == -1:
             self.scans_dir = self.root_dir + '/robot0/lidar/data/'
         else:
-            self.scans_dir = self.root_dir + '/velodynerobot0/lidar/data/'
+            self.scans_dir = self.root_dir + '/velodyne/'
 
         df = pd.read_csv(labels_dir)
         self.reference_timestamps = np.array(df["Reference timestamp"])
@@ -427,6 +427,58 @@ def compute_validation(model, query_dataloader, map_dataloader, true_neighbors, 
     print(' Avg.top 1 % recall: {} %, Avg.similarity: {}, Avg.recall @ N: {} \n'.format(one_percent_recall, average_similarity, recall))
     return recall[0], mean_error
 
+
+def reader_manager():
+    directory = TRAINING_PARAMETERS.validation_path
+    if directory.find('Kitti') == -1:
+        val_data, map_data, all_true_neighbors = read_innova_dataset()
+
+    else:
+        val_data, map_data, all_true_neighbors = read_kitti_dataset()
+
+    return val_data, map_data, all_true_neighbors
+
+def read_innova_dataset():
+    # Prepare data
+    euroc_read_validation = EurocReader(directory=TRAINING_PARAMETERS.validation_path)
+    scan_times_val, lat_lon_val, utm_val = euroc_read_validation.prepare_gps_data(deltaxy=5)
+    val_data = [scan_times_val, lat_lon_val, utm_val]
+
+    euroc_read_groundtruth = EurocReader(directory=TRAINING_PARAMETERS.groundtruth_path)
+    scan_times_map, lat_lon_map, utm_map = euroc_read_groundtruth.prepare_gps_data(deltaxy=EXP_PARAMETERS.exp_deltaxy)
+    map_data = [scan_times_map, lat_lon_map, utm_map]
+
+    map_poses_tree = KDTree(utm_map)
+    all_true_neighbors = []
+    for query_pose in utm_val:
+        indexes = map_poses_tree.query_radius(np.array([query_pose]), r=TRAINING_PARAMETERS.success_radius)
+        all_true_neighbors.append(indexes)
+    return val_data, map_data, all_true_neighbors
+
+def read_kitti_dataset():
+    # Prepare data
+    kitti_read_validation = KittiReader(directory=TRAINING_PARAMETERS.validation_path)
+    scan_times_val, utm_val, _, _ = kitti_read_validation.prepare_kitti_data(
+        deltaxy=EXP_PARAMETERS.exp_deltaxy,
+        deltath=EXP_PARAMETERS.exp_deltath,
+        nmax_scans=EXP_PARAMETERS.exp_long)
+    lat_lon_val = -1
+    val_data = [scan_times_val, lat_lon_val, utm_val]
+
+    kitti_read_groundtruth = KittiReader(directory=TRAINING_PARAMETERS.groundtruth_path)
+    scan_times_map, utm_map, _, _ = kitti_read_groundtruth.prepare_kitti_data(
+        deltaxy=EXP_PARAMETERS.exp_deltaxy,
+        deltath=EXP_PARAMETERS.exp_deltath,
+        nmax_scans=EXP_PARAMETERS.exp_long)
+    lat_lon_map = -1
+    map_data = [scan_times_map, lat_lon_map, utm_map]
+
+    map_poses_tree = KDTree(utm_map)
+    all_true_neighbors = []
+    for query_pose in utm_val:
+        indexes = map_poses_tree.query_radius(np.array([query_pose]), r=TRAINING_PARAMETERS.success_radius)
+        all_true_neighbors.append(indexes)
+    return val_data, map_data, all_true_neighbors
 
 def load_validation_data():
     # Prepare data
