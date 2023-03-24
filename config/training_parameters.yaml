@@ -14,7 +14,8 @@ output_data:
   normalize_embeddings: False
 
 training_parameters:
-  path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
+#  path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
+  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
   batch_size: 8
   number_epochs: 1
 

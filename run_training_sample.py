@@ -22,8 +22,11 @@ from kittireader.kittireader import KittiReader
 class TrainingDataset(Dataset):
     def __init__(self, transform=None):
         self.root_dir = TRAINING_PARAMETERS.training_path
-        labels_dir = self.root_dir + '/labelling.csv'
-        self.scans_dir = self.root_dir + '/robot0/lidar/data/'
+        labels_dir = self.root_dir + '/anchor_uniform.csv'
+        if self.root_dir.find('Kitti') == -1:
+            self.scans_dir = self.root_dir + '/robot0/lidar/data/'
+        else:
+            self.scans_dir = self.root_dir + '/velodynerobot0/lidar/data/'
 
         df = pd.read_csv(labels_dir)
         self.reference_timestamps = np.array(df["Reference timestamp"])
