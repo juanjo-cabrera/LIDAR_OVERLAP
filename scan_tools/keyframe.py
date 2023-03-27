@@ -113,7 +113,7 @@ class KeyFrame():
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
 
         # segment ground plane
-        _, pcd_non_ground_plane = self.segment_plane()
+        _, pcd_non_ground_plane = self.segment_plane(self.pointcloud_filtered)
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
         if TRAINING_PARAMETERS.sample_points:
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
@@ -348,19 +348,19 @@ class KeyFrame():
         # find a plane by removing some of the points at a given height
         # this best estimates a ground plane.
         points = np.asarray(pcd.points)
-        # idx = points[:, 2] < height
-        # pcd_plane = o3d.geometry.PointCloud()
-        # pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
-        # plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
-        # [a, b, c, d] = plane_model
-        # print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+        idx = points[:, 2] < height
+        pcd_plane = o3d.geometry.PointCloud()
+        pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
+        plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
+        [a, b, c, d] = plane_model
+        print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
         """
         Ecuacion del plano para un entorno en concreto: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
         """
-        a=-0.01265
-        b=-0.006
-        d=1.74877
-        c=0.9999
+        # a=-0.01265
+        # b=-0.006
+        # d=1.74877
+        # c=0.9999
 
         # points = np.asarray(pcd.points)
         # inliers_final = []
