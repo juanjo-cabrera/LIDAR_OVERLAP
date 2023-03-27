@@ -19,7 +19,44 @@ from tqdm import tqdm
 from time import sleep
 from kittireader.kittireader import KittiReader
 
+
+
 class TrainingDataset(Dataset):
+    def __init__(self, transform=None):
+        self.root_dir = TRAINING_PARAMETERS.training_path
+        labels_dir = self.root_dir + '/anchor_uniform.csv'
+        if self.root_dir.find('Kitti') == -1:
+            self.scans_dir = self.root_dir + '/robot0/lidar/data/'
+        else:
+            self.scans_dir = self.root_dir + '/velodyne/'
+
+        df = pd.read_csv(labels_dir)
+        self.reference_timestamps = np.array(df["Reference timestamp"])
+        self.other_timestamps = np.array(df["Other timestamp"])
+        self.overlap = np.array(df["Overlap"])
+        self.transform = transform
+        #trabajar con keyframe manager con el objeto de cargar todas las nubes y preprocesarlas al inicio. De
+        #manera que solo calcule el plano de tierra una vez
+
+    def __getitem__(self, idx):
+        reference_timestamp = self.reference_timestamps[idx]
+        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
+        reference_kf.load_pointcloud()
+        reference_pcd, reference_features = reference_kf.training_preprocess()
+
+        other_timestamp = self.other_timestamps[idx]
+        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
+        other_kf.load_pointcloud()
+        other_pcd, other_features = other_kf.training_preprocess()
+        diferencia = 1 - np.array([self.overlap[idx]])
+        # if self.transform:
+        #     pointcloud = self.transform(pointcloud)
+        return reference_pcd, reference_features, other_pcd, other_features, diferencia
+
+    def __len__(self):
+        return len(self.overlap)
+
+class TrainingDataset_old(Dataset):
     def __init__(self, transform=None):
         self.root_dir = TRAINING_PARAMETERS.training_path
         labels_dir = self.root_dir + '/anchor_uniform.csv'
@@ -51,7 +88,7 @@ class TrainingDataset(Dataset):
 
     def __len__(self):
         return len(self.overlap)
-        # return 10000
+
 
 class GroundTruthDataset(Dataset):
     def __init__(self, data, transform=None):
