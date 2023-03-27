@@ -519,7 +519,8 @@ STR2NETWORK = dict(
 )
 
 if __name__ == '__main__':
-    val_data, map_data, true_neighbors = load_validation_data()
+    # val_data, map_data, true_neighbors = load_validation_data()
+    val_data, map_data, true_neighbors = reader_manager()
     visualize_trajectories(val_data, map_data)
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
