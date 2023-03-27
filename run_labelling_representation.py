@@ -76,12 +76,15 @@ class VisualizeLabels():
     def plot_seg_overlap_distance(self):
         idx_poses = np.where(self.switch == 1)[0]
         idx_fpfh = np.where(self.switch == 0)[0]
+        idx_failed_poses = np.where(self.switch == 0)[0]
 
         fig, ax = plt.subplots()
         ax.scatter(np.array(self.distances[idx_poses]), self.overlap[idx_poses], c='red', s=10)
         ax.scatter(np.array(self.distances[idx_fpfh]), self.overlap[idx_fpfh], c='blue', s=10)
+        # ax.scatter(np.array(self.distances[idx_failed_poses]), self.overlap_poses[idx_failed_poses], c='green', s=10)
         ax.set_xlabel('Distance')
         ax.set_ylabel('Overlap')
+        ax.legend(['Poses', 'FPFH'])
         plt.show(block=False)
 
     def plot_overlap_vs_disntance(self, which_overlap):
@@ -105,8 +108,8 @@ class VisualizeLabels():
 
 
 if __name__ == '__main__':
-    vis = VisualizeLabels(directory=TRAINING_PARAMETERS.training_path)
-    # vis = VisualizeLabels(directory=EXP_PARAMETERS.directory)
+    # vis = VisualizeLabels(directory=TRAINING_PARAMETERS.training_path)
+    vis = VisualizeLabels(directory=EXP_PARAMETERS.directory)
     vis.overlap_correlation()
     vis.overlap_vs_distance('poses')
     vis.overlap_vs_distance('fpfh')

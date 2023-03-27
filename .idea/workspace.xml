@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="reader_manager added a falta de testear">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="representacion segmentada de overlap fpfh y poses">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/exp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_labelling_representation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_labelling_representation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -184,13 +185,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00030" summary="Prueba">
-      <created>1673944980535</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1673944980535</updated>
     </task>
     <task id="LOCAL-00031" summary="entrenamiento funcionando">
       <created>1674047895670</created>
@@ -528,7 +522,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679660579439</updated>
     </task>
-    <option name="localTasksCounter" value="79" />
+    <task id="LOCAL-00079" summary="representacion segmentada de overlap fpfh y poses">
+      <created>1679666670181</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1679666670181</updated>
+    </task>
+    <option name="localTasksCounter" value="80" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -543,7 +544,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="recall done" />
     <MESSAGE value="validation refactored" />
     <MESSAGE value="training code refactored" />
     <MESSAGE value="str2network dictionary added" />
@@ -568,7 +568,8 @@
     <MESSAGE value="writter csv added" />
     <MESSAGE value="code cleaned" />
     <MESSAGE value="reader_manager added a falta de testear" />
-    <option name="LAST_COMMIT_MESSAGE" value="reader_manager added a falta de testear" />
+    <MESSAGE value="representacion segmentada de overlap fpfh y poses" />
+    <option name="LAST_COMMIT_MESSAGE" value="representacion segmentada de overlap fpfh y poses" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -965,7 +966,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_labelling_representation.py</url>
-          <line>80</line>
+          <line>81</line>
           <option name="timeStamp" value="573" />
         </line-breakpoint>
       </breakpoints>
