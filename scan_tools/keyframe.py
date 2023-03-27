@@ -45,6 +45,8 @@ class KeyFrame():
         self.pointcloud_non_ground_plane = None
         self.pointcloud_training = None
         self.pcd_fpfh = None
+        self.compute_groundplane_once = True
+        self.plane_model = None
 
 
         # save the pointcloud for Scan context description
@@ -348,12 +350,18 @@ class KeyFrame():
         # find a plane by removing some of the points at a given height
         # this best estimates a ground plane.
         points = np.asarray(pcd.points)
-        idx = points[:, 2] < height
-        pcd_plane = o3d.geometry.PointCloud()
-        pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
-        plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
-        [a, b, c, d] = plane_model
-        print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+        if self.compute_groundplane_once == True:
+            idx = points[:, 2] < height
+            pcd_plane = o3d.geometry.PointCloud()
+            pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
+            plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
+            [a, b, c, d] = plane_model
+            print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+            self.plane_model = plane_model
+            self.compute_groundplane_once = False
+
+        else:
+            [a, b, c, d] = self.plane_model
         """
         Ecuacion del plano para un entorno en concreto: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
         """
