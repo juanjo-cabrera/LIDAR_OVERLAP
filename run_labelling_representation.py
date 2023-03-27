@@ -81,10 +81,10 @@ class VisualizeLabels():
         fig, ax = plt.subplots()
         ax.scatter(np.array(self.distances[idx_poses]), self.overlap[idx_poses], c='red', s=10)
         ax.scatter(np.array(self.distances[idx_fpfh]), self.overlap[idx_fpfh], c='blue', s=10)
-        # ax.scatter(np.array(self.distances[idx_failed_poses]), self.overlap_poses[idx_failed_poses], c='green', s=10)
+        ax.scatter(np.array(self.distances[idx_failed_poses]), self.overlap_poses[idx_failed_poses], c='green', s=10)
         ax.set_xlabel('Distance')
         ax.set_ylabel('Overlap')
-        ax.legend(['Poses', 'FPFH'])
+        ax.legend(['Poses', 'FPFH', 'failed'])
         plt.show(block=False)
 
     def plot_overlap_vs_disntance(self, which_overlap):
