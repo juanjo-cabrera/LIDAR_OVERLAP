@@ -46,11 +46,14 @@ class KittiReader():
         for pose in poses:
             poses_new.append(T_velo_cam.dot(pose_scan_idx_inv).dot(pose).dot(T_cam_velo))
         poses = np.array(poses_new)
+        map_positions = []
+        for i in range(0 , len(index_map)):
+            map_positions.append(poses[i][0:3, 3])
+        val_positions = []
+        for i in range(0, len(index_val)):
+            val_positions.append(poses[i][0:3, 3])
 
-        map_positions = poses[index_map][0:3, 3]
-        val_positions = poses[index_val][0:3, 3]
-
-        return index_map, index_val, map_positions, val_positions
+        return index_map, index_val, np.array(map_positions), np.array(val_positions)
 
 
     def read_poses_data(self):
