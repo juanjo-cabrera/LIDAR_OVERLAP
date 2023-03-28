@@ -10,7 +10,8 @@ import pandas as pd
 import numpy as np
 from scan_tools.keyframe import KeyFrame
 import MinkowskiEngine as ME
-from scripts.examples.classification_modelnet40 import *
+from examples.classification_modelnet40 import *
+# from scritps.examples.classification_modelnet40 import *
 # from ml_tools.FCNN import MinkowskiFCNN
 from eurocreader.eurocreader_outdoors import EurocReader
 from google_maps_plotter.custom_plotter import *
@@ -494,20 +495,12 @@ def read_innova_dataset():
 
 def read_kitti_dataset():
     # Prepare data
-    kitti_read_validation = KittiReader(directory=TRAINING_PARAMETERS.validation_path)
-    scan_times_val, utm_val, _, _ = kitti_read_validation.prepare_kitti_data(
-        deltaxy=EXP_PARAMETERS.exp_deltaxy,
-        deltath=EXP_PARAMETERS.exp_deltath,
-        nmax_scans=EXP_PARAMETERS.exp_long)
-    lat_lon_val = -1
-    val_data = [scan_times_val, lat_lon_val, utm_val]
+    kitti_read = KittiReader(directory='/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00')
+    scan_times_map, scan_times_val, utm_map, utm_val = kitti_read.prepare_kitti_evaluation()
 
-    kitti_read_groundtruth = KittiReader(directory=TRAINING_PARAMETERS.groundtruth_path)
-    scan_times_map, utm_map, _, _ = kitti_read_groundtruth.prepare_kitti_data(
-        deltaxy=EXP_PARAMETERS.exp_deltaxy,
-        deltath=EXP_PARAMETERS.exp_deltath,
-        nmax_scans=EXP_PARAMETERS.exp_long)
+    lat_lon_val = -1
     lat_lon_map = -1
+    val_data = [scan_times_val, lat_lon_val, utm_val]
     map_data = [scan_times_map, lat_lon_map, utm_map]
 
     map_poses_tree = KDTree(utm_map)
