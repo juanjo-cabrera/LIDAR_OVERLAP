@@ -49,6 +49,7 @@ class KeyFrame():
         self.plane_model = None
 
 
+
         # save the pointcloud for Scan context description
 
     def convert_kitti_bin_to_pcd(self, binFilePath):
@@ -76,7 +77,7 @@ class KeyFrame():
             success = True
         return success
 
-    def pre_process(self):
+    def pre_process(self, plane_model=None):
         # bbox = self.dims_bbox
         # bbox = o3d.geometry.AxisAlignedBoundingBox(min_bound=(-bbox[0], -bbox[1], -bbox[2]), max_bound=(bbox[0],
         #                                                                                                 bbox[1],
@@ -92,7 +93,11 @@ class KeyFrame():
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
 
         # segment ground plane
-        self.plane_model = self.calculate_plane(pcd=self.pointcloud_filtered)
+        if plane_model is None:
+            self.plane_model = self.calculate_plane(pcd=self.pointcloud_filtered)
+        else:
+            self.plane_model = plane_model
+
         pcd_ground_plane, pcd_non_ground_plane = self.segment_plane(self.plane_model, pcd=self.pointcloud_filtered)
         # _, self.pointcloud_training = self.segment_plane(self.pointcloud)
         self.pointcloud_ground_plane = pcd_ground_plane

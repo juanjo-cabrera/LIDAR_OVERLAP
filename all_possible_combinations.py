@@ -1,22 +1,23 @@
 """
 In this script we assess the labelling of all the possible combinations of a given trajectory
 """
-
+import random
 
 from run_3D_overlap import *
 import itertools as it
 import csv
-from config import EXP_PARAMETERS
+from config import EXP_PARAMETERS, ICP_PARAMETERS
+from scan_tools.keyframe import KeyFrame
 
-def process_overlap(keyframe_manager, poses, scan_idx, i):
+def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
     pre_process = True
 
     current_pose = poses[scan_idx].array
     reference_pose = poses[i].array
 
     if pre_process:
-        keyframe_manager.keyframes[scan_idx].pre_process()
-        keyframe_manager.keyframes[i].pre_process()
+        keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
+        keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
 
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
     atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
@@ -32,6 +33,18 @@ def process_overlap(keyframe_manager, poses, scan_idx, i):
 
 if __name__ == "__main__":
     scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
+
+
+    #AÑADIR LO SIGUIENTE PARA PROCESAR EL PLANO DE TIERRA UNA SOLA VEZ
+    kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
+    kf.load_pointcloud()
+    pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
+    plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+
+    #EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
+
+
+
     scan_indices = np.arange(0, len(scan_times))
     scan_combinations = list(it.combinations(scan_indices, 2))
 
@@ -44,7 +57,7 @@ if __name__ == "__main__":
             print('Calculated: ', i, 'overlaps out of ', len(scan_combinations))
             idx_reference = scan_combinations[i][0]
             idx_other = scan_combinations[i][1]
-            overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
+            overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other, plane_model)
             writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh, pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]])
 
 
