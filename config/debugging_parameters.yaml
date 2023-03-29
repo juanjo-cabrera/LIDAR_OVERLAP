@@ -6,6 +6,6 @@ plot_maps:
   overlap: False
 
 plot_scans:
-  initial_transform: False
+  initial_transform: True
   registration_result: False
   overlap: False

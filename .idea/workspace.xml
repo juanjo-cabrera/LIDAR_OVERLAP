@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="añadido representacion de los puntos fallidos">
+    <list default="true" id="0c3d37db-17d1-4d2d-9e99-1895043a755b" name="Changes" comment="compute plane model only at the beginning">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/exp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/exp_parameters.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_labelling_representation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_labelling_representation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_possible_combinations.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_possible_combinations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/debugging_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/debugging_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/icp_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/icp_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/training_parameters.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/training_parameters.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scan_tools/keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/scan_tools/keyframe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,29 +64,8 @@
       <recent name="$PROJECT_DIR$/google_maps_plotter" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run_labelling_representation">
-    <configuration name="PointnetVLAD_submaps" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/oxfordreader" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/oxfordreader/PointnetVLAD_submaps.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="data_sampling" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.all_possible_combinations">
+    <configuration name="all_possible_combinations" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -95,7 +77,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_sampling.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/all_possible_combinations.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -104,7 +86,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="labels_hist_analisys" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="kittireader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/kittireader" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kittireader/kittireader.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="run_3D_overlap" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="LIDAR_SLAM" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -116,28 +119,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/labels_hist_analisys.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="plotting_labelled_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LIDAR_SLAM" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plotting_labelled_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_3D_overlap.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -167,13 +149,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="run_training_sample" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="LIDAR_SLAM" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_training_sample.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.all_possible_combinations" />
+        <item itemvalue="Python.run_training_sample" />
+        <item itemvalue="Python.run_3D_overlap" />
+        <item itemvalue="Python.kittireader" />
         <item itemvalue="Python.run_labelling_representation" />
-        <item itemvalue="Python.labels_hist_analisys" />
-        <item itemvalue="Python.plotting_labelled_data" />
-        <item itemvalue="Python.data_sampling" />
-        <item itemvalue="Python.PointnetVLAD_submaps" />
       </list>
     </recent_temporary>
   </component>
@@ -185,41 +188,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1652344708630</updated>
-    </task>
-    <task id="LOCAL-00032" summary="3d VGG16">
-      <created>1674115255756</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1674115255756</updated>
-    </task>
-    <task id="LOCAL-00033" summary="Empleo de MinkowskiSplatFCNN">
-      <created>1674131982983</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1674131982983</updated>
-    </task>
-    <task id="LOCAL-00034" summary="unique training_dataset added&#10;custom collate fn added">
-      <created>1674572153909</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1674572153909</updated>
-    </task>
-    <task id="LOCAL-00035" summary="validation, testing and ground truth paths added in yaml">
-      <created>1674572643857</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1674572643857</updated>
-    </task>
-    <task id="LOCAL-00036" summary="ground truth dataset added">
-      <created>1674573830294</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1674573830294</updated>
     </task>
     <task id="LOCAL-00037" summary="validation dataset added">
       <created>1674657232059</created>
@@ -529,7 +497,42 @@
       <option name="project" value="LOCAL" />
       <updated>1679906216046</updated>
     </task>
-    <option name="localTasksCounter" value="81" />
+    <task id="LOCAL-00081" summary="lengend added">
+      <created>1679929211246</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1679929211247</updated>
+    </task>
+    <task id="LOCAL-00082" summary="evaluation of kitti added">
+      <created>1679999868072</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1679999868072</updated>
+    </task>
+    <task id="LOCAL-00083" summary="error fixed">
+      <created>1680000791216</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1680000791216</updated>
+    </task>
+    <task id="LOCAL-00084" summary="map and validation kitti completed">
+      <created>1680078776124</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1680078776124</updated>
+    </task>
+    <task id="LOCAL-00085" summary="compute plane model only at the beginning">
+      <created>1680080976721</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1680080976721</updated>
+    </task>
+    <option name="localTasksCounter" value="86" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -544,11 +547,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="training code refactored" />
-    <MESSAGE value="str2network dictionary added" />
-    <MESSAGE value="tqdm and stop decision criteria added" />
-    <MESSAGE value="success radius parameter added" />
-    <MESSAGE value="pointcloud_training added to keyframe for computing overlap" />
     <MESSAGE value="multiprocessing first approach" />
     <MESSAGE value="kitti labelling status" />
     <MESSAGE value="read and plot Oxford Robotcar trayectories" />
@@ -569,7 +567,12 @@
     <MESSAGE value="reader_manager added a falta de testear" />
     <MESSAGE value="representacion segmentada de overlap fpfh y poses" />
     <MESSAGE value="añadido representacion de los puntos fallidos" />
-    <option name="LAST_COMMIT_MESSAGE" value="añadido representacion de los puntos fallidos" />
+    <MESSAGE value="lengend added" />
+    <MESSAGE value="evaluation of kitti added" />
+    <MESSAGE value="error fixed" />
+    <MESSAGE value="map and validation kitti completed" />
+    <MESSAGE value="compute plane model only at the beginning" />
+    <option name="LAST_COMMIT_MESSAGE" value="compute plane model only at the beginning" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -621,12 +624,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>355</line>
+          <line>385</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>353</line>
+          <line>383</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -656,7 +659,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>242</line>
+          <line>248</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -666,27 +669,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>335</line>
+          <line>341</line>
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>254</line>
+          <line>260</line>
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>278</line>
+          <line>284</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>292</line>
+          <line>298</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>288</line>
+          <line>294</line>
           <option name="timeStamp" value="92" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -726,12 +729,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>406</line>
+          <line>436</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>398</line>
+          <line>428</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -786,17 +789,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/all_possible_combinations.py</url>
-          <line>47</line>
+          <line>60</line>
           <option name="timeStamp" value="226" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>740</line>
+          <line>770</line>
           <option name="timeStamp" value="230" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>761</line>
+          <line>791</line>
           <option name="timeStamp" value="232" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -806,7 +809,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/kittireader/kittireader.py</url>
-          <line>166</line>
+          <line>224</line>
           <option name="timeStamp" value="264" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -821,12 +824,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/all_possible_combinations.py</url>
-          <line>40</line>
+          <line>53</line>
           <option name="timeStamp" value="300" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/all_possible_combinations.py</url>
-          <line>34</line>
+          <line>47</line>
           <option name="timeStamp" value="301" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -916,37 +919,37 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>596</line>
+          <line>659</line>
           <option name="timeStamp" value="485" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_training_sample.py</url>
-          <line>391</line>
+          <line>443</line>
           <option name="timeStamp" value="487" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>823</line>
+          <line>853</line>
           <option name="timeStamp" value="488" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>824</line>
+          <line>854</line>
           <option name="timeStamp" value="489" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>828</line>
+          <line>858</line>
           <option name="timeStamp" value="490" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>846</line>
+          <line>876</line>
           <option name="timeStamp" value="491" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
-          <line>839</line>
+          <line>869</line>
           <option name="timeStamp" value="492" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -969,7 +972,84 @@
           <line>81</line>
           <option name="timeStamp" value="573" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>591</line>
+          <option name="timeStamp" value="587" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>101</line>
+          <option name="timeStamp" value="588" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>113</line>
+          <option name="timeStamp" value="589" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>33</line>
+          <option name="timeStamp" value="590" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>36</line>
+          <option name="timeStamp" value="591" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>70</line>
+          <option name="timeStamp" value="592" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>69</line>
+          <option name="timeStamp" value="593" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>55</line>
+          <option name="timeStamp" value="594" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>66</line>
+          <option name="timeStamp" value="595" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>156</line>
+          <option name="timeStamp" value="596" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>112</line>
+          <option name="timeStamp" value="597" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="598" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_training_sample.py</url>
+          <line>110</line>
+          <option name="timeStamp" value="599" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scan_tools/keyframe.py</url>
+          <line>57</line>
+          <option name="timeStamp" value="600" />
+        </line-breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
 </project>
