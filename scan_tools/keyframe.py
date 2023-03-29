@@ -92,7 +92,8 @@ class KeyFrame():
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
 
         # segment ground plane
-        pcd_ground_plane, pcd_non_ground_plane = self.segment_plane(self.pointcloud_filtered)
+        self.plane_model = self.calculate_plane(pcd=self.pointcloud_filtered)
+        pcd_ground_plane, pcd_non_ground_plane = self.segment_plane(self.plane_model, pcd=self.pointcloud_filtered)
         # _, self.pointcloud_training = self.segment_plane(self.pointcloud)
         self.pointcloud_ground_plane = pcd_ground_plane
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
@@ -106,7 +107,7 @@ class KeyFrame():
                                                                               max_nn=ICP_PARAMETERS.max_nn))
         self.pcd_fpfh = self.estimate_fpfh(radius=self.voxel_size_normals * 5, max_nn=100)
 
-    def training_preprocess(self):
+    def training_preprocess(self, plane_model):
         self.pointcloud_filtered = self.filter_by_radius(self.min_radius, TRAINING_PARAMETERS.max_radius)
         # self.pointcloud_normalized = self.normalize2center()
         # self.draw_pointcloud()
@@ -115,7 +116,7 @@ class KeyFrame():
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
 
         # segment ground plane
-        _, pcd_non_ground_plane = self.segment_plane(self.pointcloud_filtered)
+        _, pcd_non_ground_plane = self.segment_plane(plane_model, pcd=self.pointcloud_filtered)
         self.pointcloud_non_ground_plane = pcd_non_ground_plane
         if TRAINING_PARAMETERS.sample_points:
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
@@ -341,7 +342,26 @@ class KeyFrame():
         idx = points[:, 2] < height
         return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points[idx]))
 
-    def segment_plane(self, pcd, height=-0.5, thresholdA=0.01, thresholdB=0.4):
+    def calculate_plane(self, pcd=None, height=-0.5, thresholdA=0.01):
+        # find a plane by removing some of the points at a given height
+        # this best estimates a ground plane.
+
+        if pcd is None:
+            points = np.asarray(self.pointcloud_filtered.points)
+        else:
+            points = np.asarray(pcd.points)
+
+
+        idx = points[:, 2] < height
+        pcd_plane = o3d.geometry.PointCloud()
+        pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
+        plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3,
+                                                       num_iterations=1000)
+        [a, b, c, d] = plane_model
+        print(f"Plane model calculated: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+        return plane_model
+
+    def segment_plane(self, plane_model, pcd=None, thresholdB=0.4):
         """
         filter roughly the points that may belong to the plane.
         then estimate the plane with these points.
@@ -349,19 +369,24 @@ class KeyFrame():
         """
         # find a plane by removing some of the points at a given height
         # this best estimates a ground plane.
-        points = np.asarray(pcd.points)
-        if self.compute_groundplane_once == True:
-            idx = points[:, 2] < height
-            pcd_plane = o3d.geometry.PointCloud()
-            pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
-            plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
-            [a, b, c, d] = plane_model
-            print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
-            self.plane_model = plane_model
-            self.compute_groundplane_once = False
-
+        if pcd is None:
+            points = np.asarray(self.pointcloud_filtered.points)
         else:
-            [a, b, c, d] = self.plane_model
+            points = np.asarray(pcd.points)
+        [a, b, c, d] = plane_model
+
+        # if self.compute_groundplane_once == True:
+        #     idx = points[:, 2] < height
+        #     pcd_plane = o3d.geometry.PointCloud()
+        #     pcd_plane.points = o3d.utility.Vector3dVector(points[idx])
+        #     plane_model, inliers = pcd_plane.segment_plane(distance_threshold=thresholdA, ransac_n=3, num_iterations=1000)
+        #     [a, b, c, d] = plane_model
+        #     print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+        #     self.plane_model = plane_model
+        #     self.compute_groundplane_once = False
+        #
+        # else:
+        #     [a, b, c, d] = self.plane_model
         """
         Ecuacion del plano para un entorno en concreto: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Entorno_inicial_secuencia1'
         """

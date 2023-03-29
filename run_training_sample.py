@@ -37,19 +37,24 @@ class TrainingDataset(Dataset):
         self.other_timestamps = np.array(df["Other timestamp"])
         self.overlap = np.array(df["Overlap"])
         self.transform = transform
-        #trabajar con keyframe manager con el objeto de cargar todas las nubes y preprocesarlas al inicio. De
-        #manera que solo calcule el plano de tierra una vez
+
+        #calculate plane equation
+        kf = KeyFrame(directory=self.root_dir, scan_time=self.reference_timestamps[0])
+        kf.load_pointcloud()
+        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+
 
     def __getitem__(self, idx):
         reference_timestamp = self.reference_timestamps[idx]
         reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
         reference_kf.load_pointcloud()
-        reference_pcd, reference_features = reference_kf.training_preprocess()
+        reference_pcd, reference_features = reference_kf.training_preprocess(plane_model=self.plane_model)
 
         other_timestamp = self.other_timestamps[idx]
         other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
         other_kf.load_pointcloud()
-        other_pcd, other_features = other_kf.training_preprocess()
+        other_pcd, other_features = other_kf.training_preprocess(plane_model=self.plane_model)
         diferencia = 1 - np.array([self.overlap[idx]])
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
@@ -103,6 +108,10 @@ class GroundTruthDataset(Dataset):
         #     nmax_scans=EXP_PARAMETERS.exp_long,
         #     gps_mode='utm')
         self.scan_times, _, self.pos = data
+        kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
+        kf.load_pointcloud()
+        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -110,7 +119,7 @@ class GroundTruthDataset(Dataset):
         position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
-        pcd, features = kf.training_preprocess()
+        pcd, features = kf.training_preprocess(plane_model=self.plane_model)
 
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
@@ -127,6 +136,10 @@ class ValidationDataset(Dataset):
         # euroc_read = EurocReader(directory=self.root_dir)
         # self.scan_times, _, self.pos = euroc_read.prepare_gps_data(deltaxy=5)
         self.scan_times, _, self.pos = data
+        kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
+        kf.load_pointcloud()
+        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -134,7 +147,7 @@ class ValidationDataset(Dataset):
         position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
-        pcd, features = kf.training_preprocess()
+        pcd, features = kf.training_preprocess(plane_model=self.plane_model)
 
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
