@@ -19,6 +19,7 @@ from sklearn.neighbors import KDTree
 from tqdm import tqdm
 from time import sleep
 from kittireader.kittireader import KittiReader
+import matplotlib.pyplot as plt
 
 
 
@@ -528,17 +529,36 @@ def load_validation_data():
     return val_data, map_data, all_true_neighbors
 
 
+def vis_poses(validation, map):
+    """Visualize the trajectory"""
+    # set up plot
+    fig, ax = plt.subplots()
+    # map poses
+    ax.scatter(validation[:, 1]*-1, validation[:, 0], c='red', s=10)
+    ax.scatter(map[:, 1]*-1, map[:, 0], c='blue', s=10)
+
+    ax.axis('square')
+    ax.set_xlabel('X [m]')
+    ax.set_ylabel('Y [m]')
+    ax.set_title('Poses')
+    ax.legend(['Validation', 'Map'])
+    plt.show()
+
+
 def visualize_trajectories(val_data, map_data):
     # Prepare data
     scan_times_val, lat_lon_val, utm_val = val_data
     scan_times_map, lat_lon_map, utm_map = map_data
 
-    gmap = CustomGoogleMapPlotter(EXP_PARAMETERS.origin_lat, EXP_PARAMETERS.origin_lon, zoom=20,
-                                  map_type='satellite')
+    if lat_lon_map == -1:
+        vis_poses(utm_val, utm_map)
+    else:
+        gmap = CustomGoogleMapPlotter(EXP_PARAMETERS.origin_lat, EXP_PARAMETERS.origin_lon, zoom=20,
+                                      map_type='satellite')
 
-    gmap.pos_scatter(lat_lon_val[:, 0], lat_lon_val[:, 1], color='orange')
-    gmap.pos_scatter(lat_lon_map[:, 0], lat_lon_map[:, 1], color='blue')
-    gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
+        gmap.pos_scatter(lat_lon_val[:, 0], lat_lon_val[:, 1], color='orange')
+        gmap.pos_scatter(lat_lon_map[:, 0], lat_lon_map[:, 1], color='blue')
+        gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
 
 STR2NETWORK = dict(
     pointnet=PointNet,

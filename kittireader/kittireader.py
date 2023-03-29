@@ -20,6 +20,22 @@ class KittiReader():
 
         return sampled_times, pos, orient, poses
 
+    def vis_poses(self, validation, map):
+        import matplotlib.pyplot as plt
+        """Visualize the trajectory"""
+        # set up plot
+        fig, ax = plt.subplots()
+        # map poses
+        ax.scatter(validation[:, 1] * -1, validation[:, 0], c='red', s=10)
+        ax.scatter(map[:, 1] * -1, map[:, 0], c='blue', s=10)
+
+        ax.axis('square')
+        ax.set_xlabel('X [m]')
+        ax.set_ylabel('Y [m]')
+        ax.set_title('Poses')
+        ax.legend(['Validation', 'Map'])
+        plt.show()
+
     def prepare_kitti_evaluation(self):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
         # sample odometry at deltaxy and deltatheta
@@ -46,12 +62,13 @@ class KittiReader():
         for pose in poses:
             poses_new.append(T_velo_cam.dot(pose_scan_idx_inv).dot(pose).dot(T_cam_velo))
         poses = np.array(poses_new)
+        # self.vis_poses(poses, poses)
         map_positions = []
-        for i in range(0 , len(index_map)):
-            map_positions.append(poses[i][0:3, 3])
+        for i in range(0, len(index_map)):
+            map_positions.append(poses[index_map[i]][0:3, 3])
         val_positions = []
         for i in range(0, len(index_val)):
-            val_positions.append(poses[i][0:3, 3])
+            val_positions.append(poses[index_val[i]][0:3, 3])
 
         return index_map, index_val, np.array(map_positions), np.array(val_positions)
 
