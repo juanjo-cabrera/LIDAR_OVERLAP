@@ -36,7 +36,7 @@ class KittiReader():
         ax.legend(['Validation', 'Map'])
         plt.show()
 
-    def prepare_kitti_evaluation(self):
+    def prepare_kitti_evaluation(self, deltaxy_map=None, deltaxy_val=None):
         print("PREPARING EXPERIMENT DATA FOR OUTDOOR EXPERIMENTS")
         # sample odometry at deltaxy and deltatheta
         scan_times = self.read_scan_times()
@@ -66,10 +66,18 @@ class KittiReader():
         map_positions = []
         for i in range(0, len(index_map)):
             map_positions.append(poses[index_map[i]][0:3, 3])
+        map_positions = np.array(map_positions)
+
         val_positions = []
         for i in range(0, len(index_val)):
             val_positions.append(poses[index_val[i]][0:3, 3])
-
+        val_positions = np.array(val_positions)
+        self.vis_poses(val_positions,  map_positions)
+        if deltaxy_map is not None:
+            map_positions, index_map = self.sample_by_distance(poses=map_positions, times=index_map, deltaxy=deltaxy_map)
+        if deltaxy_val is not None:
+            val_positions, index_val = self.sample_by_distance(poses=val_positions, times=index_val, deltaxy=deltaxy_val)
+        self.vis_poses(val_positions, map_positions)
         return index_map, index_val, np.array(map_positions), np.array(val_positions)
 
 
@@ -116,6 +124,34 @@ class KittiReader():
             print('Calibrations are not avaialble.')
 
         return np.array(T_cam_velo)
+
+
+    def sample_by_distance(self, poses, times, deltaxy):
+        """
+        Get pose times separated by dxy (m) and dth (rad)
+        """
+
+        sampled_times = []
+        sampled_pos = []
+
+        for ind in range(0, len(poses)):
+            position = poses[ind]
+            odo = np.array([position[0], position[1]])
+
+            if ind == 0:
+                sampled_times.append(times[ind])
+                sampled_pos.append(position)
+                odoi = odo
+            odoi1 = odo
+
+            dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
+
+            if dxy > deltaxy:
+                sampled_times.append(times[ind])
+                sampled_pos.append(position)
+                odoi = odoi1
+        return np.array(sampled_pos), np.array(sampled_times)
+
 
     def sample_poses(self, deltaxy=0.5, deltath=0.2):
         """

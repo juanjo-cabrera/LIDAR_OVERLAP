@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 from scan_tools.keyframe import KeyFrame
 import MinkowskiEngine as ME
-from examples.classification_modelnet40 import *
-# from scritps.examples.classification_modelnet40 import *
+# from examples.classification_modelnet40 import *
+from scripts.examples.classification_modelnet40 import *
 # from ml_tools.FCNN import MinkowskiFCNN
 from eurocreader.eurocreader_outdoors import EurocReader
 from google_maps_plotter.custom_plotter import *
@@ -463,13 +463,11 @@ def get_position_error(queries_descriptors, map_descriptors, queries_poses, map_
 
 def compute_validation(model, query_dataloader, map_dataloader, true_neighbors, queries_poses, map_poses):
     device1 = torch.device("cuda:1")
-    device2 = torch.device("cuda:2")
-    device3 = torch.device("cuda:3")
 
     queries_descriptors = get_latent_vectors(dataloader=query_dataloader, model=model,
                                                                   main_device=device1)
     map_descriptors = get_latent_vectors(dataloader=map_dataloader, model=model,
-                                                                  main_device=device2)
+                                                                  main_device=device1)
 
     mean_error, median_error = get_position_error(queries_descriptors, map_descriptors, queries_poses, map_poses)
     print('\n\nValidation results \n Mean pose error: {} meters, Median error: {} meters'.format(mean_error, median_error))
@@ -509,8 +507,8 @@ def read_innova_dataset():
 
 def read_kitti_dataset():
     # Prepare data
-    kitti_read = KittiReader(directory='/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00')
-    scan_times_map, scan_times_val, utm_map, utm_val = kitti_read.prepare_kitti_evaluation()
+    kitti_read = KittiReader(directory=TRAINING_PARAMETERS.validation_path)
+    scan_times_map, scan_times_val, utm_map, utm_val = kitti_read.prepare_kitti_evaluation(deltaxy_map=5, deltaxy_val=30)
 
     lat_lon_val = -1
     lat_lon_map = -1
