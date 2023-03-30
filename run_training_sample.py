@@ -422,8 +422,8 @@ def get_recall(map_output, queries_output, all_true_neighbors):
     for i in range(len(queries_output)):
         # i is query element ndx
         true_neighbors = all_true_neighbors[i]
-        if len(true_neighbors) == 0:
-            continue
+        if len(true_neighbors[0]) == 0:
+            continue    # Get recall only if map and validation trajectories are the same
         num_evaluated += 1
         distances, indices = database_nbrs.query(np.array([queries_output[i]]), k=num_neighbors)
 
@@ -443,6 +443,7 @@ def get_recall(map_output, queries_output, all_true_neighbors):
     one_percent_recall = (one_percent_retrieved/float(num_evaluated))*100
     recall = (np.cumsum(recall)/float(num_evaluated))*100
     return recall, top1_similarity_score, one_percent_recall
+
 
 def get_position_error(queries_descriptors, map_descriptors, queries_poses, map_poses):
     k = 0
