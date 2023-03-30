@@ -652,18 +652,17 @@ if __name__ == '__main__':
                                        map_dataloader=groundtruth_dataloader, true_neighbors=true_neighbors,
                                        queries_poses=val_data[2], map_poses=map_data[2])
 
+                    min_error = np.min(error_history)
+                    error_history.append(mean_error)
+                    if mean_error < min_error:
+                        # save model
+                        torch.save(net.state_dict(), net_name + str(mean_error))
+                    # Model to training device
+                    net.to(device0)
+                    torch.cuda.set_device(device0)
+                    net.train(mode=True)
 
                     if TRAINING_PARAMETERS.complete_epochs == False:
-                        min_error = np.min(error_history)
-                        error_history.append(mean_error)
-
-                        if mean_error < min_error:
-                            # save model
-                            torch.save(net.state_dict(), net_name + str(mean_error))
-                        # Model to training device
-                        net.to(device0)
-                        torch.cuda.set_device(device0)
-                        net.train(mode=True)
 
                         if len(last_errors) < 10:
                             last_errors.append(mean_error)
