@@ -93,6 +93,7 @@ class Training_ParametersConfig():
             self.training_path = config.get('training_parameters').get('path')
             self.training_batch_size = config.get('training_parameters').get('batch_size')
             self.number_of_epochs = config.get('training_parameters').get('number_epochs')
+            self.complete_epochs = config.get('training_parameters').get('complete_epochs')
 
 
             self.validation_path = config.get('validation_parameters').get('path')

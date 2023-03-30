@@ -15,21 +15,25 @@ output_data:
 
 training_parameters:
 #  path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
-  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
+#  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
+  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04'
 
   batch_size: 8
-  number_epochs: 1
+  number_epochs: 10
+  complete_epochs: True
 
 validation_parameters:
 #  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2023-01-24-12-25-00'
 #  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-21-12-03-42'
-  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00'
+#  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00'
+  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/00'
 #  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2023-01-24-18-59-02'
   batch_size: 32
 
 groundtruth_parameters:
 #  path: '/home/arvc/Juanjo/Datasets/Exterior_innova/2022-12-07-15-22-43'
-  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00'
+#  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/00'
+  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/00'
   batch_size: 32
 
 evaluation_parameters:
