@@ -11,7 +11,7 @@ import numpy as np
 from scan_tools.keyframe import KeyFrame
 import MinkowskiEngine as ME
 # from examples.classification_modelnet40 import *
-from scripts.examples.classification_modelnet40 import *
+# from scripts.examples.classification_modelnet40 import *
 # from ml_tools.FCNN import MinkowskiFCNN
 from eurocreader.eurocreader_outdoors import EurocReader
 from google_maps_plotter.custom_plotter import *
@@ -573,10 +573,10 @@ def visualize_trajectories(val_data, map_data):
         gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
 
 STR2NETWORK = dict(
-    pointnet=PointNet,
-    minkpointnet=MinkowskiPointNet,
-    minkfcnn=MinkowskiFCNN,
-    minksplatfcnn=MinkowskiSplatFCNN,
+    # pointnet=PointNet,
+    # minkpointnet=MinkowskiPointNet,
+    # minkfcnn=MinkowskiFCNN,
+    # minksplatfcnn=MinkowskiSplatFCNN,
     VGG16=VGG16_3DNetwork
 )
 
@@ -611,9 +611,12 @@ if __name__ == '__main__':
     # train model
     counter = []
     error_history = []
+    recall_at1_history = []
+
     last_errors = []
     error_history.append(1000)
-    net_name = '3DVGG16_'
+    recall_at1_history.append(0)
+    net_name = 'VGG16_anchor_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
@@ -653,10 +656,14 @@ if __name__ == '__main__':
                                        queries_poses=val_data[2], map_poses=map_data[2])
 
                     min_error = np.min(error_history)
+                    max_recall = np.max(recall_at1_history)
+                    recall_at1_history.append(recall_at1)
                     error_history.append(mean_error)
-                    if mean_error < min_error:
+                    # if mean_error < min_error:
+                    if recall_at1>max_recall:
                         # save model
-                        torch.save(net.state_dict(), net_name + str(mean_error))
+                        # torch.save(net.state_dict(), net_name + str(mean_error))
+                        torch.save(net.state_dict(), net_name + str(recall_at1) + '_epoch' + str(epoch) + '_iter' + str(i))
                     # Model to training device
                     net.to(device0)
                     torch.cuda.set_device(device0)

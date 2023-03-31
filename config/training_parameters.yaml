@@ -19,7 +19,7 @@ training_parameters:
   path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04'
 
   batch_size: 8
-  number_epochs: 10
+  number_epochs: 2
   complete_epochs: True
 
 validation_parameters:
