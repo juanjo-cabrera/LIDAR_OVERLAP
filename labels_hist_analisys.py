@@ -129,22 +129,39 @@ def get_overlap(reference_time, other_time, reference_timestamps, other_timestam
     return overlap_selected
 
 
+def plot_overlap_histogram(overlaps):
+    hist, bins = np.histogram(np.array(overlaps), bins=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0], density=True)
+    counter = hist * len(overlaps) / np.sum(hist)
+    print(counter)
+    rangos = ('0 - 0.2', '0.2 - 0.4', '0.4 - 0.6', '0.6 - 0.8', '0.8 - 1.0')
+    y_pos = np.arange(len(rangos))
+    plt.bar(y_pos, counter, align='center', alpha=0.5)
+    plt.xticks(y_pos, rangos)
+    plt.ylabel('N of pair samples')
+    plt.ylabel('Overlap')
+    plt.show()
 
 
 if __name__ == "__main__":
-    scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
-    # delta_xy = len(scan_times) / 50
-    delta_xy = 5 # metros
-    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-    vis_poses(sampled_positions)
 
-    df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+    df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
     reference_timestamps = np.array(df["Reference timestamp"])
     other_timestamps = np.array(df["Other timestamp"])
     overlap = np.array(df["Overlap"])
+    plot_overlap_histogram(overlap)
 
+
+    """
+    El código siguiente plote un histograma local para diferentes sampled poses. Solo funciona con all_combinationes.csv
+    scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
+    delta_xy = 5 # metros
+    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+    vis_poses(sampled_positions)
+    
     kd_tree = KDTree(positions)
-    # overlaps = []
+
     for index in range(0, len(sampled_positions)):
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
@@ -166,12 +183,9 @@ if __name__ == "__main__":
             print(counter)
         # vis_poses(nearest_positions)
         plot_overlap(sampled_positions, nearest_positions, overlaps)
+        plot_overlap_histogram(overlaps)
 
-        hist, bins, ignored = plt.hist(np.array(overlaps), bins=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0], density=True)
-        counter = hist*len(overlaps)/np.sum(hist)
-        print(counter)
-        plt.show()
-
+    """
 
 
 
