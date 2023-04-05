@@ -138,7 +138,7 @@ def plot_overlap_histogram(overlaps):
     plt.bar(y_pos, counter, align='center', alpha=0.5)
     plt.xticks(y_pos, rangos)
     plt.ylabel('N of pair samples')
-    plt.ylabel('Overlap')
+    plt.xlabel('Range of Overlap')
     plt.show()
 
 
@@ -147,6 +147,8 @@ if __name__ == "__main__":
 
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
     df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/random.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/global_uniform.csv')
     reference_timestamps = np.array(df["Reference timestamp"])
     other_timestamps = np.array(df["Other timestamp"])
     overlap = np.array(df["Overlap"])

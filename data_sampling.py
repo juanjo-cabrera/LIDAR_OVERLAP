@@ -131,6 +131,9 @@ def get_overlap(reference_time, other_time, reference_timestamps, other_timestam
 
 
 def global_uniform_distribution(overlap, size=None):
+    """
+     Uniform distribution with non-repetitive combinations, it is not necessary to check it
+     """
     inds1 = np.where(overlap <= 0.2)
     inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
     inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
@@ -160,6 +163,10 @@ def global_uniform_distribution(overlap, size=None):
 
 
 def partial_uniform_distribution(overlap, combination_selected,  size=None):
+    """
+    Uniform distribution per anchor without checking repetitive combinations, it is done in a posterior line which
+    modify the uniform distribution to partial distribution per anchor
+    """
     inds1 = np.where(overlap <= 0.2)
     inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
     inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
@@ -187,6 +194,97 @@ def partial_uniform_distribution(overlap, combination_selected,  size=None):
     return pairs_selected
 
 
+def total_uniform_distribution(overlap, combination_proposed, already_selected, size=None):
+    """
+     Uniform distribution per anchor checking repetitive combitnations, it is done in a posterior line which
+     modify the uniform distribution to partial distribution per anchor
+     """
+    inds1 = np.where(overlap <= 0.2)
+    inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
+    inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
+    inds4 = np.where((overlap > 0.6) & (overlap <= 0.8))
+    inds5 = np.where((overlap > 0.8) & (overlap <= 1))
+
+    len_inds1 = len(inds1[0])
+    len_inds2 = len(inds2[0])
+    len_inds3 = len(inds3[0])
+    len_inds4 = len(inds4[0])
+    len_inds5 = len(inds5[0])
+    len_inds = np.array([len_inds1, len_inds2, len_inds3, len_inds4, len_inds5])
+
+    if size is None:
+        N_pairs_to_select = min(len_inds1, len_inds2, len_inds3, len_inds4, len_inds5)
+    else:
+        N_pairs_to_select = int(size / 5)
+
+    while True:
+        pairs_selected1 = np.array(random.sample(list(combination_proposed[inds1[0]]), N_pairs_to_select))
+        pairs_selected2 = np.array(random.sample(list(combination_proposed[inds2[0]]), N_pairs_to_select))
+        pairs_selected3 = np.array(random.sample(list(combination_proposed[inds3[0]]), N_pairs_to_select))
+        pairs_selected4 = np.array(random.sample(list(combination_proposed[inds4[0]]), N_pairs_to_select))
+        pairs_selected5 = np.array(random.sample(list(combination_proposed[inds5[0]]), N_pairs_to_select))
+
+        # flag1 = np.where(already_selected == pairs_selected1)[0]
+        # flag2 = np.where(already_selected == pairs_selected2)[0]
+        # flag3 = np.where(already_selected == pairs_selected3)[0]
+        # flag4 = np.where(already_selected == pairs_selected4)[0]
+        # flag5 = np.where(already_selected == pairs_selected5)[0]
+
+        flag1 = np.intersect1d(already_selected, pairs_selected1)
+        flag2 = np.intersect1d(already_selected, pairs_selected2)
+        flag3 = np.intersect1d(already_selected, pairs_selected3)
+        flag4 = np.intersect1d(already_selected, pairs_selected4)
+        flag5 = np.intersect1d(already_selected, pairs_selected5)
+
+
+        flags = np.array([flag1, flag2, flag3, flag4, flag5])
+
+        pairs_to_select = np.concatenate([pairs_selected1, pairs_selected2, pairs_selected3, pairs_selected4, pairs_selected5])
+        acumulated_pairs = np.concatenate([already_selected, pairs_to_select])
+
+        if len(np.unique(acumulated_pairs)) == len(acumulated_pairs):
+            break
+        # if len(flag1) == 0 and len(flag2) == 0 and len(flag3) == 0 and len(flag4) == 0 and len(flag5) == 0:
+        #     break
+        else:
+            for i in range(0, len(flags)):
+                flag = flags[i]
+                len_ind = len_inds[i]
+                if len(flag) != 0:
+                    # if len_ind > N_pairs_to_select:
+                        # break
+                    # if len_ind == N_pairs_to_select:
+                        # N_pairs_to_select = N_pairs_to_select - 1
+                        # len_inds[i] = len_inds[i] - 1
+                        indexes_to_conserve = np.where(flag != combination_selected)
+                        combination_selected = combination_selected[indexes_to_conserve[0]]
+                        overlap = overlap[indexes_to_conserve[0]]
+                        inds1 = np.where(overlap <= 0.2)
+                        inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
+                        inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
+                        inds4 = np.where((overlap > 0.6) & (overlap <= 0.8))
+                        inds5 = np.where((overlap > 0.8) & (overlap <= 1))
+
+                        len_inds1 = len(inds1[0])
+                        len_inds2 = len(inds2[0])
+                        len_inds3 = len(inds3[0])
+                        len_inds4 = len(inds4[0])
+                        len_inds5 = len(inds5[0])
+                        len_inds = np.array([len_inds1, len_inds2, len_inds3, len_inds4, len_inds5])
+                        N_pairs_to_select = min(len_inds1, len_inds2, len_inds3, len_inds4, len_inds5)
+
+
+
+
+
+    pairs_selected = np.concatenate([pairs_selected1, pairs_selected2, pairs_selected3, pairs_selected4, pairs_selected5])
+
+
+
+    return pairs_selected
+
+
+
 def interpolate_positions(original_positions, scan_times, N):
     kd_tree = KDTree(positions)
     # Calculamos la distancia total recorrida a lo largo de la trayectoria original
@@ -204,6 +302,7 @@ def interpolate_positions(original_positions, scan_times, N):
     interpolated_positions = interpolator(target_distances)
     sampled_positions = []
     sampled_times = []
+    # Buscamos los puntos de la trayectoria real que más cerca están de los interpolados
     for sampled_position in interpolated_positions:
         _, indice = kd_tree.query(np.array([sampled_position]), k=1)
         sampled_positions.append(original_positions[indice].reshape(3,))
@@ -211,7 +310,7 @@ def interpolate_positions(original_positions, scan_times, N):
 
     return np.array(sampled_positions), np.array(sampled_times).flatten()
 
-def get_uniform_pairs(sampled_positions, sampled_times):
+def get_partial_uniform_pairs(sampled_positions, sampled_times):
     kd_tree = KDTree(positions)
     pairs_selected = []
 
@@ -232,10 +331,47 @@ def get_uniform_pairs(sampled_positions, sampled_times):
             except:
                 continue
 
-        pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_idxs))
+        pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_idxs), pairs_selected)
 
         pairs_selected.extend(pairs_selected_i)
-    pairs_selected = np.unique(np.array(pairs_selected))
+    pairs_selected = np.unique(np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
+    return pairs_selected
+
+
+def get_total_uniform_pairs(sampled_positions, sampled_times):
+    kd_tree = KDTree(positions)
+    pairs_selected = []
+
+    for index in range(0, len(sampled_positions)):
+        sampled_position = sampled_positions[index]
+        sampled_time = sampled_times[index]
+        _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+        # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        indices = np.array(list(indices))
+        nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
+        overlaps = []
+        combinations_proposed = []
+        for nearest_time in nearest_times:
+            try:
+                overlap_s, combination_proposed = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
+                overlaps.append(overlap_s)
+                combinations_proposed.append(combination_proposed)
+            except:
+                continue
+
+
+        if index == 0:
+            pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
+            pairs_selected.extend(pairs_selected_i)
+        else:
+            common_combinations = np.intersect1d(pairs_selected, combinations_proposed)
+            if len(common_combinations) > 0:
+                indexes_to_conserve = np.where(common_combinations != combinations_proposed)
+                combinations_proposed = np.array(combinations_proposed)[indexes_to_conserve[0].astype(int)]
+                overlaps = np.array(overlaps)[indexes_to_conserve[0].astype(int)]
+            pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
+            pairs_selected.extend(pairs_selected_i)
+
     return pairs_selected
 
 def anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size=None):
@@ -244,15 +380,18 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
         print('En none')
         delta_xy = 1  # metros
         sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-        pairs_selected = get_uniform_pairs(sampled_positions, sampled_times)
+        pairs_selected = get_total_uniform_pairs(sampled_positions, sampled_times)
 
     else:
         pairs_selected = []
-        i = 185
+        i = 150
         while len(pairs_selected) < size:
             sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
-            pairs_selected = get_uniform_pairs(sampled_positions, sampled_times)
+            # pairs_selected = get_partial_uniform_pairs(sampled_positions, sampled_times)
+            pairs_selected = get_total_uniform_pairs(sampled_positions, sampled_times)
+            print(len(pairs_selected))
             i += 1
+
 
     # vis_poses(sampled_positions)
 
@@ -294,12 +433,15 @@ if __name__ == "__main__":
     # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
 
     pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_anchor))
-
+    # Descomentar si se quiere crear el csv
+    """
     write_csv(pairs_selected_globally, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='global_uniform')
     write_csv(pairs_selected_anchor, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='anchor_uniform')
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
-
+    """
     print(len(pairs_selected_anchor))
+    print(len(pairs_selected_globally))
+    print(len(pairs_selected_randomly))
 
 
 
