@@ -676,8 +676,8 @@ class KeyFrame():
         return atb, result.inlier_rmse
 
     def draw_registration_result(self, other, transformation):
-        # source_temp = copy.deepcopy(self.pointcloud_normalized)
-        # target_temp = copy.deepcopy(other.pointcloud_normalized)
+        # source_temp = copy.deepcopy(self.pointcloud)
+        # target_temp = copy.deepcopy(other.pointcloud)
         source_temp = copy.deepcopy(self.pointcloud_non_ground_plane)
         target_temp = copy.deepcopy(other.pointcloud_non_ground_plane)
         # source_temp = copy.deepcopy(self.pointcloud_filtered)
