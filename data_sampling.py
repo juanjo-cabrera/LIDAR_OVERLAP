@@ -374,6 +374,9 @@ def get_total_uniform_pairs(sampled_positions, sampled_times):
 
     return pairs_selected
 
+
+
+
 def anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size=None):
 
     if size is None:
@@ -398,6 +401,52 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
     return pairs_selected
 
 
+def get_online_pairs(sampled_positions, sampled_times):
+    kd_tree = KDTree(positions)
+    pairs_selected = []
+
+    for index in range(0, len(sampled_positions)):
+        sampled_position = sampled_positions[index]
+        sampled_time = sampled_times[index]
+        _, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+        # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        indices = np.array(list(indices))
+        nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
+        overlaps = []
+        combinations_proposed = []
+        for nearest_time in nearest_times:
+            try:
+                overlap_s, combination_proposed = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
+                overlaps.append(overlap_s)
+                combinations_proposed.append(combination_proposed)
+            except:
+                continue
+
+
+        if index == 0:
+            pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
+            pairs_selected.extend(pairs_selected_i)
+        else:
+            common_combinations = np.intersect1d(pairs_selected, combinations_proposed)
+            if len(common_combinations) > 0:
+                indexes_to_conserve = np.where(common_combinations != combinations_proposed)
+                combinations_proposed = np.array(combinations_proposed)[indexes_to_conserve[0].astype(int)]
+                overlaps = np.array(overlaps)[indexes_to_conserve[0].astype(int)]
+            pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
+            pairs_selected.extend(pairs_selected_i)
+
+    return pairs_selected
+
+def online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap):
+
+    delta_xy = 25  # metros
+    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+    pairs_selected = get_online_pairs(sampled_positions, sampled_times)
+
+
+
+
+
 def random_distribution(overlap, size=None):
     # generating random samples
     indices = np.arange(0, len(overlap))
@@ -412,6 +461,65 @@ def write_csv(pairs, reference_timestamp, other_timestamp, overlap, reference_x,
         for idx in pairs:
             writer.writerow([reference_timestamp[idx], other_timestamp[idx], overlap[idx],  reference_x[idx], reference_y[idx], other_x[idx], other_y[idx]])
 
+class sample_administrator():
+    def __init__(self):
+        self.overlap00_02 = []
+        self.overlap02_04 = []
+        self.overlap04_06 = []
+        self.overlap06_08 = []
+        self.overlap08_10 = []
+        self.valid_candidates = []
+        self.rejected_candidates = []
+
+
+    def save_overlap(self, overlap):
+        if overlap <= 0.2:
+            self.overlap00_02.append(overlap)
+        elif overlap > 0.2 and overlap <= 0.4:
+            self.overlap02_04.append(overlap)
+        elif overlap > 0.4 and overlap <= 0.6:
+            self.overlap04_06.append(overlap)
+        elif overlap > 0.6 and overlap <= 0.8:
+            self.overlap06_08.append(overlap)
+        elif overlap > 0.8 and overlap <= 1.0:
+            self.overlap08_10.append(overlap)
+
+    def classify_overlap(self, overlap):
+        value = None
+        if overlap <= 0.2:
+            value = 0
+        elif overlap > 0.2 and overlap <= 0.4:
+            value = 2
+        elif overlap > 0.4 and overlap <= 0.6:
+            value = 4
+        elif overlap > 0.6 and overlap <= 0.8:
+            value = 6
+        elif overlap > 0.8 and overlap <= 1.0:
+            value = 8
+
+        return value
+
+    def get_overlap_lens(self):
+        return len(self.overlap00_02), len(self.overlap02_04), len(self.overlap04_06), len(self.overlap06_08), len(self.overlap08_10)
+
+    def manage_overlap(self, candidate):
+        len0, len2, len4, len6, len8 = self.get_overlap_lens()
+        min_len = np.minimum([len0, len2, len4, len6, len8])
+        max_len = np.maximum([len0, len2, len4, len6, len8])
+        category = self.classify_overlap(candidate)
+        if category == 0 and len0 == max_len:
+            self.save_overlap(candidate)
+        elif category == 2 and len2 < max_len:
+            self.save_overlap(candidate)
+        elif category == 4 and len4 < max_len:
+            self.save_overlap(candidate)
+        elif category == 6 and len2 < max_len:
+            self.save_overlap(candidate)
+        elif category == 8 and len2 < max_len:
+            self.save_overlap(candidate)
+        else:
+            self.rejected_candidates.append(candidate)
+
 
 
 if __name__ == "__main__":
@@ -425,6 +533,9 @@ if __name__ == "__main__":
     other_x = np.array(df["Other x"])
     reference_y = np.array(df["Reference y"])
     other_y= np.array(df["Other y"])
+
+    online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
+
 
     pairs_selected_globally = global_uniform_distribution(overlap)
     pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,
