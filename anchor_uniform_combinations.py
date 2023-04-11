@@ -2,6 +2,9 @@
 In this script we assess the labelling of some combinations of a given trajectory in order ot have an uniform histogram of the overlap
 """
 import random
+
+import numpy as np
+
 from run_3D_overlap import *
 import itertools as it
 import csv
@@ -54,6 +57,19 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
 
 
     return overlap, overlap_pose, overlap_fpfh
+
+
+def get_overlap(reference_time, other_time, reference_timestamps, other_timestamps, overlap):
+    i_ref = np.where(reference_timestamps == reference_time)
+    i_other = np.where(other_timestamps == other_time)
+    match_i = np.intersect1d(i_ref, i_other)
+
+    j_ref = np.where(reference_timestamps == other_time)
+    j_other = np.where(other_timestamps == reference_time)
+    match_j = np.intersect1d(j_ref, j_other)
+    match = np.unique(np.concatenate((match_i, match_j)))
+    overlap_selected = overlap[int(match)]
+    return overlap_selected, int(match)
 
 
 def downsample(positions, times, deltaxy=5):
@@ -121,7 +137,7 @@ def get_total_uniform_pairs(sampled_positions, sampled_times, all_positions, all
     for index in range(0, len(sampled_positions)):
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
-        _, indices = kd_tree.query(np.array([sampled_position]), k=len(all_positions))
+        distances, indices = kd_tree.query(np.array([sampled_position]), k=len(all_positions))
         # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
         indices = np.array(list(indices))
         nearest_times = all_times[indices].flatten()  # para que me salga del tipo (10,)
@@ -130,9 +146,15 @@ def get_total_uniform_pairs(sampled_positions, sampled_times, all_positions, all
         for nearest_time in nearest_times:
             combination_proposed = [sampled_time, nearest_time]
             list_idx = get_combination(sampled_time, nearest_time, reference_timestamps, other_timestamps)
+            try:
+                overlap_s, combination_selected = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
+                # overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other,
+                #                                                       plane_model)
 
-            overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other,
-                                                                  plane_model)
+            except:
+                continue
+
+
 
 
 
@@ -173,15 +195,18 @@ def anchor_uniform_distribution(all_positions, all_times, all_combinations, refe
             print(len(pairs_selected))
             i += 1
 
-class samples_administrator():
+class sample_administrator():
     def __init__(self):
         self.overlap00_02 = []
         self.overlap02_04 = []
         self.overlap04_06 = []
         self.overlap06_08 = []
         self.overlap08_10 = []
+        self.valid_candidates = []
+        self.rejected_candidates = []
 
-    def classify_overlap(self, overlap):
+
+    def save_overlap(self, overlap):
         if overlap <= 0.2:
             self.overlap00_02.append(overlap)
         elif overlap > 0.2 and overlap <= 0.4:
@@ -190,11 +215,44 @@ class samples_administrator():
             self.overlap04_06.append(overlap)
         elif overlap > 0.6 and overlap <= 0.8:
             self.overlap06_08.append(overlap)
-        elif overlap > 0.8 and overlap <= 0.1:
+        elif overlap > 0.8 and overlap <= 1.0:
             self.overlap08_10.append(overlap)
 
-    def sample_controler(self):
+    def classify_overlap(self, overlap):
+        value = None
+        if overlap <= 0.2:
+            value = 0
+        elif overlap > 0.2 and overlap <= 0.4:
+            value = 2
+        elif overlap > 0.4 and overlap <= 0.6:
+            value = 4
+        elif overlap > 0.6 and overlap <= 0.8:
+            value = 6
+        elif overlap > 0.8 and overlap <= 1.0:
+            value = 8
 
+        return value
+
+    def get_overlap_lens(self):
+        return len(self.overlap00_02), len(self.overlap02_04), len(self.overlap04_06), len(self.overlap06_08), len(self.overlap08_10)
+
+    def manage_overlap(self, candidate):
+        len0, len2, len4, len6, len8 = self.get_overlap_lens()
+        min_len = np.minimum([len0, len2, len4, len6, len8])
+        max_len = np.maximum([len0, len2, len4, len6, len8])
+        category = self.classify_overlap(candidate)
+        if category == 0 and len0 == max_len:
+            self.save_overlap(candidate)
+        elif category == 2 and len2 < max_len:
+            self.save_overlap(candidate)
+        elif category == 4 and len4 < max_len:
+            self.save_overlap(candidate)
+        elif category == 6 and len2 < max_len:
+            self.save_overlap(candidate)
+        elif category == 8 and len2 < max_len:
+            self.save_overlap(candidate)
+        else:
+            self.rejected_candidates.append(candidate)
 
 
 
