@@ -5,13 +5,23 @@ In this script we assess the labelling of all the possible combinations of a giv
 from run_3D_overlap import *
 import itertools as it
 import csv
-from config import EXP_PARAMETERS
+from config import EXP_PARAMETERS, ICP_PARAMETERS
 import multiprocessing as mp
 from multiprocessing import set_start_method
+import random
+from scan_tools.keyframe import KeyFrame
 
 scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 scan_indices = np.arange(0, len(scan_times))
 scan_combinations = list(it.combinations(scan_indices, 2))
+
+# AÑADIR LO SIGUIENTE PARA PROCESAR EL PLANO DE TIERRA UNA SOLA VEZ
+kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
+kf.load_pointcloud()
+pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
+plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+# EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
+
 
 def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
     pre_process = True
@@ -27,12 +37,12 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
 
     dist = np.linalg.norm(transformation_matrix[0:2, 3])
 
-    if dist == 0:
-        overlap = 1.0
-        overlap_pose = - 1
-        overlap_fpfh = - 1
+    # if dist == 0:
+    #     overlap = 1.0
+    #     overlap_pose = - 1
+    #     overlap_fpfh = - 1
 
-    elif dist < 10:
+    if dist < 10:
         atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
                                                                            initial_transform=transformation_matrix)
         overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
@@ -65,7 +75,7 @@ def worker_diff(queue_out, queue_in):
     print('Calculated: ', index, 'overlaps out of ', len(scan_combinations))
     idx_reference, idx_other = scan_combinations[index]
     overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
-    # print('\nCalculated overlap: ', overlap,' idx_reference: ', idx_reference, ' idx_other: ', idx_other)
+    print('\nCalculated overlap: ', overlap,' idx_reference: ', idx_reference, ' idx_other: ', idx_other)
     local_data = [scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh,
      pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]]
     data.append(local_data)
@@ -80,7 +90,7 @@ def worker_same(queue_out, queue_in):
 
 def listener(queue):
     i = 0
-    with open(EXP_PARAMETERS.directory + '/multi_labelling.csv', 'w', newline='') as file:
+    with open(EXP_PARAMETERS.directory + '/prueba.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
         while 1:
