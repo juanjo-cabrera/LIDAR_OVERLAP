@@ -15,6 +15,15 @@ import matplotlib.cm as cm
 import random
 from scipy import interpolate
 
+df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+reference_timestamps = np.array(df["Reference timestamp"])
+other_timestamps = np.array(df["Other timestamp"])
+overlap = np.array(df["Overlap"])
+reference_x = np.array(df["Reference x"])
+other_x = np.array(df["Other x"])
+reference_y = np.array(df["Reference y"])
+other_y = np.array(df["Other y"])
+
 
 def process_overlap(keyframe_manager, poses, scan_idx, i):
     pre_process = True
@@ -400,38 +409,68 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
 
     return pairs_selected
 
+def fill_predictor(sampled_positions, sampled_times, kd_tree, sample_storage, distance_overlap, csv_overlap):
 
-def get_online_pairs(sampled_positions, sampled_times):
+    sampled_position = sampled_positions[0]
+    sampled_time = sampled_times[0]
+    distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+    distances = distances.flatten()
+    # indices, distances = kd_tree.query_radius(np.array([sampled_position]), r=5)
+    indices = np.array(list(indices))
+    nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
+
+    for i in range(0, len(nearest_times), 5):
+        # try:
+        nearest_time = nearest_times[i]
+        distance = distances[i]
+        overlap, combination_proposed = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, csv_overlap)
+        distance_overlap.add(overlap, distance)
+        sample_storage.add(sampled_time, nearest_time, overlap)
+        # except:
+        #     continue
+
+
+
+def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
+    sample_storage = SampleStorage()
     distance_overlap = DistanceOverlap_Relation()
     kd_tree = KDTree(positions)
     pairs_selected = []
+
+    fill_predictor(sampled_positions, sampled_times, kd_tree, sample_storage, distance_overlap, csv_overlap)
 
     for index in range(0, len(sampled_positions)):
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
         distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
         distances = distances.flatten()
-        # indices = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        # indices, distances = kd_tree.query_radius(np.array([sampled_position]), r=5)
         indices = np.array(list(indices))
         nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
         overlaps = []
         combinations_proposed = []
         sample_admin = SampleAdministrator()
-        i = 0
-        for nearest_time in nearest_times:
+
+        overlap_predicted = distance_overlap.predict_overlap(distances)
+        i_pairs = partial_uniform_distribution(np.array(overlap_predicted), len(distances))
+        nearest_times_selected = nearest_times[i_pairs]
+
+        for i in range(0, len(nearest_times_selected)):
             try:
-                overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time, reference_timestamps, other_timestamps, overlap)
+                nearest_time = nearest_times_selected[i]
+                overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                                                                      reference_timestamps, other_timestamps,
+                                                                      overlap)
                 distance_overlap.add(overlap_candidate, distances[i])
-                overlap_predicted = distance_overlap.predict_overlap(distances[i])
-                sample_admin.manage_overlap(overlap_candidate)
-                i += 1
+
+                skip_to = sample_admin.manage_overlap(overlap_candidate)
+
                 # overlaps.append(overlap_s)
                 # combinations_proposed.append(combination_proposed)
             except:
-                i += 1
                 continue
 
-            # i += 1
+
 
 
         # if index == 0:
@@ -452,7 +491,7 @@ def online_anchor_uniform_distribution(positions, reference_timestamps, other_ti
 
     delta_xy = 25  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-    pairs_selected = get_online_pairs(sampled_positions, sampled_times)
+    pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
 
 
 
@@ -517,18 +556,35 @@ class SampleAdministrator():
         min_len = np.min([len0, len2, len4, len6, len8])
         max_len = np.max([len0, len2, len4, len6, len8])
         category = self.classify_overlap(candidate)
-        if category == 8 and len8 == max_len:
-            self.save_overlap(candidate)
-        elif category == 6 and len6 < max_len:
-            self.save_overlap(candidate)
-        elif category == 4 and len4 < max_len:
-            self.save_overlap(candidate)
-        elif category == 2 and len2 < max_len:
-            self.save_overlap(candidate)
-        elif category == 0 and len0 < max_len:
-            self.save_overlap(candidate)
-        else:
-            self.rejected_candidates.append(candidate)
+        skip_to = None
+        if category == 8:
+            if len8 == max_len:
+                self.save_overlap(candidate)
+            else:
+                skip_to = 6
+        elif category == 6:
+            if len6 < max_len:
+                self.save_overlap(candidate)
+            else:
+                skip_to = 4
+        elif category == 4:
+            if len4 < max_len:
+                self.save_overlap(candidate)
+            else:
+                skip_to = 2
+        elif category == 2:
+            if len2 < max_len:
+                self.save_overlap(candidate)
+            else:
+                skip_to = 0
+        elif category == 0:
+            if len0 < max_len:
+                self.save_overlap(candidate)
+            else:
+                skip_to = -1
+
+        return skip_to
+
 
 class DistanceOverlap_Relation():
     def __init__(self):
@@ -538,15 +594,27 @@ class DistanceOverlap_Relation():
     def add(self, overlap, distance):
         self.overlaps.append(overlap)
         self.distances.append(distance)
-        self.get_relationship()
+
 
 
     def get_relationship(self):
         self.tendency = np.polyfit(x=np.array(self.distances), y=np.array(self.overlaps), deg=4)
 
     def predict_overlap(self, distance):
+        self.get_relationship()
         overlap_prediction = self.tendency[0] * distance**4 + self.tendency[1] * distance**3 + self.tendency[2] * distance**2 + self.tendency[3] * distance + self.tendency[4]
         return overlap_prediction
+
+class SampleStorage():
+    def __init__(self):
+        self.reference_timestamps = []
+        self.other_timestamps = []
+        self.saved_overlaps = []
+
+    def add(self, ref_time, other_time, overlap):
+        self.reference_timestamps.append(ref_time)
+        self.other_timestamps.append(other_time)
+        self.saved_overlaps.append(overlap)
 
 
 if __name__ == "__main__":
