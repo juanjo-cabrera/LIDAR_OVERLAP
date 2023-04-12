@@ -13,24 +13,49 @@ scan_times, poses, pos, keyframe_manager, lat, lon = reader_manager(directory=EX
 scan_indices = np.arange(0, len(scan_times))
 scan_combinations = list(it.combinations(scan_indices, 2))
 
-def process_overlap(keyframe_manager, poses, scan_idx, i):
+def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
     pre_process = True
+
     current_pose = poses[scan_idx].array
     reference_pose = poses[i].array
+
     if pre_process:
-        keyframe_manager.keyframes[scan_idx].pre_process()
-        keyframe_manager.keyframes[i].pre_process()
+        keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
+        keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
 
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
-    atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
-                                                                      initial_transform=transformation_matrix)
 
-    overlap_pose = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+    dist = np.linalg.norm(transformation_matrix[0:2, 3])
 
-    atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
-    overlap_fpfh = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+    if dist == 0:
+        overlap = 1.0
+        overlap_pose = - 1
+        overlap_fpfh = - 1
 
-    overlap = np.maximum(overlap_pose, overlap_fpfh)
+    elif dist < 10:
+        atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
+                                                                           initial_transform=transformation_matrix)
+        overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+        overlap_pose = overlap
+        overlap_fpfh = - 1
+
+    elif dist > 100:
+        atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
+        overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+        overlap_fpfh = overlap
+        overlap_pose = - 1
+
+    else:
+        atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
+                                                                               initial_transform=transformation_matrix)
+        overlap_pose = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+        atb, rmse = keyframe_manager.compute_transformation_global_registration(scan_idx, i, method='FPFH')
+        overlap_fpfh = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
+
+        overlap = np.maximum(overlap_pose, overlap_fpfh)
+
+
     return overlap, overlap_pose, overlap_fpfh
 
 
