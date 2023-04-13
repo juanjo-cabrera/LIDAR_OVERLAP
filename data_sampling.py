@@ -14,6 +14,7 @@ import matplotlib
 import matplotlib.cm as cm
 import random
 from scipy import interpolate
+from scipy.interpolate import lagrange
 
 df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
 reference_timestamps = np.array(df["Reference timestamp"])
@@ -193,15 +194,59 @@ def partial_uniform_distribution(overlap, combination_selected,  size=None):
     else:
         pairs_to_select = int(size / 5)
 
-    pairs_selected1 = np.array(random.sample(list(combination_selected[inds1[0]]), pairs_to_select))
-    pairs_selected2 = np.array(random.sample(list(combination_selected[inds2[0]]), pairs_to_select))
-    pairs_selected3 = np.array(random.sample(list(combination_selected[inds3[0]]), pairs_to_select))
-    pairs_selected4 = np.array(random.sample(list(combination_selected[inds4[0]]), pairs_to_select))
-    pairs_selected5 = np.array(random.sample(list(combination_selected[inds5[0]]), pairs_to_select))
-    pairs_selected = np.concatenate([pairs_selected1, pairs_selected2, pairs_selected3, pairs_selected4, pairs_selected5])
+    pairs_selected1 = combination_selected[np.array(sorted(random.sample(list(inds1[0]), pairs_to_select)))]
+    pairs_selected2 = combination_selected[np.array(sorted(random.sample(list(inds2[0]), pairs_to_select)))]
+    pairs_selected3 = combination_selected[np.array(sorted(random.sample(list(inds3[0]), pairs_to_select)))]
+    pairs_selected4 = combination_selected[np.array(sorted(random.sample(list(inds4[0]), pairs_to_select)))]
+    pairs_selected5 = combination_selected[np.array(sorted(random.sample(list(inds5[0]), pairs_to_select)))]
+    pairs_selected = np.concatenate([pairs_selected5, pairs_selected4, pairs_selected3, pairs_selected2, pairs_selected1])
 
     return pairs_selected
 
+def partial_uniform_distribution2(overlap, combination_selected,  size=None):
+    """
+    Uniform distribution per anchor without checking repetitive combinations, it is done in a posterior line which
+    modify the uniform distribution to partial distribution per anchor
+    """
+    inds1 = np.where(overlap <= 0.2)
+    inds2 = np.where((overlap > 0.2) & (overlap <= 0.4))
+    inds3 = np.where((overlap > 0.4) & (overlap <= 0.6))
+    inds4 = np.where((overlap > 0.6) & (overlap <= 0.8))
+    inds5 = np.where((overlap > 0.8) & (overlap <= 1))
+
+    len_inds1 = len(inds1[0])
+    len_inds2 = len(inds2[0])
+    len_inds3 = len(inds3[0])
+    len_inds4 = len(inds4[0])
+    len_inds5 = len(inds5[0])
+
+    if size is None:
+        pairs_to_select = min(len_inds1, len_inds2, len_inds3, len_inds4, len_inds5)
+    else:
+        pairs_to_select = int(size)
+
+    try:
+        pairs_selected1 = combination_selected[np.array(sorted(random.sample(list(inds1[0]), pairs_to_select)))]
+    except:
+        pairs_selected1 = None
+    try:
+        pairs_selected2 = combination_selected[np.array(sorted(random.sample(list(inds2[0]), pairs_to_select)))]
+    except:
+        pairs_selected2 = None
+    try:
+        pairs_selected3 = combination_selected[np.array(sorted(random.sample(list(inds3[0]), pairs_to_select)))]
+    except:
+        pairs_selected3 = None
+    try:
+        pairs_selected4 = combination_selected[np.array(sorted(random.sample(list(inds4[0]), pairs_to_select)))]
+    except:
+        pairs_selected4 = None
+    try:
+        pairs_selected5 = combination_selected[np.array(sorted(random.sample(list(inds5[0]), pairs_to_select)))]
+    except:
+        pairs_selected5 = None
+
+    return pairs_selected5, pairs_selected4, pairs_selected3, pairs_selected2, pairs_selected1
 
 def total_uniform_distribution(overlap, combination_proposed, already_selected, size=None):
     """
@@ -452,18 +497,93 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
         sample_admin = SampleAdministrator()
 
         overlap_predicted = distance_overlap.predict_overlap(distances)
-        i_pairs = partial_uniform_distribution(np.array(overlap_predicted), len(distances))
-        nearest_times_selected = nearest_times[i_pairs]
+        distance_overlap.plot_tendency()
+        times8, times6, times4, times2, times0 = partial_uniform_distribution2(np.array(overlap_predicted), nearest_times)
+        # nearest_times_selected = nearest_times[i_pairs]
 
-        for i in range(0, len(nearest_times_selected)):
+        # for i in range(0, len(nearest_times_selected)):
+        skip_to = None
+        while skip_to != -1:
             try:
-                nearest_time = nearest_times_selected[i]
-                overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                skip_to = None
+                len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+                if len8 == 0:
+                    i = 0
+                    while skip_to == None:
+                        nearest_time = times8[i]
+                        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
                                                                       reference_timestamps, other_timestamps,
                                                                       overlap)
-                distance_overlap.add(overlap_candidate, distances[i])
+                        distance_overlap.add(overlap_candidate, distances[i])
+                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        i += 1
+                elif len6 == 0:
+                    len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+                    overlap_predicted = distance_overlap.predict_overlap(distances)
+                    distance_overlap.plot_tendency()
+                    times8, times6, times4, times2, times0 = partial_uniform_distribution2(np.array(overlap_predicted),
+                                                                                           nearest_times, len8)
+                    i = 0
+                    while skip_to == None:
+                        nearest_time = times6[i]
+                        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                                                                              reference_timestamps, other_timestamps,
+                                                                              overlap)
+                        distance_overlap.add(overlap_candidate, distances[i])
+                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        i += 1
 
-                skip_to = sample_admin.manage_overlap(overlap_candidate)
+                elif len4 == 0:
+                    len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+                    overlap_predicted = distance_overlap.predict_overlap(distances)
+                    distance_overlap.plot_tendency()
+                    times8, times6, times4, times2, times0 = partial_uniform_distribution2(np.array(overlap_predicted),
+                                                                                           nearest_times, len8)
+                    i = 0
+                    while skip_to == None:
+                        nearest_time = times4[i]
+                        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                                                                              reference_timestamps, other_timestamps,
+                                                                              overlap)
+                        distance_overlap.add(overlap_candidate, distances[i])
+                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        i += 1
+
+                elif len2 == 0:
+                    len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+                    overlap_predicted = distance_overlap.predict_overlap(distances)
+                    distance_overlap.plot_tendency()
+                    times8, times6, times4, times2, times0 = partial_uniform_distribution2(np.array(overlap_predicted),
+                                                                                           nearest_times, len8)
+                    i = 0
+                    while skip_to == None:
+                        nearest_time = times2[i]
+                        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                                                                              reference_timestamps, other_timestamps,
+                                                                              overlap)
+                        distance_overlap.add(overlap_candidate, distances[i])
+                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        i += 1
+
+
+
+                elif len0 == 0:
+                    len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+                    overlap_predicted = distance_overlap.predict_overlap(distances)
+                    distance_overlap.plot_tendency()
+                    times8, times6, times4, times2, times0 = partial_uniform_distribution2(np.array(overlap_predicted),
+                                                                                           nearest_times, len8)
+                    i = 0
+                    while skip_to == None:
+                        nearest_time = times0[i]
+                        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
+                                                                              reference_timestamps, other_timestamps,
+                                                                              overlap)
+                        distance_overlap.add(overlap_candidate, distances[i])
+                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        i += 1
+                    break
+
 
                 # overlaps.append(overlap_s)
                 # combinations_proposed.append(combination_proposed)
@@ -565,24 +685,35 @@ class SampleAdministrator():
         elif category == 6:
             if len6 < max_len:
                 self.save_overlap(candidate)
+                len6 = len(self.overlap06_08)
+                if len6 == max_len:
+                    skip_to = 4
             else:
                 skip_to = 4
         elif category == 4:
             if len4 < max_len:
                 self.save_overlap(candidate)
+                len4 = len(self.overlap04_06)
+                if len4 == max_len:
+                    skip_to = 2
             else:
                 skip_to = 2
         elif category == 2:
             if len2 < max_len:
                 self.save_overlap(candidate)
+                len2 = len(self.overlap02_04)
+                if len2 == max_len:
+                    skip_to = 0
             else:
                 skip_to = 0
         elif category == 0:
             if len0 < max_len:
                 self.save_overlap(candidate)
+                len0 = len(self.overlap00_02)
+                if len0 == max_len:
+                    skip_to = -1
             else:
                 skip_to = -1
-
         return skip_to
 
 
@@ -595,15 +726,62 @@ class DistanceOverlap_Relation():
         self.overlaps.append(overlap)
         self.distances.append(distance)
 
+    def polyfit_with_fixed_points(self, n, x, y, xf, yf):
+        """
+        where n is the degree, points `(x, y)` of the polynomial, xf and yf the number of fixed points
+
+          The mathematically correct way of doing a fit with fixed points is to use Lagrange multipliers.
+        Basically, you modify the objective function you want to minimize, which is normally the sum of
+        squares of the residuals, adding an extra parameter for every fixed point. I have not succeeded
+        in feeding a modified objective function to one of scipy's minimizers. But for a polynomial fit,
+        you can figure out the details with pen and paper and convert your problem into the solution of
+        a linear system of equations
+        """
+        len_xf = 1
+        mat = np.empty((n + 1 + len_xf,) * 2)
+        vec = np.empty((n + 1 + len_xf,))
+        x_n = x ** np.arange(2 * n + 1)[:, None]
+        yx_n = np.sum(x_n[:n + 1] * y, axis=1)
+        x_n = np.sum(x_n, axis=1)
+        idx = np.arange(n + 1) + np.arange(n + 1)[:, None]
+        mat[:n + 1, :n + 1] = np.take(x_n, idx)
+        xf_n = xf ** np.arange(n + 1)[:, None]
+        mat[:n + 1, n + 1:] = xf_n / 2
+        mat[n + 1:, :n + 1] = xf_n.T
+        mat[n + 1:, n + 1:] = 0
+        vec[:n + 1] = yx_n
+        vec[n + 1:] = yf
+        params = np.linalg.solve(mat, vec)
+        return params[:n + 1]
+
+    def get_polyline_with_fixed_points(self, deg):
+        x = np.array(self.distances)
+        y = np.array(self.overlaps)
+        xf = 0.0
+        yf = 1.0
+        params = self.polyfit_with_fixed_points(deg, x, y, xf, yf)
+        poly = np.polynomial.Polynomial(params)
+        return poly
 
 
-    def get_relationship(self):
-        self.tendency = np.polyfit(x=np.array(self.distances), y=np.array(self.overlaps), deg=4)
-
+    def get_polyline(self, deg=4):
+        poly = np.polyfit(x=np.array(self.distances), y=np.array(self.overlaps), deg=deg)
+        return np.poly1d(poly)
     def predict_overlap(self, distance):
-        self.get_relationship()
-        overlap_prediction = self.tendency[0] * distance**4 + self.tendency[1] * distance**3 + self.tendency[2] * distance**2 + self.tendency[3] * distance + self.tendency[4]
+        # self.tendency = self.get_polyline(deg=10)
+        self.tendency = self.get_polyline_with_fixed_points(deg=10)
+        overlap_prediction = self.tendency(distance)
         return overlap_prediction
+
+    def plot_tendency(self):
+        p10 = self.get_polyline(deg=10)
+        # p30 = self.get_polyline(deg=30)
+        f10 = self.get_polyline_with_fixed_points(deg=10)
+        xp = np.linspace(0, 350, 600)
+        _ = plt.plot(np.array(self.distances), np.array(self.overlaps), '.', xp, p10(xp), '-', xp, f10(xp), '--')
+        plt.ylabel('Overlap')
+        plt.xlabel('Distance (m)')
+        plt.show()
 
 class SampleStorage():
     def __init__(self):
