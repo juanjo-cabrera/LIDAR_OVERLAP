@@ -74,7 +74,7 @@ def worker_diff(queue_out, queue_in):
     index = queue_in.get()
     print('Calculated: ', index, 'overlaps out of ', len(scan_combinations))
     idx_reference, idx_other = scan_combinations[index]
-    overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
+    overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other, plane_model)
     print('\nCalculated overlap: ', overlap,' idx_reference: ', idx_reference, ' idx_other: ', idx_other)
     local_data = [scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh,
      pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]]
