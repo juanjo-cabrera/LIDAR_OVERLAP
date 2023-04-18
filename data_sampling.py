@@ -540,7 +540,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                 if len8 == 0:
                     i = 0
                     # while skip_to == None:
-                    while skip_to != 6 or skip_to != 4:
+                    while skip_to != 6 and skip_to != 4:
                         nearest_time = times8[i]
                         overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_time,
                                                                       reference_timestamps, other_timestamps,
