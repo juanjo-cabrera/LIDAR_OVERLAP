@@ -511,7 +511,9 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
     pairs_selected = []
 
     fill_predictor(sampled_positions, sampled_times, kd_tree, sample_storage, distance_overlap, csv_overlap)
-
+    n_to_fill = distance_overlap.get_len()
+    print('Nº ejemplos previos: ', n_to_fill)
+    suma = 0
     for index in range(0, len(sampled_positions)):
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
@@ -532,13 +534,15 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
 
         # for i in range(0, len(nearest_times_selected)):
         skip_to = None
+        flag8 = flag6 = flag4 = flag2 = flag0 = False
         while skip_to != -1:
             try:
                 skip_to = None
                 len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
                 max_len = np.max([len0, len2, len4, len6, len8])
-                if len8 == 0:
+                if len8 == 0 and flag8 == False:
                     i = 0
+                    flag8 = True
                     # while skip_to == None:
                     while skip_to != 6 and skip_to != 4:
                         nearest_time = times8[i]
@@ -548,7 +552,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                         distance_overlap.add(overlap_candidate, distances8[i])
                         skip_to = sample_admin.manage_overlap(overlap_candidate)
                         i += 1
-                elif len6 < max_len:
+                elif len6 < max_len and flag6 == False:
                     # len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
                     # when index = 2, bug here because all the candidates belong to 0.8 - 1.
                     # infinite loop
@@ -559,6 +563,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                     # times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted),
                     #                                                                        nearest_times, distances)
                     i = 0
+                    flag6 = True
                     # while skip_to == None:
                     while skip_to != 4:
                         nearest_time = times6[i]
@@ -569,13 +574,14 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                         skip_to = sample_admin.manage_overlap(overlap_candidate)
                         i += 1
 
-                elif len4 < max_len:
+                elif len4 < max_len and flag4 == False:
 
                     # overlap_predicted = distance_overlap.predict_overlap(distances)
                     # distance_overlap.plot_tendency()
                     # times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted),
                     #                                                                        nearest_times, distances, len8)
                     i = 0
+                    flag4 = True
                     # while skip_to == None:
                     while skip_to != 2:
                         nearest_time = times4[i]
@@ -586,13 +592,14 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                         skip_to = sample_admin.manage_overlap(overlap_candidate)
                         i += 1
 
-                elif len2 < max_len:
+                elif len2 < max_len and flag2 == False:
 
                     # overlap_predicted = distance_overlap.predict_overlap(distances)
                     # distance_overlap.plot_tendency()
                     # times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted),
                     #                                                                        nearest_times, distances, len8)
                     i = 0
+                    flag2 = True
                     # while skip_to == None:
                     while skip_to != 0:
                         nearest_time = times2[i]
@@ -605,13 +612,14 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
 
 
 
-                elif len0 < max_len:
+                elif len0 < max_len and flag0 == False:
 
                     # overlap_predicted = distance_overlap.predict_overlap(distances)
                     # distance_overlap.plot_tendency()
                     # times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted),
                     #                                                                        nearest_times, distances, len8)
                     i = 0
+                    flag0 = True
                     # while skip_to == None:
                     while skip_to != -1:
                         nearest_time = times0[i]
@@ -622,12 +630,20 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                         skip_to = sample_admin.manage_overlap(overlap_candidate)
                         i += 1
                     break
+                else:
+                    skip_to = -1
 
 
                 # overlaps.append(overlap_s)
                 # combinations_proposed.append(combination_proposed)
             except:
                 continue
+
+        len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+        print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
+        suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
+        print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
+
 
 
 
@@ -712,7 +728,7 @@ class SampleAdministrator():
 
     def manage_overlap(self, candidate):
         len0, len2, len4, len6, len8 = self.get_overlap_lens()
-        min_len = np.min([len0, len2, len4, len6, len8])
+        # min_len = np.min([len0, len2, len4, len6, len8])
         max_len = np.max([len0, len2, len4, len6, len8])
         category = self.classify_overlap(candidate)
         skip_to = None
@@ -753,6 +769,16 @@ class SampleAdministrator():
                     skip_to = -1
             else:
                 skip_to = -1
+
+        min_len = np.min([len0, len2, len4, len6, len8])
+        max_len = np.max([len0, len2, len4, len6, len8])
+        if min_len != max_len and skip_to == -1:
+            # lens = [len0, len2, len4, len6, len8]
+            # index = lens.index(min(lens))
+            # if index == 0:
+            #     skip_to = 2
+            skip_to = None
+
         return skip_to
 
 
@@ -764,6 +790,9 @@ class DistanceOverlap_Relation():
     def add(self, overlap, distance):
         self.overlaps.append(overlap)
         self.distances.append(distance)
+
+    def get_len(self):
+        return len(self.overlaps)
 
     def polyfit_with_fixed_points(self, n, x, y, xf, yf):
         """
@@ -847,6 +876,8 @@ if __name__ == "__main__":
     other_y= np.array(df["Other y"])
 
     online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
+
+    print('Online selection done')
 
 
     pairs_selected_globally = global_uniform_distribution(overlap)
