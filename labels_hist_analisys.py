@@ -170,6 +170,11 @@ def compute_distances(df):
 
     return np.array(distances)
 
+def plot_overlap_distance(distances, overlaps):
+    plt.scatter(np.array(distances), np.array(overlaps))
+    plt.ylabel('Overlap')
+    plt.xlabel('Distance (m)')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -186,6 +191,7 @@ if __name__ == "__main__":
 
     distances = compute_distances(df)
     plot_distance_histogram(distances)
+    plot_overlap_distance(distances, overlap)
 
 
     """
