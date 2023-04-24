@@ -141,18 +141,51 @@ def plot_overlap_histogram(overlaps):
     plt.xlabel('Range of Overlap')
     plt.show()
 
+def plot_distance_histogram(distances):
+    hist, bins = np.histogram(np.array(distances), bins=[0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600], density=True)
+    counter = hist * len(distances) / np.sum(hist)
+    print(counter)
+
+    print(np.max(distances))
+    rangos = ( '0 - 40', '40 - 80', '80 - 120', '120 - 160', '160 - 200', '200 - 240', '240 - 280', '280 - 320', '320 - 360', '360 - 400', '400 - 440', '440 - 480', '480 - 520', '520 - 560', '560 - 600')
+    y_pos = np.arange(len(rangos))
+
+
+    plt.bar(y_pos, counter, align='center', alpha=0.5)
+    plt.xticks(y_pos, rangos)
+    plt.ylabel('N of pair samples')
+    plt.xlabel('Range of distances')
+    plt.show()
+
+def compute_distances(df):
+    ref_x = np.array(df["Reference x"])
+    ref_y = np.array(df["Reference y"])
+    other_x = np.array(df["Other x"])
+    other_y = np.array(df["Other y"])
+    distances = []
+
+    for i in range(0, len(ref_x)):
+        dxy = np.linalg.norm(np.array([ref_x[i], ref_y[i]]) - np.array([other_x[i], other_y[i]]))
+        distances.append(dxy)
+
+    return np.array(distances)
+
+
 
 if __name__ == "__main__":
 
 
-    # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
-    df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
+    df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/random.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/global_uniform.csv')
     reference_timestamps = np.array(df["Reference timestamp"])
     other_timestamps = np.array(df["Other timestamp"])
     overlap = np.array(df["Overlap"])
     plot_overlap_histogram(overlap)
+
+    distances = compute_distances(df)
+    plot_distance_histogram(distances)
 
 
     """
