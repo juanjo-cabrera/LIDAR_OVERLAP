@@ -180,7 +180,8 @@ def plot_overlap_distance(distances, overlaps):
 if __name__ == "__main__":
 
 
-    df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+    df = pd.read_csv(EXP_PARAMETERS.directory + '/online_anchor_uniform.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/random.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/global_uniform.csv')

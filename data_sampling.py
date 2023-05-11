@@ -689,11 +689,6 @@ def online_anchor_uniform_distribution(positions, reference_timestamps, other_ti
     return pairs_selected
 
 
-    return pairs_selected
-
-
-
-
 
 def random_distribution(overlap, size=None):
     # generating random samples
@@ -935,7 +930,8 @@ if __name__ == "__main__":
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
 
-
+    write_csv(pairs_selected_online_anchor, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
+              other_x, other_y, name='online_anchor_uniform')
     # print(len(pairs_selected_anchor))
 
     print('Offline random selection', len(pairs_selected_randomly))
