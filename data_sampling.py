@@ -413,7 +413,7 @@ def get_partial_uniform_pairs(sampled_positions, sampled_times):
             except:
                 continue
 
-        pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_idxs), pairs_selected)
+        pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_idxs))
 
         pairs_selected.extend(pairs_selected_i)
     pairs_selected = np.unique(np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
@@ -448,6 +448,8 @@ def get_total_uniform_pairs(sampled_positions, sampled_times):
         else:
             common_combinations = np.intersect1d(pairs_selected, combinations_proposed)
             if len(common_combinations) > 0:
+                import warnings
+                warnings.filterwarnings("ignore", message="elementwise comparison failed; this will raise an error in the future.")
                 indexes_to_conserve = np.where(common_combinations != combinations_proposed)
                 combinations_proposed = np.array(combinations_proposed)[indexes_to_conserve[0].astype(int)]
                 overlaps = np.array(overlaps)[indexes_to_conserve[0].astype(int)]
@@ -481,6 +483,21 @@ def anchor_uniform_distribution(positions, reference_timestamps, other_timestamp
     # vis_poses(sampled_positions)
 
     return pairs_selected
+
+def anchor_partial_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size):
+
+
+    i = 186
+    pairs_selected = []
+    while len(pairs_selected) < size:
+        sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+        pairs_selected = get_partial_uniform_pairs(sampled_positions, sampled_times)
+        # pairs_selected = get_total_uniform_pairs(sampled_positions, sampled_times)
+        print(len(pairs_selected))
+        i += 1
+
+    return pairs_selected
+
 
 def fill_predictor(sampled_positions, sampled_times, kd_tree, sample_storage, distance_overlap, csv_overlap):
 
@@ -527,7 +544,9 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
         sample_admin = SampleAdministrator()
 
         overlap_predicted = distance_overlap.predict_overlap(distances)
+        """
         distance_overlap.plot_tendency()
+        """
         times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted), nearest_times, distances, size='max')
 
         # nearest_times_selected = nearest_times[i_pairs]
@@ -550,7 +569,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                                                                       reference_timestamps, other_timestamps,
                                                                       overlap)
                         distance_overlap.add(overlap_candidate, distances8[i])
-                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        skip_to = sample_admin.manage_overlap(overlap_candidate, combination_proposed)
                         i += 1
                 elif len6 < max_len and flag6 == False:
                     # len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
@@ -571,7 +590,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                                                                               reference_timestamps, other_timestamps,
                                                                               overlap)
                         distance_overlap.add(overlap_candidate, distances6[i])
-                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        skip_to = sample_admin.manage_overlap(overlap_candidate, combination_proposed)
                         i += 1
 
                 elif len4 < max_len and flag4 == False:
@@ -589,7 +608,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                                                                               reference_timestamps, other_timestamps,
                                                                               overlap)
                         distance_overlap.add(overlap_candidate, distances4[i])
-                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        skip_to = sample_admin.manage_overlap(overlap_candidate, combination_proposed)
                         i += 1
 
                 elif len2 < max_len and flag2 == False:
@@ -607,7 +626,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                                                                               reference_timestamps, other_timestamps,
                                                                               overlap)
                         distance_overlap.add(overlap_candidate, distances2[i])
-                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        skip_to = sample_admin.manage_overlap(overlap_candidate, combination_proposed)
                         i += 1
 
 
@@ -627,7 +646,7 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                                                                               reference_timestamps, other_timestamps,
                                                                               overlap)
                         distance_overlap.add(overlap_candidate, distances0[i])
-                        skip_to = sample_admin.manage_overlap(overlap_candidate)
+                        skip_to = sample_admin.manage_overlap(overlap_candidate, combination_proposed)
                         i += 1
                     break
                 else:
@@ -638,35 +657,39 @@ def get_online_pairs(sampled_positions, sampled_times, csv_overlap):
                 # combinations_proposed.append(combination_proposed)
             except:
                 continue
-
+        combinations_selected_i = sample_admin.get_combinations()
+        pairs_selected.extend(combinations_selected_i)
+        # print('Combinations_selected: ', pairs_selected)
         len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
-        print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
+        # print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
         suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
-        print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
+        # print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
+
+    pairs_selected = np.unique(np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
+    return pairs_selected
+
+def online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size):
+
+    # delta_xy = 25  # metros
+    # sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+
+    # i = 150
+    # sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+    # pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
 
 
-
-
-
-        # if index == 0:
-        #     pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
-        #     pairs_selected.extend(pairs_selected_i)
-        # else:
-        #     common_combinations = np.intersect1d(pairs_selected, combinations_proposed)
-        #     if len(common_combinations) > 0:
-        #         indexes_to_conserve = np.where(common_combinations != combinations_proposed)
-        #         combinations_proposed = np.array(combinations_proposed)[indexes_to_conserve[0].astype(int)]
-        #         overlaps = np.array(overlaps)[indexes_to_conserve[0].astype(int)]
-        #     pairs_selected_i = partial_uniform_distribution(np.array(overlaps), np.array(combinations_proposed))
-        #     pairs_selected.extend(pairs_selected_i)
+    i = 185
+    pairs_selected = []
+    while len(pairs_selected) < size:
+        sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+        pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
+        print(len(pairs_selected))
+        i += 1
 
     return pairs_selected
 
-def online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap):
 
-    delta_xy = 25  # metros
-    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-    pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
+    return pairs_selected
 
 
 
@@ -726,7 +749,10 @@ class SampleAdministrator():
     def get_overlap_lens(self):
         return len(self.overlap00_02), len(self.overlap02_04), len(self.overlap04_06), len(self.overlap06_08), len(self.overlap08_10)
 
-    def manage_overlap(self, candidate):
+    def get_combinations(self):
+        return self.valid_candidates
+
+    def manage_overlap(self, candidate, combination_ID):
         len0, len2, len4, len6, len8 = self.get_overlap_lens()
         # min_len = np.min([len0, len2, len4, len6, len8])
         max_len = np.max([len0, len2, len4, len6, len8])
@@ -735,11 +761,13 @@ class SampleAdministrator():
         if category == 8:
             if len8 == max_len:
                 self.save_overlap(candidate)
+                self.valid_candidates.append(combination_ID)
             else:
                 skip_to = 6
         elif category == 6:
             if len6 < max_len:
                 self.save_overlap(candidate)
+                self.valid_candidates.append(combination_ID)
                 len6 = len(self.overlap06_08)
                 if len6 == max_len:
                     skip_to = 4
@@ -748,6 +776,7 @@ class SampleAdministrator():
         elif category == 4:
             if len4 < max_len:
                 self.save_overlap(candidate)
+                self.valid_candidates.append(combination_ID)
                 len4 = len(self.overlap04_06)
                 if len4 == max_len:
                     skip_to = 2
@@ -756,6 +785,7 @@ class SampleAdministrator():
         elif category == 2:
             if len2 < max_len:
                 self.save_overlap(candidate)
+                self.valid_candidates.append(combination_ID)
                 len2 = len(self.overlap02_04)
                 if len2 == max_len:
                     skip_to = 0
@@ -764,6 +794,7 @@ class SampleAdministrator():
         elif category == 0:
             if len0 < max_len:
                 self.save_overlap(candidate)
+                self.valid_candidates.append(combination_ID)
                 len0 = len(self.overlap00_02)
                 if len0 == max_len:
                     skip_to = -1
@@ -875,27 +906,42 @@ if __name__ == "__main__":
     reference_y = np.array(df["Reference y"])
     other_y= np.array(df["Other y"])
 
-    online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
 
-    print('Online selection done')
 
 
     pairs_selected_globally = global_uniform_distribution(overlap)
-    pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,
-                                                        size=len(pairs_selected_globally))
+    print('Offline global uniform selection: ', len(pairs_selected_globally))
 
-    # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap)
+    pairs_selected_online_anchor = online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps,
+                                                                      overlap, size=len(pairs_selected_globally))
 
-    pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_anchor))
+    print('Online selection len: ', len(pairs_selected_online_anchor))
+
+
+    pairs_selected_partial_anchor = anchor_partial_uniform_distribution(positions, reference_timestamps,
+                                                                        other_timestamps, overlap, size=len(pairs_selected_globally))
+    print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
+
+    # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,
+    #                                                     size=len(pairs_selected_globally))
+
+
+
+    pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_partial_anchor))
     # Descomentar si se quiere crear el csv
     """
     write_csv(pairs_selected_globally, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='global_uniform')
     write_csv(pairs_selected_anchor, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='anchor_uniform')
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
-    print(len(pairs_selected_anchor))
-    print(len(pairs_selected_globally))
-    print(len(pairs_selected_randomly))
+
+
+    # print(len(pairs_selected_anchor))
+
+    print('Offline random selection', len(pairs_selected_randomly))
+    print('Offline global uniform selection: ', len(pairs_selected_globally))
+    print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
+    print('Online selection len: ', len(pairs_selected_online_anchor))
 
 
 
