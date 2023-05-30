@@ -1107,17 +1107,18 @@ if __name__ == "__main__":
 
     print('Online selection ALL INFO len: ', len(pairs_selected_online_anchor_ALL_INFO))
 
-
+    """
     pairs_selected_partial_anchor = anchor_partial_uniform_distribution(positions, reference_timestamps,
                                                                         other_timestamps, overlap, size=len(pairs_selected_globally))
     print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
-
+   
     # pairs_selected_anchor = anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap,
     #                                                     size=len(pairs_selected_globally))
 
 
 
     pairs_selected_randomly = random_distribution(overlap, size=len(pairs_selected_partial_anchor))
+    """
     # Descomentar si se quiere crear el csv
     """
     write_csv(pairs_selected_globally, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='global_uniform')
@@ -1125,14 +1126,14 @@ if __name__ == "__main__":
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
 
-    write_csv(pairs_selected_online_anchor, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
-              other_x, other_y, name='online_anchor_uniform')
+    write_csv(pairs_selected_online_anchor_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
+              other_x, other_y, name='online_anchor_uniform_ALL_INFO')
     # print(len(pairs_selected_anchor))
 
-    print('Offline random selection', len(pairs_selected_randomly))
+    # print('Offline random selection', len(pairs_selected_randomly))
     print('Offline global uniform selection: ', len(pairs_selected_globally))
-    print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
-    print('Online selection len: ', len(pairs_selected_online_anchor))
+    # print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
+    # print('Online selection len: ', len(pairs_selected_online_anchor))
 
 
 
