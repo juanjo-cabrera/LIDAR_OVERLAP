@@ -826,6 +826,12 @@ def get_online_pairs_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv
     return pairs_selected
 
 
+def plot_hist(bin_edges, pvalues, width):
+    bin_centers = np.zeros_like(pvalues)
+    for i in range(len(bin_edges)-1):
+        bin_centers[i] = (bin_edges[i]+bin_edges[i+1])/2
+    plt.bar(x=bin_centers, height=pvalues, width=width)
+    plt.show()
 
 def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_distances):
     sample_storage = SampleStorage()
@@ -837,7 +843,9 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
     n_to_fill = distance_overlap.get_len()
     print('Nº ejemplos previos: ', n_to_fill)
     suma = 0
+
     for index in range(0, len(sampled_positions)):
+
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
         distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
@@ -845,21 +853,89 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
         # indices, distances = kd_tree.query_radius(np.array([sampled_position]), r=5)
         indices = np.array(list(indices))
         nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
-        overlaps = []
+        actual_distribution = []
         combinations_proposed = []
         sample_admin = SampleAdministrator()
 
-        overlap_predicted = distance_overlap.predict_overlap(distances)
+        # overlap_predicted = distance_overlap.predict_overlap(distances)
 
         distance_overlap.plot_tendency()
         distance_overlap.plot_occupancy_grid()
-        H = distance_overlap.get_occupancy_grid()
-        distribution_goal = np.random.uniform(0, 1, 20)
+        # H = distance_overlap.get_occupancy_grid()
 
-        for overlap_goal in distribution_goal:
-            min_distance, max_distance = distance_overlap.distances2search(overlap_goal)
+
+        N = 5 # number of bins
+        N_max = 50 # number of examples per anchor
+
+        # distribution_goal = np.random.uniform(0.9, 1, size=N_max)
+        # distribution_goal = list(distribution_goal)
+        # pvalues, bin_edges = np.histogram(distribution_goal, bins=np.linspace(0, 1, N + 1), density=True)
+        # sa = np.std(pvalues, axis=0)
+        # print("Uniformidad inicial: ", sa)
+        # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+        #
+        #
+        # while len(distribution_goal) > 0:
+        #     overlap_goal = distribution_goal.pop(0)
+        #     min_distance, max_distance = distance_overlap.distances2search(overlap_goal)
+        #     pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances >= min_distance))[0]
+        #     try:
+        #         pair_candidate = np.random.choice(pairs_candidate)
+        #     except:
+        #         break
+        #
+        #     overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
+        #                                                           reference_timestamps, other_timestamps,
+        #                                                           overlap)
+        #     sample_admin.save_overlap(overlap_candidate)
+        #     sample_admin.save_candidate(combination_proposed)
+        #
+        #     print(overlap_candidate)
+        #     actual_distribution.append(overlap_candidate)
+        #     distances = np.delete(distances, pair_candidate)
+        #     nearest_times = np.delete(nearest_times, pair_candidate)
+        #
+        # pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+        # si = np.std(pvalues, axis=0)
+        # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+        # index = np.argmin(pvalues)
+        # goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
+
+        sa = 0.1
+        si = 1000
+        # pvalues, bin_edges = np.histogram(np.zeros(N), bins=np.linspace(0, 1, N + 1), density=True)
+        # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+        #Vecino mas cercano
+        pair_candidate = 0
+        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
+                                                              reference_timestamps, other_timestamps,
+                                                              overlap)
+        sample_admin.save_overlap(overlap_candidate)
+        sample_admin.save_candidate(combination_proposed)
+
+        print(overlap_candidate)
+        actual_distribution.append(overlap_candidate)
+        distances = np.delete(distances, pair_candidate)
+        nearest_times = np.delete(nearest_times, pair_candidate)
+
+        while si > sa:
+            pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+            indexes = np.where(pvalues == pvalues.min())[0]
+            index = np.max(indexes)
+            # new samples, generate arbitrarily 1 or more at each iteration
+            goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
+            # distribution_goal = list(np.append(actual_distribution, goals_updated))
+            si = np.std(pvalues, axis=0)
+            print("Uniformidad i: ", si)
+            plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+
+
+            min_distance, max_distance = distance_overlap.distances2search(goal_updated)
             pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
-            pair_candidate = np.random.choice(pairs_candidate)
+            try:
+                pair_candidate = np.random.choice(pairs_candidate)
+            except:
+                break
             overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
                                                                   reference_timestamps, other_timestamps,
                                                                   overlap)
@@ -867,7 +943,25 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
             sample_admin.save_candidate(combination_proposed)
 
             print(overlap_candidate)
+            actual_distribution.append(overlap_candidate)
+            distances = np.delete(distances, pair_candidate)
+            nearest_times = np.delete(nearest_times, pair_candidate)
 
+            # pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+            # indexes = np.where(pvalues == pvalues.min())[0]
+            # index = np.max(indexes)
+            # # new samples, generate arbitrarily 1 or more at each iteration
+            # goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
+            # # distribution_goal = list(np.append(actual_distribution, goals_updated))
+            # si = np.std(pvalues, axis=0)
+            # print("Uniformidad i: ", si)
+            # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+
+
+        s = np.std(pvalues, axis=0)
+        print("Uniformidad final: ", s)
+        print("Number of samples: ", len(r))
+        plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
 
         combinations_selected_i = sample_admin.get_combinations()
         pairs_selected.extend(combinations_selected_i)
@@ -1157,12 +1251,15 @@ class DistanceOverlap_Relation():
         # If you do not set the same values for X and Y, the bins won't be a square!
         max_distance = np.max(np.array(self.distances))
         bin_x = int(max_distance/5)
-        h, x_edges, y_edges, image = plt.hist2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, 10), cmap=plt.cm.Greys)
+        bin_y = 10
+        # h, x_edges, y_edges, image = plt.hist2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, 10), cmap=plt.cm.Greys)
+        h, x_edges, y_edges = np.histogram2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, np.linspace(0, 1, bin_y + 1)), density=True)
 
         h_tras = h.T
         h_norm = np.divide(h_tras, np.amax(h_tras, axis=1).reshape(10, 1))
-        X, Y = np.meshgrid(x_edges, y_edges)
-        plt.pcolormesh(X, Y, h_norm, cmap=plt.cm.Greys)
+        # X, Y = np.meshgrid(x_edges, y_edges)
+        # plt.pcolormesh(X, Y, h_norm, cmap=plt.cm.Greys)
+        # plt.show()
         return h_norm, x_edges, y_edges
 
     def distances2search(self, overlap_value):
