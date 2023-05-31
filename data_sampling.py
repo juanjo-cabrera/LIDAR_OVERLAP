@@ -702,6 +702,7 @@ def get_online_pairs_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv
         overlap_predicted = distance_overlap.predict_overlap(distances)
 
         distance_overlap.plot_tendency()
+        distance_overlap.plot_occupancy_grid()
 
         times8, times6, times4, times2, times0, distances8, distances6, distances4, distances2, distances0 = partial_uniform_distribution2(np.array(overlap_predicted), nearest_times, distances, size='max')
 
@@ -825,6 +826,63 @@ def get_online_pairs_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv
     return pairs_selected
 
 
+
+def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_distances):
+    sample_storage = SampleStorage()
+    distance_overlap = DistanceOverlap_Relation()
+    kd_tree = KDTree(positions)
+    pairs_selected = []
+
+    fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
+    n_to_fill = distance_overlap.get_len()
+    print('Nº ejemplos previos: ', n_to_fill)
+    suma = 0
+    for index in range(0, len(sampled_positions)):
+        sampled_position = sampled_positions[index]
+        sampled_time = sampled_times[index]
+        distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+        distances = distances.flatten()
+        # indices, distances = kd_tree.query_radius(np.array([sampled_position]), r=5)
+        indices = np.array(list(indices))
+        nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
+        overlaps = []
+        combinations_proposed = []
+        sample_admin = SampleAdministrator()
+
+        overlap_predicted = distance_overlap.predict_overlap(distances)
+
+        distance_overlap.plot_tendency()
+        distance_overlap.plot_occupancy_grid()
+        H = distance_overlap.get_occupancy_grid()
+        distribution_goal = np.random.uniform(0, 1, 20)
+
+        for overlap_goal in distribution_goal:
+            min_distance, max_distance = distance_overlap.distances2search(overlap_goal)
+            pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
+            pair_candidate = np.random.choice(pairs_candidate)
+            overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
+                                                                  reference_timestamps, other_timestamps,
+                                                                  overlap)
+            sample_admin.save_overlap(overlap_candidate)
+            sample_admin.save_candidate(combination_proposed)
+
+            print(overlap_candidate)
+
+
+        combinations_selected_i = sample_admin.get_combinations()
+        pairs_selected.extend(combinations_selected_i)
+        print('Combinations_selected: ', pairs_selected)
+        len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+        print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
+        suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
+        print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
+
+    pairs_selected = np.unique(np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
+    return pairs_selected
+
+
+
+
 def online_anchor_uniform_distribution(positions, reference_timestamps, other_timestamps, overlap, size):
 
     # delta_xy = 25  # metros
@@ -867,6 +925,30 @@ def online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_
     return pairs_selected
 
 
+
+def online_anchor_grid_ALL_INFO(positions, distances, reference_timestamps, other_timestamps, overlap, size):
+
+    # delta_xy = 25  # metros
+    # sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+
+    # i = 150
+    # sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+    # pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
+
+
+    i = 185
+    pairs_selected = []
+    while len(pairs_selected) < size:
+        sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+        pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
+        print(len(pairs_selected))
+        i += 1
+
+    return pairs_selected
+
+
+
+
 def random_distribution(overlap, size=None):
     # generating random samples
     indices = np.arange(0, len(overlap))
@@ -902,6 +984,9 @@ class SampleAdministrator():
             self.overlap06_08.append(overlap)
         elif overlap > 0.8 and overlap <= 1.0:
             self.overlap08_10.append(overlap)
+
+    def save_candidate(self, combination_ID):
+        self.valid_candidates.append(combination_ID)
 
     def classify_overlap(self, overlap):
         value = None
@@ -1054,6 +1139,46 @@ class DistanceOverlap_Relation():
         plt.xlabel('Distance (m)')
         plt.show()
 
+    def plot_occupancy_grid(self):
+
+        # If you do not set the same values for X and Y, the bins won't be a square!
+        max_distance = np.max(np.array(self.distances))
+        bin_x = int(max_distance/5)
+        h, x_edges, y_edges, image = plt.hist2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, 10), cmap=plt.cm.Greys)
+        plt.show()
+        h_tras = h.T
+        h_norm = np.divide(h_tras, np.amax(h_tras, axis=1).reshape(10, 1))
+        X, Y = np.meshgrid(x_edges, y_edges)
+        plt.pcolormesh(X, Y, h_norm, cmap=plt.cm.Greys)
+        plt.show()
+
+    def get_occupancy_grid(self):
+
+        # If you do not set the same values for X and Y, the bins won't be a square!
+        max_distance = np.max(np.array(self.distances))
+        bin_x = int(max_distance/5)
+        h, x_edges, y_edges, image = plt.hist2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, 10), cmap=plt.cm.Greys)
+
+        h_tras = h.T
+        h_norm = np.divide(h_tras, np.amax(h_tras, axis=1).reshape(10, 1))
+        X, Y = np.meshgrid(x_edges, y_edges)
+        plt.pcolormesh(X, Y, h_norm, cmap=plt.cm.Greys)
+        return h_norm, x_edges, y_edges
+
+    def distances2search(self, overlap_value):
+        h_norm, x_edges, y_edges = self.get_occupancy_grid()
+        y_bin = np.digitize(overlap_value, y_edges) - 1 #get the bin corresponding to the overlap value
+        # index_candidate = np.argmax(h_norm[y_bin])
+        index_candidate = np.random.choice(np.arange(0, len(h_norm[y_bin])), 1, p=h_norm[y_bin]/np.sum(h_norm[y_bin]))
+        min_distance = x_edges[index_candidate]
+        max_distance = x_edges[index_candidate + 1]
+
+        return min_distance, max_distance
+
+
+
+
+
 class SampleStorage():
     def __init__(self):
         self.reference_timestamps = []
@@ -1100,6 +1225,14 @@ if __name__ == "__main__":
     #                                                                   overlap, size=len(pairs_selected_globally))
     #
     # print('Online selection len: ', len(pairs_selected_online_anchor))
+
+    pairs_selected_online_grid_ALL_INFO = online_anchor_grid_ALL_INFO(positions, distances,
+                                                                                        reference_timestamps,
+                                                                                        other_timestamps,
+                                                                                        overlap, size=len(
+            pairs_selected_globally))
+
+    print('Online selection ALL INFO len: ', len(pairs_selected_online_grid_ALL_INFO))
 
 
     pairs_selected_online_anchor_ALL_INFO = online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_timestamps, other_timestamps,
