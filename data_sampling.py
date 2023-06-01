@@ -833,6 +833,11 @@ def plot_hist(bin_edges, pvalues, width):
     plt.bar(x=bin_centers, height=pvalues, width=width)
     plt.show()
 
+def get_histogram(actual_distribution, N):
+    pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+    counter = pvalues * len(actual_distribution) / np.sum(pvalues)
+    return counter
+
 def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_distances):
     sample_storage = SampleStorage()
     distance_overlap = DistanceOverlap_Relation()
@@ -859,10 +864,11 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
 
         # overlap_predicted = distance_overlap.predict_overlap(distances)
 
+        """
         distance_overlap.plot_tendency()
         distance_overlap.plot_occupancy_grid()
-        # H = distance_overlap.get_occupancy_grid()
-
+   
+        """
 
         N = 5 # number of bins
         N_max = 50 # number of examples per anchor
@@ -907,35 +913,8 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
         # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
         #Vecino mas cercano
         pair_candidate = 0
-        overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
-                                                              reference_timestamps, other_timestamps,
-                                                              overlap)
-        sample_admin.save_overlap(overlap_candidate)
-        sample_admin.save_candidate(combination_proposed)
-
-        print(overlap_candidate)
-        actual_distribution.append(overlap_candidate)
-        distances = np.delete(distances, pair_candidate)
-        nearest_times = np.delete(nearest_times, pair_candidate)
-
-        while si > sa:
-            pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
-            indexes = np.where(pvalues == pvalues.min())[0]
-            index = np.max(indexes)
-            # new samples, generate arbitrarily 1 or more at each iteration
-            goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
-            # distribution_goal = list(np.append(actual_distribution, goals_updated))
-            si = np.std(pvalues, axis=0)
-            print("Uniformidad i: ", si)
-            plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-
-
-            min_distance, max_distance = distance_overlap.distances2search(goal_updated)
-            pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
-            try:
-                pair_candidate = np.random.choice(pairs_candidate)
-            except:
-                break
+        pairs = np.where(distances <= 2)[0]
+        for pair_candidate in pairs:
             overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
                                                                   reference_timestamps, other_timestamps,
                                                                   overlap)
@@ -947,6 +926,66 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
             distances = np.delete(distances, pair_candidate)
             nearest_times = np.delete(nearest_times, pair_candidate)
 
+        uniformidad = []
+        pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+        pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
+        """
+        # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+        """
+        min_value_initial = pvalues[N-1].min()
+        min_value = pvalues.min()
+        si = np.std(pvalues, axis=0)
+        uniformidad.append(si)
+
+
+        tendency = -1
+        ayuda = 0
+        while tendency < 0 or round(min_value) != round(min_value_initial):
+            if round(min_value) == round(min_value_initial):
+                break
+
+            indexes = np.where(pvalues == pvalues.min())[0]
+            index = np.max(indexes)
+            # new samples, generate arbitrarily 1 or more at each iteration
+
+            goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
+
+            print('expectation: ', goal_updated)
+            # distribution_goal = list(np.append(actual_distribution, goals_updated))
+
+
+
+            min_distance, max_distance = distance_overlap.distances2search(goal_updated)
+            pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
+            try:
+                pair_candidate = np.random.choice(pairs_candidate)
+
+                overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
+                                                                      reference_timestamps, other_timestamps,
+                                                                      overlap)
+                print('reality: ', overlap_candidate)
+                sample_admin.save_overlap(overlap_candidate)
+                sample_admin.save_candidate(combination_proposed)
+
+                print(overlap_candidate)
+                actual_distribution.append(overlap_candidate)
+                distances = np.delete(distances, pair_candidate)
+                nearest_times = np.delete(nearest_times, pair_candidate)
+
+                pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+                pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
+                min_value = pvalues.min()
+
+                si = np.std(pvalues, axis=0)
+                uniformidad.append(si)
+                tendency = np.polyfit(np.array(range(len(uniformidad))), np.array(uniformidad), 1)[0]
+
+                print("Uniformidad i: ", si)
+                """
+                plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+                """
+            except:
+                continue
             # pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
             # indexes = np.where(pvalues == pvalues.min())[0]
             # index = np.max(indexes)
@@ -960,9 +999,10 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
 
         s = np.std(pvalues, axis=0)
         print("Uniformidad final: ", s)
-        print("Number of samples: ", len(r))
+        # print("Number of samples: ", len(r))
+        """
         plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-
+        """
         combinations_selected_i = sample_admin.get_combinations()
         pairs_selected.extend(combinations_selected_i)
         print('Combinations_selected: ', pairs_selected)
@@ -1256,7 +1296,7 @@ class DistanceOverlap_Relation():
         h, x_edges, y_edges = np.histogram2d(np.array(self.distances), np.array(self.overlaps), bins=(bin_x, np.linspace(0, 1, bin_y + 1)), density=True)
 
         h_tras = h.T
-        h_norm = np.divide(h_tras, np.amax(h_tras, axis=1).reshape(10, 1))
+        h_norm = np.divide(h_tras, np.amax(h_tras, axis=1).reshape(bin_y, 1))
         # X, Y = np.meshgrid(x_edges, y_edges)
         # plt.pcolormesh(X, Y, h_norm, cmap=plt.cm.Greys)
         # plt.show()
@@ -1329,7 +1369,7 @@ if __name__ == "__main__":
                                                                                         overlap, size=len(
             pairs_selected_globally))
 
-    print('Online selection ALL INFO len: ', len(pairs_selected_online_grid_ALL_INFO))
+    print('Online grid selection ALL INFO len: ', len(pairs_selected_online_grid_ALL_INFO))
 
 
     pairs_selected_online_anchor_ALL_INFO = online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_timestamps, other_timestamps,
@@ -1356,8 +1396,8 @@ if __name__ == "__main__":
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
 
-    write_csv(pairs_selected_online_anchor_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
-              other_x, other_y, name='online_anchor_uniform_ALL_INFO')
+    write_csv(pairs_selected_online_grid_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
+              other_x, other_y, name='online_anchor_GRID_ALL_INFO')
     # print(len(pairs_selected_anchor))
 
     # print('Offline random selection', len(pairs_selected_randomly))
