@@ -839,6 +839,8 @@ def get_histogram(actual_distribution, N):
     return counter
 
 def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_distances):
+
+    print('GRID METHOD')
     sample_storage = SampleStorage()
     distance_overlap = DistanceOverlap_Relation()
     kd_tree = KDTree(positions)
@@ -846,7 +848,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
 
     fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
     n_to_fill = distance_overlap.get_len()
-    print('Nº ejemplos previos: ', n_to_fill)
+    # print('Nº ejemplos previos: ', n_to_fill)
     suma = 0
 
     for index in range(0, len(sampled_positions)):
@@ -921,7 +923,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
             sample_admin.save_overlap(overlap_candidate)
             sample_admin.save_candidate(combination_proposed)
 
-            print(overlap_candidate)
+
             actual_distribution.append(overlap_candidate)
             distances = np.delete(distances, pair_candidate)
             nearest_times = np.delete(nearest_times, pair_candidate)
@@ -950,7 +952,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
 
             goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
 
-            print('expectation: ', goal_updated)
+            # print('expectation: ', goal_updated)
             # distribution_goal = list(np.append(actual_distribution, goals_updated))
 
 
@@ -963,11 +965,11 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
                 overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
                                                                       reference_timestamps, other_timestamps,
                                                                       overlap)
-                print('reality: ', overlap_candidate)
+                # print('reality: ', overlap_candidate)
                 sample_admin.save_overlap(overlap_candidate)
                 sample_admin.save_candidate(combination_proposed)
 
-                print(overlap_candidate)
+
                 actual_distribution.append(overlap_candidate)
                 distances = np.delete(distances, pair_candidate)
                 nearest_times = np.delete(nearest_times, pair_candidate)
@@ -980,7 +982,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
                 uniformidad.append(si)
                 tendency = np.polyfit(np.array(range(len(uniformidad))), np.array(uniformidad), 1)[0]
 
-                print("Uniformidad i: ", si)
+                # print("Uniformidad i: ", si)
                 """
                 plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
                 """
@@ -997,19 +999,19 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, csv_overlap, csv_
             # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
 
 
-        s = np.std(pvalues, axis=0)
-        print("Uniformidad final: ", s)
+        # s = np.std(pvalues, axis=0)
+        # print("Uniformidad final: ", s)
         # print("Number of samples: ", len(r))
         """
         plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
         """
         combinations_selected_i = sample_admin.get_combinations()
         pairs_selected.extend(combinations_selected_i)
-        print('Combinations_selected: ', pairs_selected)
-        len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
-        print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
-        suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
-        print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
+        # print('Combinations_selected: ', pairs_selected)
+        # len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
+        # print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
+        # suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
+        # print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
 
     pairs_selected = np.unique(np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
     return pairs_selected
@@ -1075,7 +1077,7 @@ def online_anchor_grid_ALL_INFO(positions, distances, reference_timestamps, othe
     while len(pairs_selected) < size:
         sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
         pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
-        print(len(pairs_selected))
+        print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
         i += 1
 
     return pairs_selected
@@ -1371,13 +1373,13 @@ if __name__ == "__main__":
 
     print('Online grid selection ALL INFO len: ', len(pairs_selected_online_grid_ALL_INFO))
 
-
+    """
     pairs_selected_online_anchor_ALL_INFO = online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_timestamps, other_timestamps,
                                                                       overlap, size=len(pairs_selected_globally))
 
     print('Online selection ALL INFO len: ', len(pairs_selected_online_anchor_ALL_INFO))
 
-    """
+ 
     pairs_selected_partial_anchor = anchor_partial_uniform_distribution(positions, reference_timestamps,
                                                                         other_timestamps, overlap, size=len(pairs_selected_globally))
     print('Offline partial uniform selection: ', len(pairs_selected_partial_anchor))
