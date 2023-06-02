@@ -178,6 +178,20 @@ def plot_overlap_distance(distances, overlaps):
 
 
 if __name__ == "__main__":
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
+    df = pd.read_csv(EXP_PARAMETERS.directory + '/online_anchor_GRID_ALL_INFO.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/random.csv')
+    # df = pd.read_csv(EXP_PARAMETERS.directory + '/global_uniform.csv')
+    reference_timestamps = np.array(df["Reference timestamp"])
+    other_timestamps = np.array(df["Other timestamp"])
+    overlap = np.array(df["Overlap"])
+    plot_overlap_histogram(overlap)
+
+    distances = compute_distances(df)
+    plot_distance_histogram(distances)
+    plot_overlap_distance(distances, overlap)
+
 
 
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
