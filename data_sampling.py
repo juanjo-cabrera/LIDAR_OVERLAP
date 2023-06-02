@@ -392,6 +392,9 @@ def interpolate_positions(original_positions, scan_times, N):
 
     return np.array(sampled_positions), np.array(sampled_times).flatten()
 
+
+
+
 def get_partial_uniform_pairs(sampled_positions, sampled_times):
     kd_tree = KDTree(positions)
     pairs_selected = []
@@ -1064,21 +1067,21 @@ def online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_
 
 def online_anchor_grid_ALL_INFO(positions, distances, reference_timestamps, other_timestamps, overlap, size):
 
-    # delta_xy = 25  # metros
-    # sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-
-    # i = 150
-    # sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
-    # pairs_selected = get_online_pairs(sampled_positions, sampled_times, overlap)
+    delta_xy = 0.5  # metros
+    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+    pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
+    print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
 
 
-    i = 185
-    pairs_selected = []
-    while len(pairs_selected) < size:
-        sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
-        pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
-        print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
-        i += 1
+
+    #
+    # i = 185
+    # pairs_selected = []
+    # while len(pairs_selected) < size:
+    #     sampled_positions, sampled_times = interpolate_positions(positions, scan_times, i)
+    #     pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
+    #     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
+    #     i += 1
 
     return pairs_selected
 
@@ -1342,6 +1345,21 @@ def compute_distances(df):
 
     return np.array(distances)
 
+
+def anchor_selection(positions):
+    x = positions.T[0]
+    y = positions.T[1]
+    min_x = x.min()
+    max_x = x.max()
+    min_y = y.min()
+    max_y = y.max()
+
+    area = int((max_x - min_x) * (max_y - min_y))
+    data = np.random.uniform((min_x, min_y), (max_x, max_y), (area, 2))
+    plt.scatter(x, y)
+    plt.scatter(data[:, 0], data[:, 1])
+    plt.show()
+
 if __name__ == "__main__":
     scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 
@@ -1352,11 +1370,10 @@ if __name__ == "__main__":
     reference_x = np.array(df["Reference x"])
     other_x = np.array(df["Other x"])
     reference_y = np.array(df["Reference y"])
-    other_y= np.array(df["Other y"])
+    other_y = np.array(df["Other y"])
     distances = compute_distances(df)
 
-
-
+    # anchor_selection(positions)
     pairs_selected_globally = global_uniform_distribution(overlap)
     print('Offline global uniform selection: ', len(pairs_selected_globally))
 
@@ -1398,8 +1415,8 @@ if __name__ == "__main__":
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
 
-    write_csv(pairs_selected_online_grid_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
-              other_x, other_y, name='online_anchor_GRID_ALL_INFO')
+    # write_csv(pairs_selected_online_grid_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
+    #           other_x, other_y, name='online_anchor_GRID_ALL_INFO')
     # print(len(pairs_selected_anchor))
 
     # print('Offline random selection', len(pairs_selected_randomly))
