@@ -107,7 +107,7 @@ def interpolate_positions(original_positions, scan_times, N):
     return np.array(sampled_positions), np.array(sampled_times).flatten()
 
 
-def get_combination(reference_time, other_time, reference_timestamps, other_timestamps):
+def get_combinationID(reference_time, other_time, reference_timestamps, other_timestamps):
     i_ref = np.where(reference_timestamps == reference_time)
     i_other = np.where(other_timestamps == other_time)
     match_i = np.intersect1d(i_ref, i_other)
@@ -192,19 +192,27 @@ class SampleAdministrator():
         self.overlap06_08 = []
         self.overlap08_10 = []
         self.valid_candidates = []
+        self.overlaps = []
+        self.overlaps_pose = []
+        self.overlaps_fpfh = []
         self.rejected_candidates = []
 
-    def save_overlap(self, overlap):
-        if overlap <= 0.2:
-            self.overlap00_02.append(overlap)
-        elif overlap > 0.2 and overlap <= 0.4:
-            self.overlap02_04.append(overlap)
-        elif overlap > 0.4 and overlap <= 0.6:
-            self.overlap04_06.append(overlap)
-        elif overlap > 0.6 and overlap <= 0.8:
-            self.overlap06_08.append(overlap)
-        elif overlap > 0.8 and overlap <= 1.0:
-            self.overlap08_10.append(overlap)
+    # def save_overlap(self, overlap):
+    #     if overlap <= 0.2:
+    #         self.overlap00_02.append(overlap)
+    #     elif overlap > 0.2 and overlap <= 0.4:
+    #         self.overlap02_04.append(overlap)
+    #     elif overlap > 0.4 and overlap <= 0.6:
+    #         self.overlap04_06.append(overlap)
+    #     elif overlap > 0.6 and overlap <= 0.8:
+    #         self.overlap06_08.append(overlap)
+    #     elif overlap > 0.8 and overlap <= 1.0:
+    #         self.overlap08_10.append(overlap)
+
+    def save_overlap(self, overlap, overlap_pose, overlap_fpfh):
+        self.overlaps.append(overlap)
+        self.overlaps_pose.append(overlap_pose)
+        self.overlaps_fpfh.append(overlap_fpfh)
 
     def save_candidate(self, combination_ID):
         self.valid_candidates.append(combination_ID)
@@ -228,7 +236,7 @@ class SampleAdministrator():
         return len(self.overlap00_02), len(self.overlap02_04), len(self.overlap04_06), len(self.overlap06_08), len(self.overlap08_10)
 
     def get_combinations(self):
-        return self.valid_candidates
+        return self.valid_candidates, self.overlaps, self.overlaps_pose, self.overlaps_fpfh
 
     def manage_overlap(self, candidate, combination_ID):
         len0, len2, len4, len6, len8 = self.get_overlap_lens()
@@ -418,21 +426,33 @@ def fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances):
         overlap = csv_overlap[i]
         distance_overlap.add(overlap, distance)
 
+def get_combination(reference_time, other_time, reference_timestamps, other_timestamps, overlap):
+    i_ref = np.where(reference_timestamps == reference_time)
+    i_other = np.where(other_timestamps == other_time)
+    match_i = np.intersect1d(i_ref, i_other)
+
+    j_ref = np.where(reference_timestamps == other_time)
+    j_other = np.where(other_timestamps == reference_time)
+    match_j = np.intersect1d(j_ref, j_other)
+    match = np.unique(np.concatenate((match_i, match_j)))
+    return int(match)
 
 def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap):
     print('GRID METHOD')
-    sample_storage = SampleStorage()
+    # sample_storage = SampleStorage()
     # distance_overlap = DistanceOverlap_Relation()
     kd_tree = KDTree(positions)
     pairs_selected = []
-
+    overlaps_selected = []
+    overlaps_fpfh = []
+    overlaps_pose = []
     # fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
-    n_to_fill = distance_overlap.get_len()
+    # n_to_fill = distance_overlap.get_len()
     # print('Nº ejemplos previos: ', n_to_fill)
-    suma = 0
+    # suma = 0
 
     for index in range(0, len(sampled_positions)):
-
+        print('Anchor ', index, ' out of ', len(sampled_positions))
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
         distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
@@ -454,11 +474,11 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
 
         pairs = np.where(distances <= 2)[0]
         for pair_candidate in pairs:
-            overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, scan_idx, i, plane_model)
-            overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
-                                                                  reference_timestamps, other_timestamps,
-                                                                  overlap)
-            sample_admin.save_overlap(overlap_candidate)
+            overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time, nearest_times[pair_candidate], plane_model)
+            combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
+                                                                  reference_timestamps, other_timestamps)
+            distance_overlap.add(overlap_candidate, distances[pair_candidate])
+            sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
             sample_admin.save_candidate(combination_proposed)
 
             actual_distribution.append(overlap_candidate)
@@ -477,7 +497,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         uniformidad.append(si)
 
         tendency = -1
-        ayuda = 0
+
         while tendency < 0 or round(min_value) != round(min_value_initial):
             if round(min_value) == round(min_value_initial):
                 break
@@ -496,12 +516,12 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             try:
                 pair_candidate = np.random.choice(pairs_candidate)
 
-                overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, scan_idx, i, plane_model)
-                overlap_candidate, combination_proposed = get_overlap(sampled_time, nearest_times[pair_candidate],
-                                                                      reference_timestamps, other_timestamps,
-                                                                      overlap)
+                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time, nearest_times[pair_candidate], plane_model)
+                combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
+                                                         reference_timestamps, other_timestamps)
+                distance_overlap.add(overlap_candidate, distances[pair_candidate])
                 # print('reality: ', overlap_candidate)
-                sample_admin.save_overlap(overlap_candidate)
+                sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
                 sample_admin.save_candidate(combination_proposed)
 
                 actual_distribution.append(overlap_candidate)
@@ -538,28 +558,34 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         """
         plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
         """
-        combinations_selected_i = sample_admin.get_combinations()
+        combinations_selected_i, overlaps_i, overlaps_pose_i, overlaps_fpfh_i = sample_admin.get_combinations()
         pairs_selected.extend(combinations_selected_i)
-        # print('Combinations_selected: ', pairs_selected)
+        overlaps_selected.extend(overlaps_i)
+        overlaps_pose.extend(overlaps_pose_i)
+        overlaps_fpfh.extend(overlaps_fpfh_i)
+
         # len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
         # print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
         # suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
         # print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
 
-    pairs_selected = np.unique(
-        np.array(pairs_selected))  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
-    return pairs_selected
+    pairs_selected, unique_indexes = np.unique(
+        np.array(pairs_selected), return_index=True) # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
+    overlaps_selected = overlaps_selected[unique_indexes]
+    overlaps_pose = overlaps_pose[unique_indexes]
+    overlaps_fpfh = overlaps_fpfh[unique_indexes]
+    return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
 
 
 def online_anchor_grid_ALL_INFO(positions):
 
     delta_xy = 0.5  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
-    pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
+    pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
 
 
-    return pairs_selected
+    return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
 
 def compute_distances(df):
     ref_x = np.array(df["Reference x"])
@@ -597,7 +623,8 @@ def get_all_possible_combinations(scan_times):
 if __name__ == "__main__":
 
     distance_overlap = DistanceOverlap_Relation()
-    load_previous_knowledge()
+    sequences = [4]
+    load_previous_knowledge(sequences)
 
 
     # kd_tree = KDTree(positions)
@@ -616,22 +643,16 @@ if __name__ == "__main__":
     #EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
     all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
 
-    pairs_selected_online_grid_ALL_INFO = online_anchor_grid_ALL_INFO(positions)
+    pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions)
+
+    with open(EXP_PARAMETERS.directory + '/anchor_05_uniform.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
+
+        for i in pairs_selected:
+            idx_reference = reference_timestamps[i]
+            idx_other = other_timestamps[i]
+            writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i], overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1], positions[idx_other, 0], positions[idx_other, 1]])
 
 
-
-    #
-    # with open(EXP_PARAMETERS.directory + '/labelling_prueba.csv', 'w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
-    #     for idx in scan_indices:
-    #         writer.writerow([scan_times[idx], scan_times[idx], 1.0, 1.0, 1.0, pos[idx, 0], pos[idx, 1], pos[idx, 0], pos[idx, 1]])
-    #     for i in range(0, len(scan_combinations)):
-    #         print('Calculated: ', i, 'overlaps out of ', len(scan_combinations))
-    #         idx_reference = scan_combinations[i][0]
-    #         idx_other = scan_combinations[i][1]
-    #         overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other, plane_model)
-    #         writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh, pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]])
-    #
-    #
 
