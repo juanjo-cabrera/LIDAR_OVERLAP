@@ -447,17 +447,12 @@ def get_combination(reference_time, other_time, reference_timestamps, other_time
 
 def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap):
     print('GRID METHOD')
-    # sample_storage = SampleStorage()
-    # distance_overlap = DistanceOverlap_Relation()
     kd_tree = KDTree(positions)
     pairs_selected = []
     overlaps_selected = []
     overlaps_fpfh = []
     overlaps_pose = []
-    # fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
-    # n_to_fill = distance_overlap.get_len()
-    # print('Nº ejemplos previos: ', n_to_fill)
-    # suma = 0
+
 
     for index in range(0, len(sampled_positions)):
         print('Anchor ', index, ' out of ', len(sampled_positions))
@@ -470,8 +465,6 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         actual_distribution = []
         sample_admin = SampleAdministrator()
 
-        # overlap_predicted = distance_overlap.predict_overlap(distances)
-
         """
         distance_overlap.plot_tendency()
         distance_overlap.plot_occupancy_grid()
@@ -479,7 +472,6 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         """
 
         N = 5  # number of bins
-
         pairs = np.where(distances <= 2)[0]
         for pair_candidate in pairs:
 
@@ -524,10 +516,6 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             # new samples, generate arbitrarily 1 or more at each iteration
 
             goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
-
-            # print('expectation: ', goal_updated)
-            # distribution_goal = list(np.append(actual_distribution, goals_updated))
-
             min_distance, max_distance = distance_overlap.distances2search(goal_updated)
             pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
             try:
@@ -563,25 +551,11 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                 uniformidad.append(si)
                 tendency = np.polyfit(np.array(range(len(uniformidad))), np.array(uniformidad), 1)[0]
 
-                # print("Uniformidad i: ", si)
                 """
                 plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
                 """
             except:
                 continue
-            # pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
-            # indexes = np.where(pvalues == pvalues.min())[0]
-            # index = np.max(indexes)
-            # # new samples, generate arbitrarily 1 or more at each iteration
-            # goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
-            # # distribution_goal = list(np.append(actual_distribution, goals_updated))
-            # si = np.std(pvalues, axis=0)
-            # print("Uniformidad i: ", si)
-            # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-
-        # s = np.std(pvalues, axis=0)
-        # print("Uniformidad final: ", s)
-        # print("Number of samples: ", len(r))
         """
         plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
         """
@@ -590,11 +564,6 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         overlaps_selected.extend(overlaps_i)
         overlaps_pose.extend(overlaps_pose_i)
         overlaps_fpfh.extend(overlaps_fpfh_i)
-
-        # len0, len2, len4, len6, len8 = sample_admin.get_overlap_lens()
-        # print('Index: ', index, 'lens: ', [len0, len2, len4, len6, len8])
-        # suma = suma + np.sum(np.array([len0, len2, len4, len6, len8]))
-        # print('Nº ejemplos selecciondados: ', suma, 'Nº ejemplos calculados: ', distance_overlap.get_len() - n_to_fill, 'Nº ejemplos desaprovechados: ', distance_overlap.get_len() - suma - n_to_fill)
 
     pairs_selected, unique_indexes = np.unique(
         np.array(pairs_selected), return_index=True) # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
@@ -605,13 +574,10 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
 
 
 def online_anchor_grid_ALL_INFO(positions):
-
-    delta_xy = 0.5  # metros
+    delta_xy = 1  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
-
-
     return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
 
 def compute_distances(df):
@@ -652,11 +618,6 @@ if __name__ == "__main__":
     distance_overlap = DistanceOverlap_Relation()
     sequences = [4]
     load_previous_knowledge(sequences)
-
-
-    # kd_tree = KDTree(positions)
-
-
 
     scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
 
