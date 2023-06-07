@@ -1067,7 +1067,7 @@ def online_anchor_uniform_distribution_ALL_INFO(positions, distances, reference_
 
 def online_anchor_grid_ALL_INFO(positions, distances, reference_timestamps, other_timestamps, overlap, size):
 
-    delta_xy = 0.5  # metros
+    delta_xy = 2  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     pairs_selected = get_online_grid_ALL_INFO(sampled_positions, sampled_times, overlap, distances)
     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
@@ -1415,8 +1415,8 @@ if __name__ == "__main__":
     write_csv(pairs_selected_randomly, reference_timestamps, other_timestamps, overlap, reference_x, reference_y, other_x, other_y, name='random')
     """
 
-    # write_csv(pairs_selected_online_grid_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
-    #           other_x, other_y, name='online_anchor_GRID_ALL_INFO')
+    write_csv(pairs_selected_online_grid_ALL_INFO, reference_timestamps, other_timestamps, overlap, reference_x, reference_y,
+              other_x, other_y, name='online_2m_anchor_GRID_ALL_INFO')
     # print(len(pairs_selected_anchor))
 
     # print('Offline random selection', len(pairs_selected_randomly))
