@@ -7,5 +7,5 @@ plot_maps:
 
 plot_scans:
   initial_transform: False
-  registration_result: False
-  overlap: False
+  registration_result: True
+  overlap: True

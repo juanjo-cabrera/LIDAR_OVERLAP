@@ -1,10 +1,10 @@
 down_sample:
 #  voxel_size: 0.03 # Number or None
-  voxel_size: 0.05 # Number or null
+  voxel_size: 0.3 # Number or null
 
 filter_by_distance:
-  max_distance: 150 #ANTES ESTABA A 35, LOS CALCULOS DE OVERLAP HECHOS HASTA EL 29/MARZO/2023
-  min_distance: 0.5
+  max_distance: 35 #ANTES ESTABA A 35, LOS CALCULOS DE OVERLAP HECHOS HASTA EL 29/MARZO/2023
+  min_distance: 2
 
 filter_ground_plane:
   radius_normals: 3
