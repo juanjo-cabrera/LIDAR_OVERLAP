@@ -14,7 +14,7 @@ from sklearn.neighbors import KDTree
 from scipy import interpolate
 import pandas as pd
 
-def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
+def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model, dist):
     pre_process = True
 
     current_pose = poses[scan_idx].array
@@ -26,7 +26,7 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
 
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
 
-    dist = np.linalg.norm(transformation_matrix[0:2, 3])
+    # dist = np.linalg.norm(transformation_matrix[0:2, 3])
 
     if dist == 0:
         overlap = 1.0
@@ -480,7 +480,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             overlap_calculated = sample_admin.check_candidate(combination_proposed)
             if overlap_calculated is None:
                 overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
-                                                                                nearest_times[pair_candidate], plane_model)
+                                                                                nearest_times[pair_candidate], plane_model, distances[pair_candidate])
             else:
                 overlap_candidate = overlap_calculated
                 overlap_pose = -1
@@ -528,7 +528,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                     overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
                                                                                     sampled_time,
                                                                                     nearest_times[pair_candidate],
-                                                                                    plane_model)
+                                                                                    plane_model, distances[pair_candidate])
                 else:
                     overlap_candidate = overlap
                     overlap_pose = -1
