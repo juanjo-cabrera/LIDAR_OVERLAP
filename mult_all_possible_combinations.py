@@ -37,14 +37,14 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
 
     dist = np.linalg.norm(transformation_matrix[0:2, 3])
 
-    # if dist == 0:
-    #     overlap = 1.0
-    #     overlap_pose = - 1
-    #     overlap_fpfh = - 1
+    if dist == 0:
+        overlap = 1.0
+        overlap_pose = - 1
+        overlap_fpfh = - 1
 
-    if dist < 10:
+    elif dist < 10:
         atb, rmse = keyframe_manager.compute_transformation_local_registration(scan_idx, i, method='point2point',
-                                                                           initial_transform=transformation_matrix)
+                                                                               initial_transform=transformation_matrix)
         overlap = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
         overlap_pose = overlap
         overlap_fpfh = - 1
@@ -64,7 +64,6 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
         overlap_fpfh = keyframe_manager.compute_3d_overlap(scan_idx, i, atb)
 
         overlap = np.maximum(overlap_pose, overlap_fpfh)
-
 
     return overlap, overlap_pose, overlap_fpfh
 
