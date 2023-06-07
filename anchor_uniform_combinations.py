@@ -217,6 +217,14 @@ class SampleAdministrator():
     def save_candidate(self, combination_ID):
         self.valid_candidates.append(combination_ID)
 
+    def check_candidate(self, combination_ID):
+        index = np.where(np.array(self.valid_candidates) == combination_ID)[0]
+        if len(index) > 0:
+            overlap = self.overlaps[index[0]]
+        else:
+            overlap = None
+        return overlap
+
     def classify_overlap(self, overlap):
         value = None
         if overlap <= 0.2:
@@ -474,9 +482,18 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
 
         pairs = np.where(distances <= 2)[0]
         for pair_candidate in pairs:
-            overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time, nearest_times[pair_candidate], plane_model)
+
             combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
                                                                   reference_timestamps, other_timestamps)
+            overlap_calculated = sample_admin.check_candidate(combination_proposed)
+            if overlap_calculated is None:
+                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
+                                                                                nearest_times[pair_candidate], plane_model)
+            else:
+                overlap_candidate = overlap_calculated
+                overlap_pose = -1
+                overlap_fpfh = -1
+
             distance_overlap.add(overlap_candidate, distances[pair_candidate])
             sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
             sample_admin.save_candidate(combination_proposed)
@@ -516,9 +533,19 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             try:
                 pair_candidate = np.random.choice(pairs_candidate)
 
-                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time, nearest_times[pair_candidate], plane_model)
                 combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
                                                          reference_timestamps, other_timestamps)
+                overlap = sample_admin.check_candidate(combination_proposed)
+                if overlap is None:
+                    overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
+                                                                                    sampled_time,
+                                                                                    nearest_times[pair_candidate],
+                                                                                    plane_model)
+                else:
+                    overlap_candidate = overlap
+                    overlap_pose = -1
+                    overlap_fpfh = -1
+
                 distance_overlap.add(overlap_candidate, distances[pair_candidate])
                 # print('reality: ', overlap_candidate)
                 sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
