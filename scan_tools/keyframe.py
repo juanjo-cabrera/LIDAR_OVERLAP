@@ -86,8 +86,10 @@ class KeyFrame():
         # self.draw_pointcloud()
         # filter by a max radius to avoid erros in normal computation
         self.pointcloud_filtered = self.filter_by_radius(self.min_radius, self.max_radius)
+        self.pointcloud_filtered, ind = self.pointcloud_filtered.remove_radius_outlier(nb_points=3, radius=0.3)
+        # inlier_cloud = cl.select_by_index(ind)
         # self.pointcloud_normalized = self.normalize2center()
-        # self.draw_pointcloud()
+        # self.draw_pointcloud(self.pointcloud_filtered)
         # downsample pointcloud and save to pointcloud in keyframe
         if self.voxel_downsample_size is not None:
             self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
