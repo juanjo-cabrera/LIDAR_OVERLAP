@@ -508,9 +508,13 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         uniformidad.append(si)
 
         tendency = -1
-
+        max_iterations = round(min_value_initial) * N * 2
+        i = 0
         while tendency < 0 or round(min_value) != round(min_value_initial):
+            i += 1
             if round(min_value) == round(min_value_initial):
+                break
+            if i > max_iterations:
                 break
 
             indexes = np.where(pvalues == pvalues.min())[0]
