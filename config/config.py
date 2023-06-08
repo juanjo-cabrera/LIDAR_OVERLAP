@@ -41,6 +41,8 @@ class Exp_ParametersConfig():
             self.do_offline_ekf = config.get('do_offline_ekf')
 
             self.exp_deltaxy = config.get('experiment').get('deltaxy')
+            self.exp_anchor_deltaxy = config.get('experiment').get('anchor_deltaxy')
+
             self.exp_deltath = config.get('experiment').get('deltath')
             self.exp_long = config.get('experiment').get('long')
             self.local_dist = config.get('local_environment').get('dist')
