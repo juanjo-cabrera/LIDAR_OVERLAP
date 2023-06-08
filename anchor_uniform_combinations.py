@@ -574,7 +574,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
 
 
 def online_anchor_grid_ALL_INFO(positions):
-    delta_xy = 1  # metros
+    delta_xy = 25  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
