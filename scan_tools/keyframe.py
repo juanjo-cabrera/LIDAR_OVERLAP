@@ -647,10 +647,7 @@ class KeyFrame():
         return result
 
     def global_registrationFPFH(self, other):
-        import time
-        start_time = time.time()
         result_fpfh = self.initial_registration_fpfh(other)
-        print("--- %s seconds ---" % (time.time() - start_time))
 
 
         result_plane = o3d.pipelines.registration.registration_icp(
