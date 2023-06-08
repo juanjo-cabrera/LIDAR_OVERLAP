@@ -13,13 +13,14 @@ scan_idx: 0
 
 overlap:
   save_as: '3d_overlap_kitti07'
-  radius: 0.25
+  radius: 0.3
 
 experiment:
 #  deltaxy: 1
 #  deltath: 0.3
-  deltaxy: 1
+  deltaxy: 1 # meters
   deltath: 0
+  anchor_deltaxy: 25 # meters
 #  deltath: 0.2
   long: null # Number or None
 
