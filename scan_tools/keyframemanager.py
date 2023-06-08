@@ -8,6 +8,8 @@ import numpy as np
 from scan_tools.keyframe import KeyFrame
 from tools.homogeneousmatrix import HomogeneousMatrix
 import open3d as o3d
+import random
+from config import ICP_PARAMETERS
 
 class KeyFrameManager():
     def __init__(self, directory, scan_times):
@@ -45,6 +47,17 @@ class KeyFrameManager():
         print('Ended loading poinclouds')
         print("SUCCESSFULLY READED: ", len(self.scan_times), "TOTAL SCANS")
         return self.scan_times
+
+    def preprocessing_pointclouds(self):
+        kf = KeyFrame(directory=self.directory, scan_time=random.choice(self.scan_times))
+        kf.load_pointcloud()
+        pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
+        plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+
+        for i in range(len(self.scan_times)):
+            print('Preprocessing pointcloud for keyframe: ', i, end='\r')
+            self.keyframes[i].pre_process(plane_model=plane_model)
+
 
     def add_keyframe(self, index):
         kf = KeyFrame(directory=self.directory, scan_time=self.scan_times[index])

@@ -416,6 +416,7 @@ def read_custom_dataset(directory):
 
 def read_kitti_dataset(directory):
     # directory = EXP_PARAMETERS.directory
+    pre_process = True
     kitti_read = KittiReader(directory=directory)
 
     scan_times, pos, orient, poses = kitti_read.prepare_kitti_data(
@@ -431,6 +432,8 @@ def read_kitti_dataset(directory):
     keyframe_manager = KeyFrameManager(directory=directory, scan_times=scan_times)
     keyframe_manager.add_all_keyframes()
     scan_times = keyframe_manager.load_pointclouds()
+    if pre_process:
+        keyframe_manager.preprocessing_pointclouds()
     # pos = pos[start:end]
     # orient = orient[start:end]
     # gt_poses, euler = compute_homogeneous_transforms(pos, orient)
@@ -441,11 +444,11 @@ def read_kitti_dataset(directory):
 
 def process_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
     overlaps = []
-    pre_process = True
+    # pre_process = True
     debug = DEBUGGING_PARAMETERS.do_debug
 
-    if pre_process:
-        keyframe_manager.keyframes[scan_idx].pre_process()
+    # if pre_process:
+        # keyframe_manager.keyframes[scan_idx].pre_process()
 
     current_pose = poses[scan_idx].array
 
@@ -457,8 +460,8 @@ def process_3d_overlap(keyframe_manager, poses, pos, scan_idx, scan_times):
 
         print('Adding keyframe and computing transform: ', i, 'out of ', len(scan_times))
         reference_pose = poses[i].array
-        if pre_process:
-            keyframe_manager.keyframes[i].pre_process()
+        # if pre_process:
+        #     keyframe_manager.keyframes[i].pre_process()
 
         transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
         dist = np.linalg.norm(transformation_matrix[0:2, 3])
