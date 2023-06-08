@@ -39,15 +39,15 @@ def load_previous_knowledge(sequences):
         fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
 
 
-def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model, dist):
-    pre_process = True
+def process_overlap(keyframe_manager, poses, scan_idx, i, dist):
+    # pre_process = True
 
     current_pose = poses[scan_idx].array
     reference_pose = poses[i].array
 
-    if pre_process:
-        keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
-        keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
+    # if pre_process:
+    #     keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
+    #     keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
 
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
 
@@ -155,7 +155,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             overlap_calculated = sample_admin.check_candidate(combination_proposed)
             if overlap_calculated is None:
                 overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
-                                                                                nearest_times[pair_candidate], plane_model, distances[pair_candidate])
+                                                                                nearest_times[pair_candidate], distances[pair_candidate])
             else:
                 overlap_candidate = overlap_calculated
                 overlap_pose = -1
@@ -203,7 +203,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                     overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
                                                                                     sampled_time,
                                                                                     nearest_times[pair_candidate],
-                                                                                    plane_model, distances[pair_candidate])
+                                                                                    distances[pair_candidate])
                 else:
                     overlap_candidate = overlap
                     overlap_pose = -1
@@ -295,10 +295,10 @@ scan_indices = np.arange(0, len(scan_times))
 scan_combinations = list(it.combinations(scan_indices, 2))
 
 # AÑADIR LO SIGUIENTE PARA PROCESAR EL PLANO DE TIERRA UNA SOLA VEZ
-kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
-kf.load_pointcloud()
-pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
-plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+# kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
+# kf.load_pointcloud()
+# pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
+# plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
 all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
 # EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS

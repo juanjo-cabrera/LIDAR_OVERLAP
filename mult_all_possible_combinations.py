@@ -16,22 +16,22 @@ scan_indices = np.arange(0, len(scan_times))
 scan_combinations = list(it.combinations(scan_indices, 2))
 
 # AÑADIR LO SIGUIENTE PARA PROCESAR EL PLANO DE TIERRA UNA SOLA VEZ
-kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
-kf.load_pointcloud()
-pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
-plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+# kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
+# kf.load_pointcloud()
+# pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
+# plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 # EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
 
 
-def process_overlap(keyframe_manager, poses, scan_idx, i, plane_model):
-    pre_process = True
+def process_overlap(keyframe_manager, poses, scan_idx, i):
+    # pre_process = True
 
     current_pose = poses[scan_idx].array
     reference_pose = poses[i].array
 
-    if pre_process:
-        keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
-        keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
+    # if pre_process:
+    #     keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
+    #     keyframe_manager.keyframes[i].pre_process(plane_model=plane_model)
 
     transformation_matrix = np.linalg.inv(current_pose).dot(reference_pose)
 
@@ -73,7 +73,7 @@ def worker_diff(queue_out, queue_in):
     index = queue_in.get()
     print('Calculated: ', index, 'overlaps out of ', len(scan_combinations))
     idx_reference, idx_other = scan_combinations[index]
-    overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other, plane_model)
+    overlap, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, idx_reference, idx_other)
     print('\nCalculated overlap: ', overlap,' idx_reference: ', idx_reference, ' idx_other: ', idx_other)
     local_data = [scan_times[idx_reference], scan_times[idx_other], overlap, overlap_pose, overlap_fpfh,
      pos[idx_reference, 0], pos[idx_reference, 1], pos[idx_other, 0], pos[idx_other, 1]]
