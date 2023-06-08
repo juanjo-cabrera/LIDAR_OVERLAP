@@ -13,6 +13,7 @@ from scan_tools.keyframe import KeyFrame
 from sklearn.neighbors import KDTree
 from scipy import interpolate
 import pandas as pd
+import time
 
 def process_overlap(keyframe_manager, poses, scan_idx, i, dist):
     # pre_process = True
@@ -455,6 +456,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
 
 
     for index in range(0, len(sampled_positions)):
+        start_time_anc = time.time()
         print('Anchor ', index, ' out of ', len(sampled_positions))
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
@@ -564,17 +566,21 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         overlaps_selected.extend(overlaps_i)
         overlaps_pose.extend(overlaps_pose_i)
         overlaps_fpfh.extend(overlaps_fpfh_i)
+        stop_time_anc = time.time()
+
+        print('Anchor examples processed in ', stop_time_anc - start_time_anc, ' seconds')
+        print('Selected ', len(combinations_selected_i), ' examples per anchor')
 
     pairs_selected, unique_indexes = np.unique(
         np.array(pairs_selected), return_index=True) # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
-    overlaps_selected = overlaps_selected[unique_indexes]
-    overlaps_pose = overlaps_pose[unique_indexes]
-    overlaps_fpfh = overlaps_fpfh[unique_indexes]
-    return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
+    overlaps_selected = list(np.array(overlaps_selected)[unique_indexes])
+    overlaps_pose = list(np.array(overlaps_pose)[unique_indexes])
+    overlaps_fpfh = list(np.array(overlaps_fpfh)[unique_indexes])
+    return list(pairs_selected), overlaps_selected, overlaps_pose, overlaps_fpfh
 
 
 def online_anchor_grid_ALL_INFO(positions):
-    delta_xy = 25  # metros
+    delta_xy = 100  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
     print('EJEMPLOS SELECCIONADOS: -------------------------    ', len(pairs_selected))
@@ -615,32 +621,22 @@ def get_all_possible_combinations(scan_times):
 
 if __name__ == "__main__":
 
+    start_time = time.time()
     distance_overlap = DistanceOverlap_Relation()
     sequences = [4]
     load_previous_knowledge(sequences)
-
     scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
-
-
-    #AÑADIR LO SIGUIENTE PARA PROCESAR EL PLANO DE TIERRA UNA SOLA VEZ
-    # kf = KeyFrame(directory=EXP_PARAMETERS.directory, scan_time=random.choice(scan_times))
-    # kf.load_pointcloud()
-    # pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
-    # plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
-
-    #EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
     all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
-
     pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions)
 
-    with open(EXP_PARAMETERS.directory + '/anchor_05_uniform.csv', 'w', newline='') as file:
+    with open(EXP_PARAMETERS.directory + '/anchor_25m_uniform.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
 
-        for i in pairs_selected:
-            idx_reference = reference_timestamps[i]
-            idx_other = other_timestamps[i]
+        for i in range(0, len(pairs_selected)):
+            pair_i = pairs_selected[i]
+            idx_reference = reference_timestamps[pair_i]
+            idx_other = other_timestamps[pair_i]
             writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i], overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1], positions[idx_other, 0], positions[idx_other, 1]])
 
-
-
+    print("--- Labelling proccess computed in %s seconds ---" % (time.time() - start_time))
