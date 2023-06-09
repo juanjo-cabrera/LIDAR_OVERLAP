@@ -187,24 +187,27 @@ class KittiReader():
             qz = q[3]
 
             orientation = [qx, qy, qz, qw]
-            q = Quaternion(q)
+            # q = Quaternion(q)
             position = poses[ind][0:3, 3]
 
-            th = q.Euler()
-            odo = np.array([position[0], position[1], th.abg[2]])
+            # th = q.Euler()
+            # odo = np.array([position[0], position[1], th.abg[2]])
+            odo = np.array([position[0], position[1]])
 
             if ind == 0:
                 sampled_times.append(ind)
                 sampled_pos.append(position)
-                sampled_orient.append(orientation)
+                # sampled_orient.append(orientation)
                 tranforms.append(HomogeneousMatrix(poses[ind]))
                 odoi = odo
             odoi1 = odo
+            if ind == 1109:
+                print('q pasa')
+            dxy = np.linalg.norm(odoi1 - odoi)
+            # dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
+            # dth = np.linalg.norm(odoi1[2]-odoi[2])
 
-            dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
-            dth = np.linalg.norm(odoi1[2]-odoi[2])
-
-            if dxy > deltaxy or dth > deltath:
+            if dxy > deltaxy: #or dth > deltath:
                 sampled_times.append(ind)
                 sampled_pos.append(position)
                 sampled_orient.append(orientation)
