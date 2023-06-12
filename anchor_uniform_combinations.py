@@ -463,6 +463,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         print('Anchor ', index, ' out of ', len(sampled_positions))
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
+        time_ref = int(np.where(scan_times == sampled_time)[0])
         distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
         distances = distances.flatten()
         indices = np.array(list(indices))
@@ -484,9 +485,12 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                                                                   reference_timestamps, other_timestamps)
             overlap_calculated = sample_admin.check_candidate(combination_proposed)
             if overlap_calculated is None:
-                time_other = int(np.where(scan_times==nearest_times[pair_candidate])[0])
-                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
-                                                                                time_other, distances[pair_candidate])
+
+                time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
+                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
+                                                                                time_ref,
+                                                                                time_other,
+                                                                                distances[pair_candidate])
             else:
                 overlap_candidate = overlap_calculated
                 overlap_pose = -1
@@ -537,7 +541,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                 if overlap is None:
                     time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
                     overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
-                                                                                    sampled_time,
+                                                                                    time_ref,
                                                                                     time_other,
                                                                                     distances[pair_candidate])
                 else:
