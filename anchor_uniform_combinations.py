@@ -19,7 +19,10 @@ def process_overlap(keyframe_manager, poses, scan_idx, i, dist):
     # pre_process = True
 
     current_pose = poses[scan_idx].array
-    reference_pose = poses[i].array
+    try:
+        reference_pose = poses[i].array
+    except:
+        print('error')
 
     # if pre_process:
     #     keyframe_manager.keyframes[scan_idx].pre_process(plane_model=plane_model)
@@ -481,8 +484,9 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                                                                   reference_timestamps, other_timestamps)
             overlap_calculated = sample_admin.check_candidate(combination_proposed)
             if overlap_calculated is None:
+                time_other = int(np.where(scan_times==nearest_times[pair_candidate])[0])
                 overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
-                                                                                nearest_times[pair_candidate], distances[pair_candidate])
+                                                                                time_other, distances[pair_candidate])
             else:
                 overlap_candidate = overlap_calculated
                 overlap_pose = -1
@@ -508,7 +512,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         uniformidad.append(si)
 
         tendency = -1
-        max_iterations = round(min_value_initial) * N * 2
+        max_iterations = round(min_value_initial) * N * 10
         i = 0
         while tendency < 0 or round(min_value) != round(min_value_initial):
             i += 1
@@ -531,9 +535,10 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                                                          reference_timestamps, other_timestamps)
                 overlap = sample_admin.check_candidate(combination_proposed)
                 if overlap is None:
+                    time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
                     overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
                                                                                     sampled_time,
-                                                                                    nearest_times[pair_candidate],
+                                                                                    time_other,
                                                                                     distances[pair_candidate])
                 else:
                     overlap_candidate = overlap
