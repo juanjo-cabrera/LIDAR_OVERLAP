@@ -33,7 +33,7 @@ def fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances):
 
 def load_previous_knowledge(sequences):
     for sequence in sequences:
-        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/all_combinations.csv')
+        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/all_combinations_v2.csv')
         csv_overlap = np.array(df["Overlap"])
         csv_distances = compute_distances(df)
         fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
@@ -120,133 +120,6 @@ def downsample(positions, times, deltaxy=5):
     return np.array(sampled_times), np.array(sampled_pos)
 
 
-def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap):
-    print('GRID METHOD')
-    kd_tree = KDTree(positions)
-    pairs_selected = []
-    overlaps_selected = []
-    overlaps_fpfh = []
-    overlaps_pose = []
-
-
-    for index in range(0, len(sampled_positions)):
-        print('Anchor ', index, ' out of ', len(sampled_positions))
-        sampled_position = sampled_positions[index]
-        sampled_time = sampled_times[index]
-        distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
-        distances = distances.flatten()
-        indices = np.array(list(indices))
-        nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
-        actual_distribution = []
-        sample_admin = SampleAdministrator()
-
-        """
-        distance_overlap.plot_tendency()
-        distance_overlap.plot_occupancy_grid()
-
-        """
-
-        N = 5  # number of bins
-        pairs = np.where(distances <= 2)[0]
-        for pair_candidate in pairs:
-
-            combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
-                                                                  reference_timestamps, other_timestamps)
-            overlap_calculated = sample_admin.check_candidate(combination_proposed)
-            if overlap_calculated is None:
-                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses, sampled_time,
-                                                                                nearest_times[pair_candidate], distances[pair_candidate])
-            else:
-                overlap_candidate = overlap_calculated
-                overlap_pose = -1
-                overlap_fpfh = -1
-
-            distance_overlap.add(overlap_candidate, distances[pair_candidate])
-            sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
-            sample_admin.save_candidate(combination_proposed)
-
-            actual_distribution.append(overlap_candidate)
-            distances = np.delete(distances, pair_candidate)
-            nearest_times = np.delete(nearest_times, pair_candidate)
-
-        uniformidad = []
-        pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
-        pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
-        """
-        # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-        """
-        min_value_initial = pvalues[N - 1].min()
-        min_value = pvalues.min()
-        si = np.std(pvalues, axis=0)
-        uniformidad.append(si)
-
-        tendency = -1
-
-        while tendency < 0 or round(min_value) != round(min_value_initial):
-            if round(min_value) == round(min_value_initial):
-                break
-
-            indexes = np.where(pvalues == pvalues.min())[0]
-            index = np.max(indexes)
-            # new samples, generate arbitrarily 1 or more at each iteration
-
-            goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
-            min_distance, max_distance = distance_overlap.distances2search(goal_updated)
-            pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
-            try:
-                pair_candidate = np.random.choice(pairs_candidate)
-
-                combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
-                                                         reference_timestamps, other_timestamps)
-                overlap = sample_admin.check_candidate(combination_proposed)
-                if overlap is None:
-                    overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
-                                                                                    sampled_time,
-                                                                                    nearest_times[pair_candidate],
-                                                                                    distances[pair_candidate])
-                else:
-                    overlap_candidate = overlap
-                    overlap_pose = -1
-                    overlap_fpfh = -1
-
-                distance_overlap.add(overlap_candidate, distances[pair_candidate])
-                # print('reality: ', overlap_candidate)
-                sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
-                sample_admin.save_candidate(combination_proposed)
-
-                actual_distribution.append(overlap_candidate)
-                distances = np.delete(distances, pair_candidate)
-                nearest_times = np.delete(nearest_times, pair_candidate)
-
-                pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
-                pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
-                min_value = pvalues.min()
-
-                si = np.std(pvalues, axis=0)
-                uniformidad.append(si)
-                tendency = np.polyfit(np.array(range(len(uniformidad))), np.array(uniformidad), 1)[0]
-
-                """
-                plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-                """
-            except:
-                continue
-        """
-        plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
-        """
-        combinations_selected_i, overlaps_i, overlaps_pose_i, overlaps_fpfh_i = sample_admin.get_combinations()
-        pairs_selected.extend(combinations_selected_i)
-        overlaps_selected.extend(overlaps_i)
-        overlaps_pose.extend(overlaps_pose_i)
-        overlaps_fpfh.extend(overlaps_fpfh_i)
-
-    pairs_selected, unique_indexes = np.unique(
-        np.array(pairs_selected), return_index=True) # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
-    overlaps_selected = overlaps_selected[unique_indexes]
-    overlaps_pose = overlaps_pose[unique_indexes]
-    overlaps_fpfh = overlaps_fpfh[unique_indexes]
-    return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
-
 
 def online_anchor_grid_ALL_INFO(positions):
     delta_xy = 1  # metros
@@ -256,22 +129,203 @@ def online_anchor_grid_ALL_INFO(positions):
     return pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh
 
 
-def worker():
-    pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions)
-    with open(EXP_PARAMETERS.directory + '/mult_anchor_uniform.csv', 'w', newline='') as file:
+
+def get_online_grid_ALL_INFO(queue_out, queue_in1, queue_in2):
+    sampled_time = queue_in1.get()
+    sampled_position = queue_in2.get()
+    print('GRID METHOD')
+    kd_tree = KDTree(positions)
+    pairs_selected = []
+    overlaps_selected = []
+    overlaps_fpfh = []
+    overlaps_pose = []
+
+    # for index in range(0, len(sampled_positions)):
+    start_time_anc = time.time()
+    time_ref = int(np.where(scan_times == sampled_time)[0])
+    distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
+    distances = distances.flatten()
+    indices = np.array(list(indices))
+    nearest_times = scan_times[indices].flatten()  # para que me salga del tipo (10,)
+    actual_distribution = []
+    sample_admin = SampleAdministrator()
+
+    """
+    distance_overlap.plot_tendency()
+    distance_overlap.plot_occupancy_grid()
+
+    """
+
+    N = 5  # number of bins
+    pairs = np.where(distances <= 2)[0]
+    for pair_candidate in pairs:
+
+        combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
+                                                 reference_timestamps, other_timestamps)
+        overlap_calculated = sample_admin.check_candidate(combination_proposed)
+        if overlap_calculated is None:
+
+            time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
+            overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
+                                                                            time_ref,
+                                                                            time_other,
+                                                                            distances[pair_candidate])
+        else:
+            overlap_candidate = overlap_calculated
+            overlap_pose = -1
+            overlap_fpfh = -1
+
+        distance_overlap.add(overlap_candidate, distances[pair_candidate])
+        sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
+        sample_admin.save_candidate(combination_proposed)
+
+        actual_distribution.append(overlap_candidate)
+        distances = np.delete(distances, pair_candidate)
+        nearest_times = np.delete(nearest_times, pair_candidate)
+
+    uniformidad = []
+    pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+    pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
+    """
+    # plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+    """
+    min_value_initial = pvalues[N - 1].min()
+    min_value = pvalues.min()
+    si = np.std(pvalues, axis=0)
+    uniformidad.append(si)
+
+    tendency = -1
+    max_iterations = round(min_value_initial) * N * 10
+    i = 0
+    while tendency < 0 or round(min_value) != round(min_value_initial):
+        i += 1
+        if round(min_value) == round(min_value_initial):
+            break
+        if i > max_iterations:
+            break
+
+        indexes = np.where(pvalues == pvalues.min())[0]
+        index = np.max(indexes)
+        # new samples, generate arbitrarily 1 or more at each iteration
+
+        goal_updated = float(np.random.uniform(bin_edges[index], bin_edges[index + 1], 1))
+        min_distance, max_distance = distance_overlap.distances2search(goal_updated)
+        pairs_candidate = np.where(np.bitwise_and(distances < max_distance, distances > min_distance))[0]
+        try:
+            pair_candidate = np.random.choice(pairs_candidate)
+
+            combination_proposed = get_combinationID(sampled_time, nearest_times[pair_candidate],
+                                                     reference_timestamps, other_timestamps)
+            overlap = sample_admin.check_candidate(combination_proposed)
+            if overlap is None:
+                time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
+                overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
+                                                                                time_ref,
+                                                                                time_other,
+                                                                                distances[pair_candidate])
+            else:
+                overlap_candidate = overlap
+                overlap_pose = -1
+                overlap_fpfh = -1
+
+            distance_overlap.add(overlap_candidate, distances[pair_candidate])
+            # print('reality: ', overlap_candidate)
+            sample_admin.save_overlap(overlap_candidate, overlap_pose, overlap_fpfh)
+            sample_admin.save_candidate(combination_proposed)
+
+            actual_distribution.append(overlap_candidate)
+            distances = np.delete(distances, pair_candidate)
+            nearest_times = np.delete(nearest_times, pair_candidate)
+
+            pvalues, bin_edges = np.histogram(actual_distribution, bins=np.linspace(0, 1, N + 1), density=True)
+            pvalues = pvalues * len(actual_distribution) / np.sum(pvalues)
+            min_value = pvalues.min()
+
+            si = np.std(pvalues, axis=0)
+            uniformidad.append(si)
+            tendency = np.polyfit(np.array(range(len(uniformidad))), np.array(uniformidad), 1)[0]
+
+            """
+            plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+            """
+        except:
+            continue
+    """
+    plot_hist(bin_edges=bin_edges, pvalues=pvalues, width=1 / N)
+    """
+    combinations_selected_i, overlaps_i, overlaps_pose_i, overlaps_fpfh_i = sample_admin.get_combinations()
+
+    stop_time_anc = time.time()
+    print('Anchor examples processed in ', stop_time_anc - start_time_anc, ' seconds')
+    print('Selected ', len(combinations_selected_i), ' examples per anchor')
+
+    anchor_data = [combinations_selected_i, overlaps_i, overlaps_pose_i, overlaps_fpfh_i]
+
+    print("-------------------------------sending-------------------------------")
+    queue_out.put(anchor_data)
+
+
+
+
+
+# def worker():
+    # pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions)
+    # with open(EXP_PARAMETERS.directory + '/mult_anchor_uniform.csv', 'w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(
+    #         ["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x",
+    #          "Reference y", "Other x", "Other y"])
+    #
+    #     for i in pairs_selected:
+    #         idx_reference = reference_timestamps[i]
+    #         idx_other = other_timestamps[i]
+    #         writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i],
+    #                          overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1],
+    #                          positions[idx_other, 0], positions[idx_other, 1]])
+
+def listener(queue):
+    pairs_selected = []
+    overlaps_selected = []
+    overlaps_pose = []
+    overlaps_fpfh = []
+
+    while 1:
+        data = queue.get()
+        combinations_selected_i = data[0]
+        overlaps_i = data[1]
+        overlaps_pose_i = data[2]
+        overlaps_fpfh_i = data[3]
+        pairs_selected.extend(combinations_selected_i)
+        overlaps_selected.extend(overlaps_i)
+        overlaps_pose.extend(overlaps_pose_i)
+        overlaps_fpfh.extend(overlaps_fpfh_i)
+
+
+    pairs_selected, unique_indexes = np.unique(
+        np.array(pairs_selected),
+        return_index=True)  # Esta linea de aqui es la que hace que la distribucion no quede 100% uniforme
+    overlaps_selected = list(np.array(overlaps_selected)[unique_indexes])
+    overlaps_pose = list(np.array(overlaps_pose)[unique_indexes])
+    overlaps_fpfh = list(np.array(overlaps_fpfh)[unique_indexes])
+
+    with open(EXP_PARAMETERS.directory + '/anchor_25m_uniform_v2.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(
             ["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x",
              "Reference y", "Other x", "Other y"])
 
-        for i in pairs_selected:
-            idx_reference = reference_timestamps[i]
-            idx_other = other_timestamps[i]
+        for i in range(0, len(pairs_selected)):
+            pair_i = pairs_selected[i]
+            idx_reference = reference_timestamps[pair_i]
+            idx_other = other_timestamps[pair_i]
             writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i],
                              overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1],
                              positions[idx_other, 0], positions[idx_other, 1]])
 
-def listener(queue):
+
+
+
+
     i = 0
     with open(EXP_PARAMETERS.directory + '/prueba.csv', 'w', newline='') as file:
         writer = csv.writer(file)
@@ -287,10 +341,13 @@ def listener(queue):
 
 
 
+
+
 distance_overlap = DistanceOverlap_Relation()
 sequences = [4]
 load_previous_knowledge(sequences)
 scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
+all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
 scan_indices = np.arange(0, len(scan_times))
 scan_combinations = list(it.combinations(scan_indices, 2))
 
@@ -300,15 +357,34 @@ scan_combinations = list(it.combinations(scan_indices, 2))
 # pointcloud_filtered = kf.filter_by_radius(ICP_PARAMETERS.min_distance, ICP_PARAMETERS.max_distance)
 # plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
-all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
+
 # EN PROCESS_OVERLAP PASAR plane_model y este a PRE_PROCESS
 print('PROCESANDO SECUENCIA EN DIRECTORIO: ', EXP_PARAMETERS.directory)
 
 
 def main():
+    delta_xy = 1  # metros
+    sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
+
     manager = mp.Manager()
+    queue_out = manager.Queue()
+    queue_out2 = manager.Queue()
+    queue_out3 = manager.Queue()
+    queue_in1 = manager.Queue()
+    queue_in2 = manager.Queue()
     pool = mp.Pool(mp.cpu_count() + 2)
-    job = pool.apply_async(worker, args=())
+
+    # put listener to work first
+    watcher = pool.apply_async(listener, (queue_out,))
+
+    for i in range(0, len(sampled_times)):
+        queue_in1.put(sampled_times[i])
+        queue_in2.put(sampled_positions[i])
+        print('Anchor ', i, ' out of ', len(sampled_positions), ' sended')
+        job = pool.apply_async(get_online_grid_ALL_INFO, args=(queue_out, queue_in1, queue_in2))
+
+
+
     try:
         while True:
             pass
@@ -324,6 +400,7 @@ if __name__ == "__main__":
     set_start_method('spawn') # spawn, fork (default on Unix), forkserver
     print("Number of cpu : ", mp.cpu_count())
     main()
+
 
 
 
