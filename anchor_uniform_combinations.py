@@ -650,11 +650,13 @@ def get_all_possible_combinations(scan_times):
 
 if __name__ == "__main__":
     distance_overlap = DistanceOverlap_Relation()
-    sequences = [3, 4, 7, 9]
-    sequences_processed = []
+    sequences = [5, 6, 8, 10]
+    sequences_processed = [3, 7, 9]
     base_dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0'
     for sequence in sequences:
         dir = base_dir + str(sequence)
+        if sequence == 10:
+            dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/10'
         print(dir)
         start_time = time.time()
         load_previous_knowledge(sequences_processed)
