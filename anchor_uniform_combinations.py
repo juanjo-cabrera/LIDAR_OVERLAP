@@ -463,7 +463,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
         print('Anchor ', index, ' out of ', len(sampled_positions))
         sampled_position = sampled_positions[index]
         sampled_time = sampled_times[index]
-        time_ref = int(np.where(scan_times == sampled_time)[0])
+        keyframe_idx_ref = int(np.where(scan_times == sampled_time)[0])
         distances, indices = kd_tree.query(np.array([sampled_position]), k=len(positions))
         distances = distances.flatten()
         indices = np.array(list(indices))
@@ -486,10 +486,10 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
             overlap_calculated = sample_admin.check_candidate(combination_proposed)
             if overlap_calculated is None:
 
-                time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
+                keyframe_idx_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
                 overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
-                                                                                time_ref,
-                                                                                time_other,
+                                                                                keyframe_idx_ref,
+                                                                                keyframe_idx_other,
                                                                                 distances[pair_candidate])
             else:
                 overlap_candidate = overlap_calculated
@@ -539,10 +539,10 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
                                                          reference_timestamps, other_timestamps)
                 overlap = sample_admin.check_candidate(combination_proposed)
                 if overlap is None:
-                    time_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
+                    keyframe_idx_other = int(np.where(scan_times == nearest_times[pair_candidate])[0])
                     overlap_candidate, overlap_pose, overlap_fpfh = process_overlap(keyframe_manager, poses,
-                                                                                    time_ref,
-                                                                                    time_other,
+                                                                                    keyframe_idx_ref,
+                                                                                    keyframe_idx_other,
                                                                                     distances[pair_candidate])
                 else:
                     overlap_candidate = overlap
@@ -592,7 +592,7 @@ def get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
     return list(pairs_selected), overlaps_selected, overlaps_pose, overlaps_fpfh
 
 
-def online_anchor_grid_ALL_INFO(positions):
+def online_anchor_grid_ALL_INFO(positions, scan_times):
     delta_xy = EXP_PARAMETERS.exp_anchor_deltaxy  # metros
     sampled_times, sampled_positions = downsample(positions, scan_times, delta_xy)
     pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = get_online_grid_ALL_INFO(sampled_positions, sampled_times, distance_overlap)
@@ -612,44 +612,79 @@ def compute_distances(df):
 
     return np.array(distances)
 def load_previous_knowledge(sequences):
+    df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04/all_combinations_v2.csv')
+    csv_overlap = np.array(df["Overlap"])
+    csv_distances = compute_distances(df)
+    fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
     for sequence in sequences:
-        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/all_combinations.csv')
+        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/anchor_25m_uniform_v2.csv')
         csv_overlap = np.array(df["Overlap"])
         csv_distances = compute_distances(df)
         fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
 
 def get_all_possible_combinations(scan_times):
-    scan_indices = np.arange(0, len(scan_times))
-    all_combinations = list(it.combinations_with_replacement(scan_indices, 2))
+    # scan_indices = np.arange(0, len(scan_times))
+    all_combinations = list(it.combinations_with_replacement(scan_times, 2))
     reference_timestamps = []
     other_timestamps = []
 
     for i in range(0, len(all_combinations)):
         idx_reference = all_combinations[i][0]
         idx_other = all_combinations[i][1]
-        reference_timestamps.append(scan_times[idx_reference])
-        other_timestamps.append(scan_times[idx_other])
+        # reference_timestamps.append(scan_times[idx_reference])
+        # other_timestamps.append(scan_times[idx_other])
+        reference_timestamps.append(idx_reference)
+        other_timestamps.append(idx_other)
+
     return all_combinations, reference_timestamps, other_timestamps
+
+# def main(dir):
+    # start_time = time.time()
+    #
+    # load_previous_knowledge(sequences_processed)
+    # scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=dir)
+    # all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
+    # pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions, scan_times)
+
 
 
 if __name__ == "__main__":
-
-    start_time = time.time()
     distance_overlap = DistanceOverlap_Relation()
-    sequences = [4]
-    load_previous_knowledge(sequences)
-    scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=EXP_PARAMETERS.directory)
-    all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
-    pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions)
+    sequences = [3, 4, 7, 9]
+    sequences_processed = []
+    base_dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0'
+    for sequence in sequences:
+        dir = base_dir + str(sequence)
+        print(dir)
+        start_time = time.time()
+        load_previous_knowledge(sequences_processed)
+        scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=dir)
+        all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
+        pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions,
+                                                                                                      scan_times)
+        with open(dir + '/anchor_25m_uniform_v2.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x",
+                 "Reference y", "Other x", "Other y"])
 
-    with open(EXP_PARAMETERS.directory + '/anchor_25m_uniform.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x", "Reference y", "Other x", "Other y"])
+            for i in range(0, len(pairs_selected)):
+                pair_i = pairs_selected[i]
+                time_reference = reference_timestamps[pair_i]
+                time_other = other_timestamps[pair_i]
+                keyframe_idx_ref = int(np.where(scan_times == time_reference)[0])
+                keyframe_idx_other = int(np.where(scan_times == time_other)[0])
+                try:
+                    # writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i], overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1], positions[idx_other, 0], positions[idx_other, 1]])
+                    writer.writerow(
+                        [time_reference, time_other, overlaps_selected[i], overlaps_pose[i],
+                         overlaps_fpfh[i], positions[keyframe_idx_ref, 0], positions[keyframe_idx_ref, 1],
+                         positions[keyframe_idx_other, 0], positions[keyframe_idx_other, 1]])
+                except:
+                    print('error')
+        print("--- Labelling proccess computed in %s seconds ---" % (time.time() - start_time))
 
-        for i in range(0, len(pairs_selected)):
-            pair_i = pairs_selected[i]
-            idx_reference = reference_timestamps[pair_i]
-            idx_other = other_timestamps[pair_i]
-            writer.writerow([scan_times[idx_reference], scan_times[idx_other], overlaps_selected[i], overlaps_pose[i], overlaps_fpfh[i], positions[idx_reference, 0], positions[idx_reference, 1], positions[idx_other, 0], positions[idx_other, 1]])
+        # main(dir)
+        if sequence != 4:
+            sequences_processed.append(sequence)
 
-    print("--- Labelling proccess computed in %s seconds ---" % (time.time() - start_time))
