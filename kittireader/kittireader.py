@@ -201,8 +201,7 @@ class KittiReader():
                 tranforms.append(HomogeneousMatrix(poses[ind]))
                 odoi = odo
             odoi1 = odo
-            if ind == 1109:
-                print('q pasa')
+
             dxy = np.linalg.norm(odoi1 - odoi)
             # dxy = np.linalg.norm(odoi1[0:2]-odoi[0:2])
             # dth = np.linalg.norm(odoi1[2]-odoi[2])
