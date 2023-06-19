@@ -24,9 +24,12 @@ import matplotlib.pyplot as plt
 
 
 class TrainingDataset(Dataset):
-    def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.training_path
-        labels_dir = self.root_dir + '/anchor_uniform.csv'
+    def __init__(self, dir=None, transform=None):
+        if dir is None:
+            self.root_dir = TRAINING_PARAMETERS.training_path
+        else:
+            self.root_dir = dir
+        labels_dir = self.root_dir + '/anchor_25m_uniform_v2.csv'
         if self.root_dir.find('Kitti') == -1:
             self.scans_dir = self.root_dir + '/robot0/lidar/data/'
         else:
@@ -55,39 +58,6 @@ class TrainingDataset(Dataset):
         other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
         other_kf.load_pointcloud()
         other_pcd, other_features = other_kf.training_preprocess(plane_model=self.plane_model)
-        diferencia = 1 - np.array([self.overlap[idx]])
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, reference_features, other_pcd, other_features, diferencia
-
-    def __len__(self):
-        return len(self.overlap)
-
-class TrainingDataset_old(Dataset):
-    def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.training_path
-        labels_dir = self.root_dir + '/anchor_uniform.csv'
-        if self.root_dir.find('Kitti') == -1:
-            self.scans_dir = self.root_dir + '/robot0/lidar/data/'
-        else:
-            self.scans_dir = self.root_dir + '/velodyne/'
-
-        df = pd.read_csv(labels_dir)
-        self.reference_timestamps = np.array(df["Reference timestamp"])
-        self.other_timestamps = np.array(df["Other timestamp"])
-        self.overlap = np.array(df["Overlap"])
-        self.transform = transform
-
-    def __getitem__(self, idx):
-        reference_timestamp = self.reference_timestamps[idx]
-        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
-        reference_kf.load_pointcloud()
-        reference_pcd, reference_features = reference_kf.training_preprocess()
-
-        other_timestamp = self.other_timestamps[idx]
-        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
-        other_kf.load_pointcloud()
-        other_pcd, other_features = other_kf.training_preprocess()
         diferencia = 1 - np.array([self.overlap[idx]])
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
@@ -572,6 +542,24 @@ def visualize_trajectories(val_data, map_data):
         gmap.pos_scatter(lat_lon_map[:, 0], lat_lon_map[:, 1], color='blue')
         gmap.draw(TRAINING_PARAMETERS.validation_path + '/map2.html')
 
+def load_training_sets():
+    sequences = [3, 4, 5, 6, 7, 8, 9, 10]
+    base_dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0'
+    for i in range(0, len(sequences)):
+        if sequences[i] == 10:
+            dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/10'
+        else:
+            dir = base_dir + str(sequences[i])
+        if i == 0:
+            train_sets = TrainingDataset(dir=dir)
+            print(dir, ' ------> ', len(train_sets), ' combinations')
+        else:
+            train_set = TrainingDataset(dir=dir)
+            print(dir, ' ------> ', len(train_set), ' combinations')
+            train_sets = torch.utils.data.ConcatDataset([train_sets, train_set])
+    print('IN TOTAL ------> ', len(train_sets), ' combinations')
+    return train_sets
+
 STR2NETWORK = dict(
     # pointnet=PointNet,
     # minkpointnet=MinkowskiPointNet,
@@ -580,6 +568,7 @@ STR2NETWORK = dict(
     VGG16=VGG16_3DNetwork
 )
 
+
 if __name__ == '__main__':
     # val_data, map_data, true_neighbors = load_validation_data()
     val_data, map_data, true_neighbors = reader_manager()
@@ -587,7 +576,8 @@ if __name__ == '__main__':
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    train_dataset = TrainingDataset()
+    # train_dataset = TrainingDataset()
+    train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
@@ -616,7 +606,7 @@ if __name__ == '__main__':
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_anchor_recall'
+    net_name = 'VGG16_25m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
