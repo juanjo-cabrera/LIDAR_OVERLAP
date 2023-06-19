@@ -624,6 +624,14 @@ def load_previous_knowledge(sequences):
         csv_overlap = np.array(df["Overlap"])
         csv_distances = compute_distances(df)
         fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
+def load_current_knowledge(sequence):
+    if sequence == 10:
+        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/10/anchor_1m_uniform_v2.csv')
+    else:
+        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/anchor_1m_uniform_v2.csv')
+    csv_overlap = np.array(df["Overlap"])
+    csv_distances = compute_distances(df)
+    fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
 
 def get_all_possible_combinations(scan_times):
     # scan_indices = np.arange(0, len(scan_times))
@@ -653,8 +661,9 @@ def get_all_possible_combinations(scan_times):
 
 if __name__ == "__main__":
     distance_overlap = DistanceOverlap_Relation()
-    sequences = [4]
-    sequences_processed = [3, 4, 5, 6, 7, 8, 9, 10]
+    sequences = [3, 5, 6, 7, 8, 9, 10]
+    sequences_processed = [3, 5, 6, 7, 8, 9, 10]
+    load_previous_knowledge(sequences_processed)
     base_dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0'
     for sequence in sequences:
         dir = base_dir + str(sequence)
@@ -662,7 +671,7 @@ if __name__ == "__main__":
             dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/10'
         print(dir)
         start_time = time.time()
-        load_previous_knowledge(sequences_processed)
+
         scan_times, poses, positions, keyframe_manager, lat, lon = reader_manager(directory=dir)
         all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
         pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions,
@@ -690,6 +699,7 @@ if __name__ == "__main__":
         print("--- Labelling proccess computed in %s seconds ---" % (time.time() - start_time))
 
         # main(dir)
-        if sequence != 4:
-            sequences_processed.append(sequence)
+        # if sequence != 4:
+        #     sequences_processed.append(sequence)
+        load_current_knowledge(sequence)
 
