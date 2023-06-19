@@ -617,7 +617,10 @@ def load_previous_knowledge(sequences):
     csv_distances = compute_distances(df)
     fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
     for sequence in sequences:
-        df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/anchor_25m_uniform_v2.csv')
+        if sequence == 10:
+            df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/10/anchor_25m_uniform_v2.csv')
+        else:
+            df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0' + str(sequence) + '/anchor_25m_uniform_v2.csv')
         csv_overlap = np.array(df["Overlap"])
         csv_distances = compute_distances(df)
         fill_ALL_predictor(distance_overlap, csv_overlap, csv_distances)
@@ -650,8 +653,8 @@ def get_all_possible_combinations(scan_times):
 
 if __name__ == "__main__":
     distance_overlap = DistanceOverlap_Relation()
-    sequences = [5, 6, 8, 10]
-    sequences_processed = [3, 7, 9]
+    sequences = [4]
+    sequences_processed = [3, 4, 5, 6, 7, 8, 9, 10]
     base_dir = '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/0'
     for sequence in sequences:
         dir = base_dir + str(sequence)
@@ -664,7 +667,7 @@ if __name__ == "__main__":
         all_combinations, reference_timestamps, other_timestamps = get_all_possible_combinations(scan_times)
         pairs_selected, overlaps_selected, overlaps_pose, overlaps_fpfh = online_anchor_grid_ALL_INFO(positions,
                                                                                                       scan_times)
-        with open(dir + '/anchor_25m_uniform_v2.csv', 'w', newline='') as file:
+        with open(dir + '/anchor_1m_uniform_v2.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(
                 ["Reference timestamp", "Other timestamp", "Overlap", "Overlap poses", "Overlap fpfh", "Reference x",
