@@ -115,12 +115,13 @@ class KeyFrame():
         self.pcd_fpfh = self.estimate_fpfh(radius=self.voxel_size_normals * 5, max_nn=100)
 
     def training_preprocess(self, plane_model):
-        self.pointcloud_filtered = self.filter_by_radius(self.min_radius, TRAINING_PARAMETERS.max_radius)
+        self.pointcloud_filtered = self.filter_by_radius(TRAINING_PARAMETERS.min_radius, TRAINING_PARAMETERS.max_radius)
         # self.pointcloud_normalized = self.normalize2center()
         # self.draw_pointcloud()
         # downsample pointcloud and save to pointcloud in keyframe
         if self.voxel_downsample_size is not None:
-            self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
+            # self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=self.voxel_downsample_size)
+            self.pointcloud_filtered = self.pointcloud_filtered.voxel_down_sample(voxel_size=TRAINING_PARAMETERS.voxel_size)
 
         # segment ground plane
         _, pcd_non_ground_plane = self.segment_plane(plane_model, pcd=self.pointcloud_filtered)

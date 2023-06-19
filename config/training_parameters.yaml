@@ -6,7 +6,9 @@ max_ngpu: 3
 input_data_preprocessing:
   sample2n: False
   n_points: 4096
+  min_radius: 0.5
   max_radius: 120
+  voxel_size: 0.05
   normalize_coords: True
 
 output_data:

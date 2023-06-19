@@ -86,7 +86,9 @@ class Training_ParametersConfig():
 
             self.sample_points = config.get('input_data_preprocessing').get('sample2n')
             self.number_of_points = config.get('input_data_preprocessing').get('n_points')
+            self.min_radius = config.get('input_data_preprocessing').get('min_radius')
             self.max_radius = config.get('input_data_preprocessing').get('max_radius')
+            self.voxel_size = config.get('input_data_preprocessing').get('voxel_size')
             self.normalize_coords = config.get('input_data_preprocessing').get('normalize_coords')
 
             self.normalize_embeddings = config.get('output_data').get('normalize_embeddings')
