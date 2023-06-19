@@ -29,7 +29,7 @@ class TrainingDataset(Dataset):
             self.root_dir = TRAINING_PARAMETERS.training_path
         else:
             self.root_dir = dir
-        labels_dir = self.root_dir + '/anchor_25m_uniform_v2.csv'
+        labels_dir = self.root_dir + '/anchor_1m_uniform_v2.csv'
         if self.root_dir.find('Kitti') == -1:
             self.scans_dir = self.root_dir + '/robot0/lidar/data/'
         else:
@@ -576,8 +576,8 @@ if __name__ == '__main__':
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    # train_dataset = TrainingDataset()
-    train_dataset = load_training_sets()
+    train_dataset = TrainingDataset()
+    # train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
@@ -606,7 +606,7 @@ if __name__ == '__main__':
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_25m_recall'
+    net_name = 'VGG16_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
