@@ -18,7 +18,7 @@ output_data:
 training_parameters:
 #  path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
 #  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
-  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04'
+  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/05'
 
   batch_size: 8
   number_epochs: 2

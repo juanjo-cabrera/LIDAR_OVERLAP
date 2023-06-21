@@ -606,7 +606,7 @@ if __name__ == '__main__':
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_1m_recall'
+    net_name = 'VGG16_05_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
