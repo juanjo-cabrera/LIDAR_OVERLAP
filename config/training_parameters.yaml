@@ -12,13 +12,14 @@ input_data_preprocessing:
   normalize_coords: True
 
 output_data:
-  embedding_size: 32
+#  embedding_size: 32
+  embedding_size: 256
   normalize_embeddings: False
 
 training_parameters:
 #  path: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
 #  path: '/home/arvc/Escritorio/develop/Datasets/KittiDataset/sequences/04'
-  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/05'
+  path: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/04'
 
   batch_size: 8
   number_epochs: 2

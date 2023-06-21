@@ -309,6 +309,10 @@ class VGG16_3DNetwork(nn.Module):
         return embedding
 
 
+
+
+
+
 class ContrastiveLoss(torch.nn.Module):
     def __init__(self, margin=2.0):
         super(ContrastiveLoss, self).__init__()
@@ -606,7 +610,7 @@ if __name__ == '__main__':
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_05_1m_recall'
+    net_name = 'VGG16_256_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
