@@ -573,10 +573,12 @@ STR2NETWORK = dict(
 )
 
 
-if __name__ == '__main__':
+def main(descriptor_size):
     # val_data, map_data, true_neighbors = load_validation_data()
     val_data, map_data, true_neighbors = reader_manager()
-    visualize_trajectories(val_data, map_data)
+    visualize = False
+    if visualize == True:
+        visualize_trajectories(val_data, map_data)
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
@@ -592,8 +594,10 @@ if __name__ == '__main__':
                                   collate_fn=ground_collation_fn)
 
     # initialize model
+    # net = STR2NETWORK['VGG16'](
+    #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     net = STR2NETWORK['VGG16'](
-        in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
+        in_channel=3, out_channel=descriptor_size, D=3).to(device0)
 
     print("===================Network===================")
     print(net)
@@ -610,7 +614,7 @@ if __name__ == '__main__':
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_256_04_1m_recall'
+    net_name = 'VGG16_' + str(descriptor_size) + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
@@ -690,4 +694,7 @@ if __name__ == '__main__':
                 sleep(0.1)
 
 
-
+if __name__ == '__main__':
+    descriptors_sizes = [8, 16, 64, 128, 512, 1024]
+    for descriptors_size in descriptors_sizes:
+        main(descriptors_size)
