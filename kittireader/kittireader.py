@@ -72,12 +72,12 @@ class KittiReader():
         for i in range(0, len(index_val)):
             val_positions.append(poses[index_val[i]][0:3, 3])
         val_positions = np.array(val_positions)
-        self.vis_poses(val_positions,  map_positions)
+        # self.vis_poses(val_positions,  map_positions)
         if deltaxy_map is not None:
             map_positions, index_map = self.sample_by_distance(poses=map_positions, times=index_map, deltaxy=deltaxy_map)
         if deltaxy_val is not None:
             val_positions, index_val = self.sample_by_distance(poses=val_positions, times=index_val, deltaxy=deltaxy_val)
-        self.vis_poses(val_positions, map_positions)
+        # self.vis_poses(val_positions, map_positions)
         return index_map, index_val, np.array(map_positions), np.array(val_positions)
 
 
