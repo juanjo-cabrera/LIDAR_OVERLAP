@@ -24,6 +24,7 @@
 import torch
 import torch.nn as nn
 from torch.optim import SGD
+from config.config import TRAINING_PARAMETERS
 
 import MinkowskiEngine as ME
 
@@ -149,6 +150,8 @@ class MinkUNetBase(ResNetBase):
     # initialize_coords
     def __init__(self, in_channels, out_channels, D=3):
         ResNetBase.__init__(self, in_channels, out_channels, D)
+        # self.fc_dimensions(dim, out_channels=out_channels)
+        self.out_channels = out_channels
 
     def network_initialization(self, in_channels, out_channels, D):
         # Output of the first conv concated to conv6
@@ -215,14 +218,39 @@ class MinkUNetBase(ResNetBase):
                                        self.LAYERS[7])
 
         self.final = ME.MinkowskiConvolution(
-            self.PLANES[7] * self.BLOCK.expansion,
+            self.PLANES[4] * self.BLOCK.expansion,
             out_channels,
             kernel_size=1,
             bias=True,
             dimension=D)
         self.relu = ME.MinkowskiReLU(inplace=True)
+        # self.flatten = ME.MinkowskiLinear(self.PLANES[4] * self.BLOCK.expansion, out_channels)
+        # self.flatten = nn.Sequential(nn.Linear(self.PLANES[4] * self.BLOCK.expansion, 500),
+        #                              nn.Linear(500 , out_channels))
+
+        self.flatten = nn.Sequential(
+            nn.Linear(self.PLANES[4] * self.BLOCK.expansion, 500),
+            nn.ReLU(inplace=True),
+
+            nn.Linear(500, 500),
+            nn.ReLU(inplace=True),
+
+            nn.Linear(500, 5))
+        self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
+        self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
+
+
+    def fc_initialization(self, dim):
+        self.fc = nn.Linear(dim, self.out_channels).cuda()
+
 
     def forward(self, x):
+        verbose = True
+
+        if verbose:
+            print("Input: ", x.size())
+
+        x = x.sparse()
         out = self.conv0p1s1(x)
         out = self.bn0(out)
         out_p1 = self.relu(out)
@@ -247,6 +275,8 @@ class MinkUNetBase(ResNetBase):
         out = self.bn4(out)
         out = self.relu(out)
         out = self.block4(out)
+        if verbose:
+            print("Block 4: ", out.size())
 
         # # tensor_stride=8
         # out = self.convtr4p16s2(out)
@@ -279,8 +309,21 @@ class MinkUNetBase(ResNetBase):
         #
         # out = ME.cat(out, out_p1)
         # out = self.block8(out)
+        # out = torch.flatten(out.F, 1)
 
-        return self.final(out)
+        # out = self.flatten(out.F.flatten().view(-1, 1))
+        out = self.global_max_pool(out)
+        if verbose:
+            print("flatten: ", out.size())
+        # self.fc_initialization(dim=len(out))
+        # out = self.fc(out)
+        # if verbose:
+        #     print("fc: ", out.size())
+        # embedding = self.net(x).F
+        # if TRAINING_PARAMETERS.normalize_embeddings:
+        #     embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
+
+        return out.F
 
 
 class MinkUNet14(MinkUNetBase):
@@ -348,12 +391,13 @@ class MinkUNet34C(MinkUNet34):
     PLANES = (32, 64, 128, 256, 256, 128, 96, 96)
 
 
-if __name__ == '__main__':
-    # from tests.python.common import data_loader
-    # loss and network
-    # criterion = nn.CrossEntropyLoss()
-    net = MinkUNet34C(in_channels=3, out_channels=32, D=3)
-    print(net)
+
+# if __name__ == '__main__':
+#     # from tests.python.common import data_loader
+#     # loss and network
+#     # criterion = nn.CrossEntropyLoss()
+#     net = MinkUNet34C(in_channels=3, out_channels=32, D=3)
+#     print(net)
 
     # # a data loader must return a tuple of coords, features, and labels.
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
