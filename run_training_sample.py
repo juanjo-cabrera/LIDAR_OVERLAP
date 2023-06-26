@@ -21,6 +21,7 @@ from time import sleep
 from kittireader.kittireader import KittiReader
 import matplotlib.pyplot as plt
 from ml_tools.minkunet import MinkUNet34C
+from ml_tools.layers import GeM
 
 
 
@@ -209,7 +210,7 @@ class ValidationExample():
 class VGG16_3DNetwork(nn.Module):
     def __init__(self, in_channels, out_channels, D):
         super(VGG16_3DNetwork, self).__init__()
-        self.net = nn.Sequential(
+        self.backbone = nn.Sequential(
             ME.MinkowskiConvolution(
                 in_channels=in_channels,
                 out_channels=64,
@@ -295,18 +296,31 @@ class VGG16_3DNetwork(nn.Module):
                 out_channels=512,
                 kernel_size=3,
                 stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU())
             # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
             # ME.MinkowskiGlobalPooling())
-            ME.MinkowskiGlobalMaxPooling())
+            # ME.MinkowskiGlobalMaxPooling())
             # ME.MinkowskiLinear(512, out_channels))
-
+        self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
+        self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
+        self.global_GeM_pool = GeM()
     def forward(self, x):
+        verbose = False
+        if verbose:
+            print("Input: ", x.size())
+
         x = x.sparse()
-        embedding = self.net(x).F
+        out = self.backbone(x)
+        # embedding = self.global_avg_pool(out).F
+        x1 = self.global_max_pool(out)
+        x2 = self.global_avg_pool(out)
+        out = ME.cat(x1, x2)
+        if verbose:
+            print("Output: ", out.size())
+        out = out.F
         if TRAINING_PARAMETERS.normalize_embeddings:
-            embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
-        return embedding
+            embedding = torch.nn.functional.normalize(out, p=2, dim=1)  # Normalize embeddings
+        return out
 
 
 
@@ -614,7 +628,7 @@ def main(descriptor_size):
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = net_arquitecture + 'c_' + str(descriptor_size) + '_04_1m_recall'
+    net_name = net_arquitecture + 'd_' + str(descriptor_size) + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
