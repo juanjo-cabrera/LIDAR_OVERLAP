@@ -302,8 +302,8 @@ class VGG16_3DNetwork(nn.Module):
             # ME.MinkowskiGlobalMaxPooling())
             # ME.MinkowskiLinear(512, out_channels))
         # self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
-        # self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
-        self.global_GeM_pool = GeM()
+        self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
+        # self.global_GeM_pool = GeM()
     def forward(self, x):
         verbose = False
         if verbose:
@@ -313,14 +313,14 @@ class VGG16_3DNetwork(nn.Module):
         out = self.backbone(x)
         # embedding = self.global_avg_pool(out).F
         # x1 = self.global_max_pool(out)
-        # x2 = self.global_avg_pool(out)
+        out = self.global_avg_pool(out)
         # out = ME.cat(x1, x2)
-        out = self.global_GeM_pool(out)
+        # out = self.global_GeM_pool(out)
         if verbose:
             print("Output: ", out.size())
-        # out = out.F
-        if TRAINING_PARAMETERS.normalize_embeddings:
-            out = torch.nn.functional.normalize(out, p=2, dim=1)  # Normalize embeddings
+        out = out.F
+        # if TRAINING_PARAMETERS.normalize_embeddings:
+        out = torch.nn.functional.normalize(out, p=2, dim=1)  # Normalize embeddings
         return out
 
 
@@ -609,8 +609,8 @@ def main(descriptor_size):
     # initialize model
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
-    net_arquitecture = 'MinkUNet'
-    # net_arquitecture = 'VGG16'
+    # net_arquitecture = 'MinkUNet'
+    net_arquitecture = 'VGG16'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
@@ -629,7 +629,7 @@ def main(descriptor_size):
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = net_arquitecture + '_avg_' + str(descriptor_size) + '_04_1m_recall'
+    net_name = net_arquitecture + 'bn_' + str(descriptor_size) + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
