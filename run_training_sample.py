@@ -20,6 +20,7 @@ from tqdm import tqdm
 from time import sleep
 from kittireader.kittireader import KittiReader
 import matplotlib.pyplot as plt
+from ml_tools.minkunet import MinkUNet34C
 
 
 
@@ -206,11 +207,11 @@ class ValidationExample():
 
 
 class VGG16_3DNetwork(nn.Module):
-    def __init__(self, in_channel, out_channel, D):
+    def __init__(self, in_channels, out_channels, D):
         super(VGG16_3DNetwork, self).__init__()
         self.net = nn.Sequential(
             ME.MinkowskiConvolution(
-                in_channels=in_channel,
+                in_channels=in_channels,
                 out_channels=64,
                 kernel_size=3,
                 stride=1,
@@ -296,10 +297,9 @@ class VGG16_3DNetwork(nn.Module):
                 stride=1,
                 dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
             # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            ME.MinkowskiGlobalPooling(),
-            # ME.MinkowskiLinear(512, 512),
-            # ME.MinkowskiLinear(512, 128),
-            ME.MinkowskiLinear(512, out_channel))
+            # ME.MinkowskiGlobalPooling())
+            ME.MinkowskiGlobalMaxPooling())
+            # ME.MinkowskiLinear(512, out_channels))
 
     def forward(self, x):
         x = x.sparse()
@@ -307,9 +307,6 @@ class VGG16_3DNetwork(nn.Module):
         if TRAINING_PARAMETERS.normalize_embeddings:
             embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
         return embedding
-
-
-
 
 
 
@@ -569,7 +566,8 @@ STR2NETWORK = dict(
     # minkpointnet=MinkowskiPointNet,
     # minkfcnn=MinkowskiFCNN,
     # minksplatfcnn=MinkowskiSplatFCNN,
-    VGG16=VGG16_3DNetwork
+    VGG16=VGG16_3DNetwork,
+    MinkUNet=MinkUNet34C
 )
 
 
@@ -596,8 +594,10 @@ def main(descriptor_size):
     # initialize model
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
-    net = STR2NETWORK['VGG16'](
-        in_channel=3, out_channel=descriptor_size, D=3).to(device0)
+    # net_arquitecture = 'MinkUNet'
+    net_arquitecture = 'VGG16'
+    net = STR2NETWORK[net_arquitecture](
+        in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
     print("===================Network===================")
     print(net)
@@ -614,7 +614,7 @@ def main(descriptor_size):
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = 'VGG16_' + str(descriptor_size) + '_04_1m_recall'
+    net_name = net_arquitecture + 'c_' + str(descriptor_size) + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
@@ -695,6 +695,6 @@ def main(descriptor_size):
 
 
 if __name__ == '__main__':
-    descriptors_sizes = [8, 16, 64, 128, 512, 1024]
+    descriptors_sizes = [512]
     for descriptors_size in descriptors_sizes:
         main(descriptors_size)

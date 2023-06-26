@@ -224,28 +224,17 @@ class MinkUNetBase(ResNetBase):
             bias=True,
             dimension=D)
         self.relu = ME.MinkowskiReLU(inplace=True)
-        # self.flatten = ME.MinkowskiLinear(self.PLANES[4] * self.BLOCK.expansion, out_channels)
-        # self.flatten = nn.Sequential(nn.Linear(self.PLANES[4] * self.BLOCK.expansion, 500),
-        #                              nn.Linear(500 , out_channels))
+        self.linear = ME.MinkowskiLinear(self.PLANES[4] * self.BLOCK.expansion, out_channels)
 
-        self.flatten = nn.Sequential(
-            nn.Linear(self.PLANES[4] * self.BLOCK.expansion, 500),
-            nn.ReLU(inplace=True),
 
-            nn.Linear(500, 500),
-            nn.ReLU(inplace=True),
 
-            nn.Linear(500, 5))
         self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
         self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
 
 
-    def fc_initialization(self, dim):
-        self.fc = nn.Linear(dim, self.out_channels).cuda()
-
 
     def forward(self, x):
-        verbose = True
+        verbose = False
 
         if verbose:
             print("Input: ", x.size())
@@ -313,15 +302,16 @@ class MinkUNetBase(ResNetBase):
 
         # out = self.flatten(out.F.flatten().view(-1, 1))
         out = self.global_max_pool(out)
+        out = self.global_avg_pool(out)
         if verbose:
             print("flatten: ", out.size())
-        # self.fc_initialization(dim=len(out))
-        # out = self.fc(out)
+        # out = self.linear(out)
+
         # if verbose:
         #     print("fc: ", out.size())
-        # embedding = self.net(x).F
-        # if TRAINING_PARAMETERS.normalize_embeddings:
-        #     embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)  # Normalize embeddings
+
+        if TRAINING_PARAMETERS.normalize_embeddings:
+            out = torch.nn.functional.normalize(out, p=2, dim=1)  # Normalize embeddings
 
         return out.F
 
