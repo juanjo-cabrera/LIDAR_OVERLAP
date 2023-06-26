@@ -29,6 +29,7 @@ from config.config import TRAINING_PARAMETERS
 import MinkowskiEngine as ME
 
 from MinkowskiEngine.modules.resnet_block import BasicBlock, Bottleneck
+from layers import GeM
 
 # from resnet import ResNetBase
 class ResNetBase(nn.Module):
@@ -230,6 +231,7 @@ class MinkUNetBase(ResNetBase):
 
         self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
         self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
+        self.global_GeM_pool = GeM()
 
 
 
@@ -301,7 +303,7 @@ class MinkUNetBase(ResNetBase):
         # out = torch.flatten(out.F, 1)
 
         # out = self.flatten(out.F.flatten().view(-1, 1))
-        out = self.global_max_pool(out)
+        # out = self.global_max_pool(out)
         out = self.global_avg_pool(out)
         if verbose:
             print("flatten: ", out.size())
