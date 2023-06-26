@@ -29,7 +29,7 @@ from config.config import TRAINING_PARAMETERS
 import MinkowskiEngine as ME
 
 from MinkowskiEngine.modules.resnet_block import BasicBlock, Bottleneck
-from layers import GeM
+from ml_tools.layers import GeM
 
 # from resnet import ResNetBase
 class ResNetBase(nn.Module):
