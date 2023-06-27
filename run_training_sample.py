@@ -465,7 +465,8 @@ STR2NETWORK = dict(
     # minksplatfcnn=MinkowskiSplatFCNN,
     VGG16=VGG16_3DNetwork,
     MinkUNet=MinkUNet34C,
-    VGG16_avg1024=VGG16_3DNetwork_mod
+    VGG16_avg1024=VGG16_3DNetwork_mod,
+    VGG16_cat512=VGG16_3DNetwork_cat
 )
 
 
