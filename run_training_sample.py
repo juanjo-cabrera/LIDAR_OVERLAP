@@ -21,7 +21,7 @@ from time import sleep
 from kittireader.kittireader import KittiReader
 import matplotlib.pyplot as plt
 from ml_tools.minkunet import MinkUNet34C
-from ml_tools.layers import GeM
+from ml_tools.VGG16 import *
 
 
 
@@ -205,124 +205,6 @@ class ValidationExample():
         # if self.transform:
         #     pointcloud = self.transform(pointcloud)
         return batched_pcd, torch.from_numpy(random_features).to(dtype=torch.float32), random_pos
-
-
-class VGG16_3DNetwork(nn.Module):
-    def __init__(self, in_channels, out_channels, D):
-        super(VGG16_3DNetwork, self).__init__()
-        self.backbone = nn.Sequential(
-            ME.MinkowskiConvolution(
-                in_channels=in_channels,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                dilation=1,
-                bias=False,
-                dimension=D), ME.MinkowskiBatchNorm(64), ME.MinkowskiReLU(),
-            # ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=64,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(64), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(128), ME.MinkowskiReLU(),
-            # ME.MinkowskiMaxPooling(kernel_size=3, stride=1, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=128,
-                out_channels=128,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(128), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=128,
-                out_channels=256,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=256,
-                out_channels=256,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=256,
-                out_channels=256,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(256), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=256,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=512,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=512,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            ME.MinkowskiConvolution(
-                in_channels=512,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=512,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiConvolution(
-                in_channels=512,
-                out_channels=512,
-                kernel_size=3,
-                stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU())
-            # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
-            # ME.MinkowskiGlobalPooling())
-            # ME.MinkowskiGlobalMaxPooling())
-            # ME.MinkowskiLinear(512, out_channels))
-        # self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
-        self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
-        # self.global_GeM_pool = GeM()
-    def forward(self, x):
-        verbose = False
-        if verbose:
-            print("Input: ", x.size())
-
-        x = x.sparse()
-        out = self.backbone(x)
-        # embedding = self.global_avg_pool(out).F
-        # x1 = self.global_max_pool(out)
-        out = self.global_avg_pool(out)
-        # out = ME.cat(x1, x2)
-        # out = self.global_GeM_pool(out)
-        if verbose:
-            print("Output: ", out.size())
-        out = out.F
-        # if TRAINING_PARAMETERS.normalize_embeddings:
-        out = torch.nn.functional.normalize(out, p=2, dim=1)  # Normalize embeddings
-        return out
-
 
 
 class ContrastiveLoss(torch.nn.Module):
@@ -582,7 +464,8 @@ STR2NETWORK = dict(
     # minkfcnn=MinkowskiFCNN,
     # minksplatfcnn=MinkowskiSplatFCNN,
     VGG16=VGG16_3DNetwork,
-    MinkUNet=MinkUNet34C
+    MinkUNet=MinkUNet34C,
+    VGG16_avg1024=VGG16_3DNetwork_mod
 )
 
 
@@ -610,7 +493,7 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16'
+    net_arquitecture = 'VGG16_avg1024'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
@@ -629,7 +512,8 @@ def main(descriptor_size):
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = net_arquitecture + 'bn_' + str(descriptor_size) + '_04_1m_recall'
+    # net_name = net_arquitecture + 'b2_' + str(descriptor_size) + '_04_1m_recall'
+    net_name = net_arquitecture + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
