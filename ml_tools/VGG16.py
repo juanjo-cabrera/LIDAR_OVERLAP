@@ -356,11 +356,11 @@ class VGG16_3DNetwork_cat(nn.Module):
         out4 = self.block4(out3)
         # embedding = self.global_avg_pool(out).F
         # x1 = self.global_max_pool(out)
-        out1 = self.global_avg_pool(out1)
+        # out1 = self.global_avg_pool(out1)
         out2 = self.global_avg_pool(out2)
         out3 = self.global_avg_pool(out3)
         out4 = self.global_avg_pool(out4)
-        out = ME.cat(out1, out2, out3, out4)
+        out = ME.cat(out2, out3, out4)
         # out = self.global_GeM_pool(out)
         if verbose:
             print("Output: ", out.size())
