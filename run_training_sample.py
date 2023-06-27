@@ -488,8 +488,8 @@ def main(descriptor_size):
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    train_dataset = TrainingDataset()
-    # train_dataset = load_training_sets()
+    # train_dataset = TrainingDataset()
+    train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
@@ -503,7 +503,7 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16_reduced256'
+    net_arquitecture = 'VGG16'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
@@ -523,7 +523,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + '_04_1m_recall'
+    net_name = net_arquitecture + '_all_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
