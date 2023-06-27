@@ -92,11 +92,9 @@ class VGG16(nn.Module):
                 out_channels=512,
                 kernel_size=3,
                 stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
-            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D))
-            # ME.MinkowskiGlobalPooling())
-            # ME.MinkowskiGlobalMaxPooling())
-            # ME.MinkowskiLinear(512, out_channels))
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU())
+
+
         # self.global_max_pool = ME.MinkowskiGlobalMaxPooling()
         # self.global_avg_pool = ME.MinkowskiGlobalAvgPooling()
         self.global_avg_pool = ME.MinkowskiGlobalPooling()
