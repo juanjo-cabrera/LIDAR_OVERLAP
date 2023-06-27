@@ -466,7 +466,8 @@ STR2NETWORK = dict(
     VGG16=VGG16,
     MinkUNet=MinkUNet34C,
     VGG16_avg1024=VGG16_3DNetwork_mod,
-    VGG16_cat512=VGG16_3DNetwork_cat
+    VGG16_cat512=VGG16_3DNetwork_cat,
+    VGG16_ext1024=VGG16_ext1024
 )
 
 
@@ -494,7 +495,7 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16'
+    net_arquitecture = 'VGG16_ext1024'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
@@ -513,8 +514,8 @@ def main(descriptor_size):
     last_errors = []
     error_history.append(1000)
     recall_at1_history.append(0)
-    net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    # net_name = net_arquitecture + '_04_1m_recall'
+    # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
+    net_name = net_arquitecture + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
