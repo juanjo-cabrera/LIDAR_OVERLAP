@@ -3,9 +3,9 @@ import torch.nn as nn
 from config.config import TRAINING_PARAMETERS
 import MinkowskiEngine as ME
 
-class VGG16_3DNetwork(nn.Module):
+class VGG16(nn.Module):
     def __init__(self, in_channels, out_channels, D):
-        super(VGG16_3DNetwork, self).__init__()
+        super(VGG16, self).__init__()
         self.backbone = nn.Sequential(
             ME.MinkowskiConvolution(
                 in_channels=in_channels,
@@ -92,8 +92,8 @@ class VGG16_3DNetwork(nn.Module):
                 out_channels=512,
                 kernel_size=3,
                 stride=1,
-                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU())
-            # ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D),
+                dimension=D), ME.MinkowskiBatchNorm(512), ME.MinkowskiReLU(),
+            ME.MinkowskiMaxPooling(kernel_size=2, stride=2, dilation=1, dimension=D))
             # ME.MinkowskiGlobalPooling())
             # ME.MinkowskiGlobalMaxPooling())
             # ME.MinkowskiLinear(512, out_channels))
