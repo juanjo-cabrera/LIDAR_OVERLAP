@@ -22,6 +22,9 @@ from kittireader.kittireader import KittiReader
 import matplotlib.pyplot as plt
 from ml_tools.minkunet import MinkUNet34C
 from ml_tools.VGG16 import *
+from ml_tools.VGG11 import *
+from ml_tools.VGG13 import *
+from ml_tools.VGG19 import *
 
 
 
@@ -468,7 +471,11 @@ STR2NETWORK = dict(
     VGG16_avg1024=VGG16_3DNetwork_mod,
     VGG16_cat512=VGG16_3DNetwork_cat,
     VGG16_ext1024=VGG16_ext1024,
-    VGG16_reduced256=VGG16_reduced256
+    VGG16_reduced256=VGG16_reduced256,
+    VGG11=VGG11,
+    VGG13=VGG13,
+    VGG19=VGG19
+
 )
 
 

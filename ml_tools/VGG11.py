@@ -3,9 +3,9 @@ import torch.nn as nn
 from config.config import TRAINING_PARAMETERS
 import MinkowskiEngine as ME
 
-class VGG13(nn.Module):
+class VGG11(nn.Module):
     def __init__(self, in_channels, out_channels, D):
-        super(VGG13, self).__init__()
+        super(VGG11, self).__init__()
         self.backbone = nn.Sequential(
             ME.MinkowskiConvolution(
                 in_channels=in_channels,
