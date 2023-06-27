@@ -467,7 +467,8 @@ STR2NETWORK = dict(
     MinkUNet=MinkUNet34C,
     VGG16_avg1024=VGG16_3DNetwork_mod,
     VGG16_cat512=VGG16_3DNetwork_cat,
-    VGG16_ext1024=VGG16_ext1024
+    VGG16_ext1024=VGG16_ext1024,
+    VGG16_reduced256=VGG16_reduced256
 )
 
 
@@ -495,7 +496,7 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16_ext1024'
+    net_arquitecture = 'VGG16_reduced256'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
