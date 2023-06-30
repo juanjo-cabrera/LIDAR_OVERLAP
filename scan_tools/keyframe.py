@@ -130,7 +130,8 @@ class KeyFrame():
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
         if TRAINING_PARAMETERS.normalize_coords:
-            pcd_features = self.normalize(self.pointcloud_non_ground_plane)
+            # pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
+            pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
         else:
             pcd_features = self.pointcloud_non_ground_plane
         return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
@@ -190,7 +191,7 @@ class KeyFrame():
 
         # return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
 
-    def normalize(self, pcd):
+    def local_normalize(self, pcd):
         """
         Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points
         """
@@ -218,6 +219,37 @@ class KeyFrame():
         x = x / max_value
         y = y / max_value
         z = z / max_value
+
+        points[:, 0] = x
+        points[:, 1] = y
+        points[:, 2] = z
+
+        self.pointcloud_normalized = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+        return self.pointcloud_normalized
+
+
+
+
+    def global_normalize(self, pcd):
+        """
+        Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points
+        """
+        pcd = copy.deepcopy(pcd)
+        # points = np.asarray(self.pointcloud_normalized.points)
+        points = np.asarray(pcd.points)
+
+        [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+        z_mean = np.mean(z)
+
+        x = x - x_mean
+        y = y - y_mean
+        z = z - z_mean
+
+        x = x / TRAINING_PARAMETERS.max_radius
+        y = y / TRAINING_PARAMETERS.max_radius
+        z = z / TRAINING_PARAMETERS.max_radius
 
         points[:, 0] = x
         points[:, 1] = y
