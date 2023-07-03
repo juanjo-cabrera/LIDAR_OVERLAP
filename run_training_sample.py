@@ -72,6 +72,59 @@ class TrainingDataset(Dataset):
         return len(self.overlap)
 
 
+class TrainingDataset_NOoverlap(Dataset):
+    def __init__(self, dir=None, transform=None):
+        if dir is None:
+            self.root_dir = TRAINING_PARAMETERS.training_path
+        else:
+            self.root_dir = dir
+        labels_dir = self.root_dir + '/anchor_1m_uniform_v2.csv'
+        if self.root_dir.find('Kitti') == -1:
+            self.scans_dir = self.root_dir + '/robot0/lidar/data/'
+        else:
+            self.scans_dir = self.root_dir + '/velodyne/'
+
+        df = pd.read_csv(labels_dir)
+        self.reference_timestamps = np.array(df["Reference timestamp"])
+        self.other_timestamps = np.array(df["Other timestamp"])
+        self.ref_x = np.array(df["Reference x"])
+        self.ref_y = np.array(df["Reference y"])
+        self.other_x = np.array(df["Other x"])
+        self.other_y = np.array(df["Other y"])
+        # self.overlap = np.array(df["Overlap"])
+        self.ref_coor = np.array([self.ref_x, self.ref_y])
+        self.other_coor = np.array([self.other_x, self.other_y])
+        self.distances = np.linalg.norm(self.ref_coor-self.other_coor, axis=0)
+        self.label = np.where(self.distances < 25, 0, 1) # si la distancia es menor a algo pon 0, sino un 1
+        self.transform = transform
+
+        #calculate plane equation
+        kf = KeyFrame(directory=self.root_dir, scan_time=self.reference_timestamps[0])
+        kf.load_pointcloud()
+        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+
+
+    def __getitem__(self, idx):
+        reference_timestamp = self.reference_timestamps[idx]
+        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
+        reference_kf.load_pointcloud()
+        reference_pcd, reference_features = reference_kf.training_preprocess(plane_model=self.plane_model)
+
+        other_timestamp = self.other_timestamps[idx]
+        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
+        other_kf.load_pointcloud()
+        other_pcd, other_features = other_kf.training_preprocess(plane_model=self.plane_model)
+        diferencia = np.array([self.label[idx]])
+        # if self.transform:
+        #     pointcloud = self.transform(pointcloud)
+        return reference_pcd, reference_features, other_pcd, other_features, diferencia
+
+    def __len__(self):
+        return len(self.label)
+
+
+
 class GroundTruthDataset(Dataset):
     def __init__(self, data, transform=None):
         self.root_dir = TRAINING_PARAMETERS.groundtruth_path
@@ -489,7 +542,8 @@ def main(descriptor_size):
 
     print("Device is: ", device0)
     # train_dataset = TrainingDataset()
-    train_dataset = load_training_sets()
+    train_dataset = TrainingDataset_NOoverlap()
+    # train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
     train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
@@ -523,7 +577,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + '_all_1m_recall'
+    net_name = net_arquitecture + 'no_overlap25m_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
