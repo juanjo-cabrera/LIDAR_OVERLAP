@@ -131,6 +131,8 @@ def get_overlap(reference_time, other_time, reference_timestamps, other_timestam
 
 def plot_overlap_histogram(overlaps):
     hist, bins = np.histogram(np.array(overlaps), bins=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0], density=True)
+    desviacion = np.std(hist, axis=0)
+    print('STD: ', desviacion)
     counter = hist * len(overlaps) / np.sum(hist)
     print(counter)
     rangos = ('0 - 0.2', '0.2 - 0.4', '0.4 - 0.6', '0.6 - 0.8', '0.8 - 1.0')
@@ -180,7 +182,7 @@ def plot_overlap_distance(distances, overlaps):
 if __name__ == "__main__":
 
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/all_combinations.csv')
-    df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/08' + '/anchor_25m_uniform_v2.csv')
+    df = pd.read_csv('/home/arvc/Juanjo/Datasets/KittiDataset/sequences/08' + '/anchor_1m_uniform_v2.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/anchor_uniform.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/random.csv')
     # df = pd.read_csv(EXP_PARAMETERS.directory + '/global_uniform.csv')
