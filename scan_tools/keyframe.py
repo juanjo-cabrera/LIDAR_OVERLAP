@@ -130,8 +130,8 @@ class KeyFrame():
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
         if TRAINING_PARAMETERS.normalize_coords:
-            # pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
-            pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
+            pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
+            # pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
         else:
             pcd_features = self.pointcloud_non_ground_plane
         return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
