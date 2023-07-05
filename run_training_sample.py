@@ -95,7 +95,7 @@ class TrainingDataset_NOoverlap(Dataset):
         self.ref_coor = np.array([self.ref_x, self.ref_y])
         self.other_coor = np.array([self.other_x, self.other_y])
         self.distances = np.linalg.norm(self.ref_coor-self.other_coor, axis=0)
-        self.label = np.where(self.distances < 25, 0, 1) # si la distancia es menor a algo pon 0, sino un 1
+        self.label = np.where(self.distances < 3, 0, 1) # si la distancia es menor a algo pon 0, sino un 1
         self.transform = transform
 
         #calculate plane equation
@@ -542,8 +542,8 @@ def main(descriptor_size):
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    train_dataset = TrainingDataset()
-    # train_dataset = TrainingDataset_NOoverlap()
+    # train_dataset = TrainingDataset()
+    train_dataset = TrainingDataset_NOoverlap()
     # train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
@@ -558,7 +558,7 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16_VLAD'
+    net_arquitecture = 'VGG16'
     net = STR2NETWORK[net_arquitecture](
         in_channels=3, out_channels=descriptor_size, D=3).to(device0)
 
@@ -578,7 +578,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + '256_04_1m_recall'
+    net_name = net_arquitecture + 'no_overlap3m_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
