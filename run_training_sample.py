@@ -25,6 +25,7 @@ from ml_tools.VGG16 import *
 from ml_tools.VGG11 import *
 from ml_tools.VGG13 import *
 from ml_tools.VGG19 import *
+from ml_tools.pointnet import *
 
 
 
@@ -558,9 +559,13 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16'
-    net = STR2NETWORK[net_arquitecture](
-        in_channels=2, out_channels=descriptor_size, D=3).to(device0)
+    # net_arquitecture = 'VGG16'
+    # net = STR2NETWORK[net_arquitecture](
+    #     in_channels=2, out_channels=descriptor_size, D=3).to(device0)
+    net_arquitecture = 'MinkowskiPointNet'
+    net = MinkowskiPointNet(
+        in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
+    )
 
     print("===================Network===================")
     print(net)
@@ -578,7 +583,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + 'dist_z_04_1m_recall'
+    net_name = net_arquitecture + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
