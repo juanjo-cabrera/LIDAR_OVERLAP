@@ -239,8 +239,13 @@ class KeyFrame():
 
         points = np.asarray(pcd.points)
         [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
-        distance = np.sqrt(x ** 2 + y ** 2)
 
+        z_max = np.max(z)
+        z = z / z_max
+
+        distance = np.sqrt(x ** 2 + y ** 2)
+        max_distance = np.max(distance)
+        distance = distance / max_distance
 
         features = np.concatenate((z.reshape(len(z), 1), distance.reshape(len(distance), 1)), axis=1)
         return features
