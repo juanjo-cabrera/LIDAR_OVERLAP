@@ -9,7 +9,11 @@ input_data_preprocessing:
   min_radius: 0.5
   max_radius: 120
   voxel_size: 0.05
-  normalize_coords: True
+input_features:
+  coordinates: True
+  normalize_coords: True # if coordinates are selected
+  height: True
+  distance: True
 
 output_data:
   embedding_size: 32
