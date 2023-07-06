@@ -133,7 +133,8 @@ class MinkowskiPointNet(ME.MinkowskiNetwork):
             ME.MinkowskiBatchNorm(embedding_channel),
             ME.MinkowskiReLU(),
         )
-        # self.max_pool = ME.MinkowskiGlobalMaxPooling()
+        # self.global_avg_pool = ME.MinkowskiGlobalPooling()
+        self.max_pool = ME.MinkowskiGlobalMaxPooling()
         #
         # self.linear1 = nn.Sequential(
         #     ME.MinkowskiLinear(embedding_channel, 512, bias=False),
@@ -149,7 +150,8 @@ class MinkowskiPointNet(ME.MinkowskiNetwork):
         x = self.conv3(x)
         x = self.conv4(x)
         x = self.conv5(x)
-        # x = self.max_pool(x)
+        # x = self.global_avg_pool(x)
+        x = self.max_pool(x)
         # x = self.linear1(x)
         # x = self.dp1(x)
         return x.F

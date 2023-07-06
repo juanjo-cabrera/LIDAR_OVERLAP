@@ -565,7 +565,7 @@ def main(descriptor_size):
     net_arquitecture = 'MinkowskiPointNet'
     net = MinkowskiPointNet(
         in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
-    )
+    ).to(device0)
 
     print("===================Network===================")
     print(net)

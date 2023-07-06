@@ -135,10 +135,10 @@ class KeyFrame():
         else:
             pcd_features = self.pointcloud_non_ground_plane
 
-        features = self.extract_features(self.pointcloud_non_ground_plane)
-        # return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
+        # features = self.extract_features(self.pointcloud_non_ground_plane)
+        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
 
-        return np.asarray(self.pointcloud_non_ground_plane.points), features
+        # return np.asarray(self.pointcloud_non_ground_plane.points), features
 
 
     def estimate_fpfh(self, radius, max_nn):
