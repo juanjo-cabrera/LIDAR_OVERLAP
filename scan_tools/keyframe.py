@@ -134,7 +134,11 @@ class KeyFrame():
             # pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
         else:
             pcd_features = self.pointcloud_non_ground_plane
-        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
+
+        features = self.extract_features(self.pointcloud_non_ground_plane)
+        # return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
+
+        return np.asarray(self.pointcloud_non_ground_plane.points), features
 
 
     def estimate_fpfh(self, radius, max_nn):
@@ -228,8 +232,18 @@ class KeyFrame():
         return self.pointcloud_normalized
 
 
+    def extract_features(self, pcd):
+        """
+        Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points
+        """
+
+        points = np.asarray(pcd.points)
+        [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
+        distance = np.sqrt(x ** 2 + y ** 2)
 
 
+        features = np.concatenate((z.reshape(len(z), 1), distance.reshape(len(distance), 1)), axis=1)
+        return features
     def global_normalize(self, pcd):
         """
         Normalize a pointcloud to achieve mean zero, scaled between [-1, 1] and with a fixed number of points

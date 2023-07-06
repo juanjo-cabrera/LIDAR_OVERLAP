@@ -542,8 +542,8 @@ def main(descriptor_size):
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    # train_dataset = TrainingDataset()
-    train_dataset = TrainingDataset_NOoverlap()
+    train_dataset = TrainingDataset()
+    # train_dataset = TrainingDataset_NOoverlap()
     # train_dataset = load_training_sets()
     groundtruth_dataset = GroundTruthDataset(data=map_data)
     validation_dataset = ValidationDataset(data=val_data)
@@ -560,7 +560,7 @@ def main(descriptor_size):
     # net_arquitecture = 'MinkUNet'
     net_arquitecture = 'VGG16'
     net = STR2NETWORK[net_arquitecture](
-        in_channels=3, out_channels=descriptor_size, D=3).to(device0)
+        in_channels=2, out_channels=descriptor_size, D=3).to(device0)
 
     print("===================Network===================")
     print(net)
@@ -578,7 +578,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + 'no_overlap3m_04_1m_recall'
+    net_name = net_arquitecture + 'dist_z_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
