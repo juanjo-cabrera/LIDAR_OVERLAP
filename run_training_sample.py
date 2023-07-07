@@ -26,6 +26,7 @@ from ml_tools.VGG11 import *
 from ml_tools.VGG13 import *
 from ml_tools.VGG19 import *
 from ml_tools.pointnet import *
+from MinkLoc3Dv2_models.model_factory import MinkLoc3Dv2
 
 
 
@@ -562,11 +563,12 @@ def main(descriptor_size):
     # net_arquitecture = 'VGG16'
     # net = STR2NETWORK[net_arquitecture](
     #     in_channels=2, out_channels=descriptor_size, D=3).to(device0)
-    net_arquitecture = 'MinkowskiPointNet'
-    net = MinkowskiPointNet(
-        in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
-    ).to(device0)
-
+    # net_arquitecture = 'MinkowskiPointNet'
+    # net = MinkowskiPointNet(
+    #     in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
+    # ).to(device0)
+    net = MinkLoc3Dv2.to(device0)
+    net_arquitecture = 'MinkLoc3Dv2'
     print("===================Network===================")
     print(net)
     print("=============================================\n\n")
