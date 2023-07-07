@@ -129,16 +129,17 @@ class KeyFrame():
         if TRAINING_PARAMETERS.sample_points:
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
-        if TRAINING_PARAMETERS.normalize_coords:
-            pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
-            # pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
-        else:
-            pcd_features = self.pointcloud_non_ground_plane
-
+        # if TRAINING_PARAMETERS.normalize_coords:
+        #     pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
+        #     # pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
+        # else:
+        #     pcd_features = self.pointcloud_non_ground_plane
+        features = np.ones(len(self.pointcloud_non_ground_plane.points))
+        features = features.reshape(len(features), 1)
         # features = self.extract_features(self.pointcloud_non_ground_plane)
-        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
+        # return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
 
-        # return np.asarray(self.pointcloud_non_ground_plane.points), features
+        return np.asarray(self.pointcloud_non_ground_plane.points), features
 
 
     def estimate_fpfh(self, radius, max_nn):

@@ -35,7 +35,7 @@ class MinkFPN(ResNetBase):
 
         # The first convolution is special case, with kernel size = 5
         self.inplanes = self.planes[0]
-        self.conv0 = ME.MinkowskiConvolution(3, self.inplanes, kernel_size=self.conv0_kernel_size,
+        self.conv0 = ME.MinkowskiConvolution(in_channels, self.inplanes, kernel_size=self.conv0_kernel_size,
                                              dimension=D)
         self.bn0 = ME.MinkowskiBatchNorm(self.inplanes)
 
