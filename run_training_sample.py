@@ -560,21 +560,22 @@ def main(descriptor_size):
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    # net_arquitecture = 'VGG16'
-    # net = STR2NETWORK[net_arquitecture](
-    #     in_channels=2, out_channels=descriptor_size, D=3).to(device0)
+    net_arquitecture = 'VGG16'
+    net = STR2NETWORK[net_arquitecture](
+        in_channels=3, out_channels=descriptor_size, D=3).to(device0)
     # net_arquitecture = 'MinkowskiPointNet'
     # net = MinkowskiPointNet(
     #     in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
     # ).to(device0)
-    net = MinkLoc3Dv2.to(device0)
-    net_arquitecture = 'MinkLoc3Dv2'
+    # net = MinkLoc3Dv2.to(device0)
+    # net_arquitecture = 'MinkLoc3Dv2'
     print("===================Network===================")
     print(net)
     print("=============================================\n\n")
 
     criterion = ContrastiveLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    # optimizer = optim.Adam(net.parameters())
 
     # train model
     counter = []
@@ -585,7 +586,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + '_ones_04_1m_recall'
+    net_name = net_arquitecture + '_50meters_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
