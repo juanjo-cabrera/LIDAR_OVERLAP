@@ -130,15 +130,16 @@ class KeyFrame():
             pcd = self.fix_points_number(TRAINING_PARAMETERS.number_of_points)
 
         if TRAINING_PARAMETERS.normalize_coords:
-            pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
-            # pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
+            # pcd_features = self.local_normalize(self.pointcloud_non_ground_plane)
+            pcd_features = self.global_normalize(self.pointcloud_non_ground_plane)
         else:
             pcd_features = self.pointcloud_non_ground_plane
+        # features = np.ones(len(self.pointcloud_non_ground_plane.points))
+        # features = features.reshape(len(features), 1)
+        # features = self.extract_features(self.pointcloud_non_ground_plane)
+        return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
 
-        features = self.extract_features(self.pointcloud_non_ground_plane)
-        # return np.asarray(self.pointcloud_non_ground_plane.points), np.asarray(pcd_features.points)
-
-        return np.asarray(self.pointcloud_non_ground_plane.points), features
+        # return np.asarray(self.pointcloud_non_ground_plane.points), features
 
 
     def estimate_fpfh(self, radius, max_nn):
@@ -239,8 +240,13 @@ class KeyFrame():
 
         points = np.asarray(pcd.points)
         [x, y, z] = points[:, 0], points[:, 1], points[:, 2]
-        distance = np.sqrt(x ** 2 + y ** 2)
 
+        z_max = np.max(z)
+        z = z / z_max
+
+        distance = np.sqrt(x ** 2 + y ** 2)
+        max_distance = np.max(distance)
+        distance = distance / max_distance
 
         features = np.concatenate((z.reshape(len(z), 1), distance.reshape(len(distance), 1)), axis=1)
         return features

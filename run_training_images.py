@@ -20,6 +20,7 @@ from tqdm import tqdm
 from time import sleep
 from kittireader.kittireader import KittiReader
 import matplotlib.pyplot as plt
+import torchvision.transforms as transforms
 from ml_tools.minkunet import MinkUNet34C
 from ml_tools.VGG16 import *
 from ml_tools.VGG11 import *
@@ -27,8 +28,10 @@ from ml_tools.VGG13 import *
 from ml_tools.VGG19 import *
 from ml_tools.pointnet import *
 from MinkLoc3Dv2_models.model_factory import MinkLoc3Dv2
+# from torchvision.models import VGG16_Weights, vgg16
+from PIL import Image
 
-
+vgg16 = torch.hub.load('pytorch/vision:v0.6.0', 'vgg16', pretrained=True)
 
 class TrainingDataset(Dataset):
     def __init__(self, dir=None, transform=None):
@@ -48,100 +51,44 @@ class TrainingDataset(Dataset):
         self.overlap = np.array(df["Overlap"])
         self.transform = transform
 
-        #calculate plane equation
-        kf = KeyFrame(directory=self.root_dir, scan_time=self.reference_timestamps[0])
-        kf.load_pointcloud()
-        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
-        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
-
-
     def __getitem__(self, idx):
         reference_timestamp = self.reference_timestamps[idx]
         reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
         reference_kf.load_pointcloud()
-        reference_pcd, reference_features = reference_kf.training_preprocess(plane_model=self.plane_model)
+        reference_range, reference_detected_points = get_depth_image(reference_kf)
+
+        reference_img = Image.fromarray(reference_range)
+        reference_img = reference_img.convert("RGB")
+        # reference_range = reference_range.reshape(1, 64, 900)
+        # plot_range_image(reference_range)
+        # plot_range_image(reference_detected_points)
 
         other_timestamp = self.other_timestamps[idx]
         other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
         other_kf.load_pointcloud()
-        other_pcd, other_features = other_kf.training_preprocess(plane_model=self.plane_model)
+        other_range, other_detected_points = get_depth_image(other_kf)
+        other_img = Image.fromarray(other_range)
+        other_img = other_img.convert("RGB")
+        # other_range = other_range.reshape(1, 64, 900)
         diferencia = 1 - np.array([self.overlap[idx]])
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, reference_features, other_pcd, other_features, diferencia
+        if self.transform:
+            reference_img = self.transform(reference_img)
+            other_img = self.transform(other_img)
+        return reference_img, other_img, diferencia
 
     def __len__(self):
         return len(self.overlap)
 
 
-class TrainingDataset_NOoverlap(Dataset):
-    def __init__(self, dir=None, transform=None):
-        if dir is None:
-            self.root_dir = TRAINING_PARAMETERS.training_path
-        else:
-            self.root_dir = dir
-        labels_dir = self.root_dir + '/anchor_1m_uniform_v2.csv'
-        if self.root_dir.find('Kitti') == -1:
-            self.scans_dir = self.root_dir + '/robot0/lidar/data/'
-        else:
-            self.scans_dir = self.root_dir + '/velodyne/'
-
-        df = pd.read_csv(labels_dir)
-        self.reference_timestamps = np.array(df["Reference timestamp"])
-        self.other_timestamps = np.array(df["Other timestamp"])
-        self.ref_x = np.array(df["Reference x"])
-        self.ref_y = np.array(df["Reference y"])
-        self.other_x = np.array(df["Other x"])
-        self.other_y = np.array(df["Other y"])
-        # self.overlap = np.array(df["Overlap"])
-        self.ref_coor = np.array([self.ref_x, self.ref_y])
-        self.other_coor = np.array([self.other_x, self.other_y])
-        self.distances = np.linalg.norm(self.ref_coor-self.other_coor, axis=0)
-        self.label = np.where(self.distances < 3, 0, 1) # si la distancia es menor a algo pon 0, sino un 1
-        self.transform = transform
-
-        #calculate plane equation
-        kf = KeyFrame(directory=self.root_dir, scan_time=self.reference_timestamps[0])
-        kf.load_pointcloud()
-        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
-        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
-
-
-    def __getitem__(self, idx):
-        reference_timestamp = self.reference_timestamps[idx]
-        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
-        reference_kf.load_pointcloud()
-        reference_pcd, reference_features = reference_kf.training_preprocess(plane_model=self.plane_model)
-
-        other_timestamp = self.other_timestamps[idx]
-        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
-        other_kf.load_pointcloud()
-        other_pcd, other_features = other_kf.training_preprocess(plane_model=self.plane_model)
-        diferencia = np.array([self.label[idx]])
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, reference_features, other_pcd, other_features, diferencia
-
-    def __len__(self):
-        return len(self.label)
-
-
-
 class GroundTruthDataset(Dataset):
     def __init__(self, data, transform=None):
         self.root_dir = TRAINING_PARAMETERS.groundtruth_path
-        # Prepare data
-        # euroc_read = EurocReader(directory=self.root_dir)
-        # self.scan_times, self.pos, _, _ = euroc_read.prepare_experimental_data(
-        #     deltaxy=EXP_PARAMETERS.exp_deltaxy,
-        #     deltath=EXP_PARAMETERS.exp_deltath,
-        #     nmax_scans=EXP_PARAMETERS.exp_long,
-        #     gps_mode='utm')
         self.scan_times, _, self.pos = data
-        kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
-        kf.load_pointcloud()
-        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
-        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+        self.transform = transform
+        # kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
+        # kf.load_pointcloud()
+        # pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        # self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -149,11 +96,13 @@ class GroundTruthDataset(Dataset):
         position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
-        pcd, features = kf.training_preprocess(plane_model=self.plane_model)
+        range, detected_points = get_depth_image(kf)
+        img = Image.fromarray(range)
+        img = img.convert("RGB")
 
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return pcd, features, position
+        if self.transform:
+            img = self.transform(img)
+        return img, position
 
     def __len__(self):
         return len(self.scan_times)
@@ -162,14 +111,15 @@ class GroundTruthDataset(Dataset):
 class ValidationDataset(Dataset):
     def __init__(self, data, transform=None):
         self.root_dir = TRAINING_PARAMETERS.validation_path
+        self.transform = transform
         # Prepare data
         # euroc_read = EurocReader(directory=self.root_dir)
         # self.scan_times, _, self.pos = euroc_read.prepare_gps_data(deltaxy=5)
         self.scan_times, _, self.pos = data
-        kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
-        kf.load_pointcloud()
-        pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
-        self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
+        # kf = KeyFrame(directory=self.root_dir, scan_time=self.scan_times[0])
+        # kf.load_pointcloud()
+        # pointcloud_filtered = kf.filter_by_radius(0, TRAINING_PARAMETERS.max_radius)
+        # self.plane_model = kf.calculate_plane(pcd=pointcloud_filtered)
 
     def __getitem__(self, idx):
         timestamp = self.scan_times[idx]
@@ -177,92 +127,17 @@ class ValidationDataset(Dataset):
         position = np.reshape(position, (1, 3))
         kf = KeyFrame(directory=self.root_dir, scan_time=timestamp)
         kf.load_pointcloud()
-        pcd, features = kf.training_preprocess(plane_model=self.plane_model)
+        range, detected_points = get_depth_image(kf)
+        img = Image.fromarray(range)
+        img = img.convert("RGB")
 
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return pcd, features, position
+        if self.transform:
+            img = self.transform(img)
+        return img, position
 
     def __len__(self):
         return len(self.scan_times)
 
-
-class ReferenceDataset(Dataset):
-    def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.directory
-        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
-        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
-
-        df = pd.read_csv(labels_dir)
-        self.reference_timestamps = np.array(df["Reference timestamp"])
-        self.overlap = np.array(df["Overlap"])
-        self.transform = transform
-
-    def __getitem__(self, idx):
-        reference_timestamp = self.reference_timestamps[idx]
-        reference_kf = KeyFrame(directory=self.root_dir, scan_time=reference_timestamp)
-        reference_kf.load_pointcloud()
-        reference_pcd, reference_features = reference_kf.training_preprocess()
-
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return reference_pcd, reference_features, np.array([self.overlap[idx]])
-
-    def __len__(self):
-        return len(self.overlap)
-
-class OtherDataset(Dataset):
-    def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.directory
-        labels_dir = TRAINING_PARAMETERS.directory + '/labelling.csv'
-        self.scans_dir = TRAINING_PARAMETERS.directory + '/robot0/lidar/data/'
-
-        df = pd.read_csv(labels_dir)
-        self.other_timestamps = np.array(df["Other timestamp"])
-        self.overlap = np.array(df["Overlap"])
-        self.transform = transform
-
-    def __getitem__(self, idx):
-        other_timestamp = self.other_timestamps[idx]
-        other_kf = KeyFrame(directory=self.root_dir, scan_time=other_timestamp)
-        other_kf.load_pointcloud()
-        other_pcd, other_features = other_kf.training_preprocess()
-
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return other_pcd, other_features
-
-    def __len__(self):
-        return len(self.overlap)
-
-class ValidationExample():
-    def __init__(self, transform=None):
-        self.root_dir = TRAINING_PARAMETERS.validation_path
-        # Prepare data
-        euroc_read = EurocReader(directory=self.root_dir)
-        self.scan_times, self.pos, _, _ = euroc_read.prepare_ekf_data(
-            deltaxy=EXP_PARAMETERS.exp_deltaxy,
-            deltath=EXP_PARAMETERS.exp_deltath,
-            nmax_scans=EXP_PARAMETERS.exp_long)
-
-        self.transform = transform
-
-    def get_random_example(self):
-        random_number = random.choice(np.arange(0, len(self.scan_times)))
-        random_scan = self.scan_times[random_number]
-        random_pos = self.pos[random_number]
-
-
-        kf = KeyFrame(directory=self.root_dir, scan_time=random_scan)
-        kf.load_pointcloud()
-        random_pcd, random_features = kf.training_preprocess()
-        N = len(random_pcd)
-        batched_pcd = torch.zeros((N, 4), dtype=torch.int32, device=device0)
-        batched_pcd[:, 1:] = torch.from_numpy(random_pcd).to(dtype=torch.float32)
-
-        # if self.transform:
-        #     pointcloud = self.transform(pointcloud)
-        return batched_pcd, torch.from_numpy(random_features).to(dtype=torch.float32), random_pos
 
 
 class ContrastiveLoss(torch.nn.Module):
@@ -277,31 +152,245 @@ class ContrastiveLoss(torch.nn.Module):
                                       (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
         return loss_contrastive
 
-def training_collation_fn(data_labels):
-    reference_pcd, reference_features, other_pcd, other_features,  labels = list(zip(*data_labels))
 
-    # Create batched coordinates for the SparseTensor input
-    reference_pcd_batch = ME.utils.batched_coordinates(reference_pcd)
-    other_pcd_batch = ME.utils.batched_coordinates(other_pcd)
 
-    # Concatenate all lists
-    ref_feats_batch = torch.from_numpy(np.concatenate(reference_features, 0)).float()
-    other_feats_batch = torch.from_numpy(np.concatenate(other_features, 0)).float()
-    labels_batch = torch.from_numpy(np.concatenate(labels, 0)).float()
 
-    return reference_pcd_batch, ref_feats_batch, other_pcd_batch, other_feats_batch, labels_batch
+class SiameseNetwork(nn.Module):
+    #DEFINIMOS LA ESTRUCTURA DE LA RED NEURONAL
+    def __init__(self):
+        super(SiameseNetwork, self).__init__()
+        # self.conv1 = nn.Sequential(
+        #     # conv1
+        #     nn.Conv2d(3, 64, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(64, 64, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, stride=2, return_indices=True))
+        # self.conv2 = nn.Sequential(
+        #     # conv2
+        #     nn.Conv2d(64, 128, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(128, 128, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, stride=2, return_indices=True))
+        # self.conv3 = nn.Sequential(
+        #     # conv3
+        #     nn.Conv2d(128, 256, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(256, 256, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(256, 256, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, stride=2, return_indices=True))
+        # self.conv4 = nn.Sequential(
+        #     # conv4
+        #     nn.Conv2d(256, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(512, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(512, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, stride=2, return_indices=True))
+        # self.conv5 = nn.Sequential(
+        #     # conv5
+        #     nn.Conv2d(512, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(512, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(512, 512, 3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, stride=2, return_indices=True)
+        # )
+        self.features = vgg16.features
+        self.avgpool = nn.AdaptiveAvgPool2d((4, 16))
+        self.fc1 = nn.Sequential(
+            nn.Linear(4 * 16 * 512, 500),
+            nn.ReLU(inplace=True),
 
-def ground_collation_fn(data_labels):
-    pcd, features, position = list(zip(*data_labels))
+            nn.Linear(500, 500),
+            nn.ReLU(inplace=True),
 
-    # Create batched coordinates for the SparseTensor input
-    pcd_batch = ME.utils.batched_coordinates(pcd)
+            nn.Linear(500, 5))
+    #Aqui definimos como estan conectadas las capas entre sí, como pasamos el input al output, para cada red
+    def forward(self, x):#toma con la variable x el input
+        verbose = False
 
-    # Concatenate all lists
-    feats_batch = torch.from_numpy(np.concatenate(features, 0)).float()
-    position_batch = torch.from_numpy(np.concatenate(position, 0)).float()
+        if verbose:
+            print("Input: ", x.size())
 
-    return pcd_batch, feats_batch, position_batch
+        # output = self.conv1(x)
+        # output = self.conv2(output)
+        # output = self.conv3(output)
+        # output = self.conv4(output)
+        # output = self.conv5(output)
+        output = self.features(x)
+        if verbose:
+            print("Output matricial: ", output.size())
+
+        output = self.avgpool(output)
+        if verbose:
+            print("Output avgpool: ", output.size())
+        output = torch.flatten(output, 1)
+        output = self.fc1(output)
+        return output
+
+
+def range_projection_kitti(current_vertex, fov_up=3.0, fov_down=-25.0, proj_H=64, proj_W=900, max_range=50):
+    """ Project a pointcloud into a spherical projection, range image.
+        Args:
+          current_vertex: raw point clouds
+        Returns:
+          proj_range: projected range image with depth, each pixel contains the corresponding depth
+          proj_vertex: each pixel contains the corresponding point (x, y, z, 1)
+          proj_intensity: each pixel contains the corresponding intensity
+          proj_idx: each pixel contains the corresponding index of the point in the raw point cloud
+    """
+    # laser parameters
+    fov_up = fov_up / 180.0 * np.pi  # field of view up in radians
+    fov_down = fov_down / 180.0 * np.pi  # field of view down in radians
+    fov = abs(fov_down) + abs(fov_up)  # get field of view total in radians
+
+    # get depth of all points
+    depth = np.linalg.norm(current_vertex[:, :3], 2, axis=1)
+    current_vertex = current_vertex[(depth > 0) & (depth < max_range)]  # get rid of [0, 0, 0] points
+    depth = depth[(depth > 0) & (depth < max_range)]
+
+    # get scan components
+    scan_x = current_vertex[:, 0]
+    scan_y = current_vertex[:, 1]
+    scan_z = current_vertex[:, 2]
+    intensity = current_vertex[:, 3]
+
+    # get angles of all points
+    yaw = -np.arctan2(scan_y, scan_x)
+    pitch = np.arcsin(scan_z / depth)
+
+    # get projections in image coords
+    proj_x = 0.5 * (yaw / np.pi + 1.0)  # in [0.0, 1.0]
+    proj_y = 1.0 - (pitch + abs(fov_down)) / fov  # in [0.0, 1.0]
+
+    # scale to image size using angular resolution
+    proj_x *= proj_W  # in [0.0, W]
+    proj_y *= proj_H  # in [0.0, H]
+
+    # round and clamp for use as index
+    proj_x = np.floor(proj_x)
+    proj_x = np.minimum(proj_W - 1, proj_x)
+    proj_x = np.maximum(0, proj_x).astype(np.int32)  # in [0,W-1]
+
+    proj_y = np.floor(proj_y)
+    proj_y = np.minimum(proj_H - 1, proj_y)
+    proj_y = np.maximum(0, proj_y).astype(np.int32)  # in [0,H-1]
+
+    # order in decreasing depth
+    order = np.argsort(depth)[::-1]
+    depth = depth[order]
+    intensity = intensity[order]
+    proj_y = proj_y[order]
+    proj_x = proj_x[order]
+
+    scan_x = scan_x[order]
+    scan_y = scan_y[order]
+    scan_z = scan_z[order]
+
+    indices = np.arange(depth.shape[0])
+    indices = indices[order]
+
+    proj_range = np.full((proj_H, proj_W), -1,
+                         dtype=np.float32)  # [H,W] range (-1 is no data)
+    proj_vertex = np.full((proj_H, proj_W, 4), -1,
+                          dtype=np.float32)  # [H,W] index (-1 is no data)
+    proj_idx = np.full((proj_H, proj_W), -1,
+                       dtype=np.int32)  # [H,W] index (-1 is no data)
+    proj_intensity = np.full((proj_H, proj_W), -1,
+                             dtype=np.float32)  # [H,W] index (-1 is no data)
+
+    proj_range[proj_y, proj_x] = depth
+    proj_vertex[proj_y, proj_x] = np.array([scan_x, scan_y, scan_z, np.ones(len(scan_x))]).T
+    proj_idx[proj_y, proj_x] = indices
+    proj_intensity[proj_y, proj_x] = intensity
+
+    return proj_range, proj_vertex, proj_intensity, proj_idx
+
+def spherical_projection_ouster(homogeneous_points, fov=45, proj_W=512, proj_H=128, max_range=50):
+    """ Project a pointcloud into a spherical projection, range image.
+        Returns:
+           proj_range: projected range image with depth, each pixel contains the corresponding depth
+           proj_vertex: each pixel contains the corresponding point (x, y, z, 1)
+           proj_intensity: each pixel contains the corresponding intensity
+           proj_idx: each pixel contains the corresponding index of the point in the raw point cloud
+     """
+    fov = np.pi * fov / 180.0  # pasamos a radianes
+    depth = np.linalg.norm(homogeneous_points[:, :3], 2, axis=1)
+    homogeneous_points = homogeneous_points[(depth > 0) & (depth < max_range)]  # get rid of [0, 0, 0] points
+    depth = depth[(depth > 0) & (depth < max_range)]
+
+    # get scan components
+    scan_x = homogeneous_points[:, 0]
+    scan_y = homogeneous_points[:, 1]
+    scan_z = homogeneous_points[:, 2]
+    intensity = homogeneous_points[:, 3]
+
+    # get angles of all points
+    yaw = -np.arctan2(scan_y, scan_x)
+    pitch = np.arcsin(scan_z / depth)
+
+    # get projections in image coords
+    proj_x = 0.5 * (yaw / np.pi + 1.0)  # in [0.0, 1.0]
+    # proj_y = 0.5 * (pitch / (fov/2) + 1.0)  # in [0.0, 1.0] MI INTERPRETACIÓN
+    proj_y = 1.0 - (pitch + abs(fov / 2)) / fov  # in [0.0, 1.0]
+
+    # scale to image size using angular resolution
+    proj_x *= proj_W  # in [0.0, W]
+    proj_y *= proj_H  # in [0.0, H]
+
+    # round and clamp for use as index
+    proj_x = np.floor(proj_x)  # tambien np.round
+    proj_x = np.minimum(proj_W - 1, proj_x)
+    proj_x = np.maximum(0, proj_x).astype(np.int32)  # in [0,W-1]
+
+    proj_y = np.floor(proj_y)
+    proj_y = np.minimum(proj_H - 1, proj_y)
+    proj_y = np.maximum(0, proj_y).astype(np.int32)  # in [0,H-1]
+
+    # order in decreasing depth
+    order = np.argsort(depth)[::-1]
+    depth = depth[order]
+    intensity = intensity[order]
+    proj_y = proj_y[order]
+    proj_x = proj_x[order]
+
+    scan_x = scan_x[order]
+    scan_y = scan_y[order]
+    scan_z = scan_z[order]
+
+    indices = np.arange(depth.shape[0])
+    indices = indices[order]
+
+    proj_range = np.full((proj_H, proj_W), -1,
+                         dtype=np.float32)  # [H,W] range (-1 is no data)
+    proj_vertex = np.full((proj_H, proj_W, 4), -1,
+                          dtype=np.float32)  # [H,W] index (-1 is no data)
+    proj_idx = np.full((proj_H, proj_W), -1,
+                       dtype=np.int32)  # [H,W] index (-1 is no data)
+    proj_intensity = np.full((proj_H, proj_W), -1,
+                             dtype=np.float32)  # [H,W] index (-1 is no data)
+
+    proj_range[proj_y, proj_x] = depth
+    proj_vertex[proj_y, proj_x] = np.array([scan_x, scan_y, scan_z, np.ones(len(scan_x))]).T
+    proj_idx[proj_y, proj_x] = indices
+    proj_intensity[proj_y, proj_x] = intensity
+
+    return proj_range, proj_vertex, proj_intensity, proj_idx
+
+def get_depth_image(kf):
+    current_homogeneous_points = kf.points2homogeneous(pre_process=False)
+    current_range, project_points, _, _ = range_projection_kitti(current_homogeneous_points)
+    current_detected_points = project_points[
+        current_range > 0]  # filtra los puntos que dan en el infinito y devuelven -1
+    return current_range, current_detected_points
+
+
 
 def get_latent_vectors(dataloader, model, main_device):
     torch.cuda.set_device(main_device)
@@ -310,16 +399,16 @@ def get_latent_vectors(dataloader, model, main_device):
     all_descriptors = []
     with torch.no_grad():
         for i, data in enumerate(dataloader, 0):
-            pcd, feat, poses = data
+            pcd, poses = data
 
-            input = ME.TensorField(
-                features=feat.to(dtype=torch.float32),
-                coordinates=pcd.to(dtype=torch.float32),
-                quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-                minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-                device=main_device,
-            )
-            batched_descriptor = model(input)
+            # input = ME.TensorField(
+            #     features=feat.to(dtype=torch.float32),
+            #     coordinates=pcd.to(dtype=torch.float32),
+            #     quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
+            #     minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
+            #     device=main_device,
+            # )
+            batched_descriptor = model(pcd.to(main_device))
             batched_descriptor = batched_descriptor.detach().cpu()
             if i == 0:
                 all_descriptors = batched_descriptor
@@ -534,6 +623,14 @@ STR2NETWORK = dict(
 
 )
 
+def plot_range_image(range):
+
+    # showing image
+    plt.imshow(range, cmap='gray')
+    plt.axis('off')
+    plt.title("Current")
+    plt.show()
+
 
 def main(descriptor_size):
     # val_data, map_data, true_neighbors = load_validation_data()
@@ -544,25 +641,24 @@ def main(descriptor_size):
     device0 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     print("Device is: ", device0)
-    train_dataset = TrainingDataset()
+    train_dataset = TrainingDataset(transform=transforms.ToTensor())
     # train_dataset = TrainingDataset_NOoverlap()
     # train_dataset = load_training_sets()
-    groundtruth_dataset = GroundTruthDataset(data=map_data)
-    validation_dataset = ValidationDataset(data=val_data)
-    train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True,
-                                  collate_fn=training_collation_fn)
-    groundtruth_dataloader = DataLoader(groundtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False,
-                                  collate_fn=ground_collation_fn)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=TRAINING_PARAMETERS.validation_batch_size, shuffle=False,
-                                  collate_fn=ground_collation_fn)
+    groundtruth_dataset = GroundTruthDataset(data=map_data, transform=transforms.ToTensor())
+    validation_dataset = ValidationDataset(data=val_data, transform=transforms.ToTensor())
+    train_dataloader = DataLoader(train_dataset, batch_size=TRAINING_PARAMETERS.training_batch_size, shuffle=True)
+    groundtruth_dataloader = DataLoader(groundtruth_dataset, batch_size=TRAINING_PARAMETERS.groundtruth_batch_size, shuffle=False)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=TRAINING_PARAMETERS.validation_batch_size, shuffle=False)
 
     # initialize model
     # net = STR2NETWORK['VGG16'](
     #     in_channel=3, out_channel=TRAINING_PARAMETERS.output_size, D=3).to(device0)
     # net_arquitecture = 'MinkUNet'
-    net_arquitecture = 'VGG16'
-    net = STR2NETWORK[net_arquitecture](
-        in_channels=3, out_channels=descriptor_size, D=3).to(device0)
+    net_arquitecture = 'VGG16_2d'
+    # net = STR2NETWORK[net_arquitecture](
+    #     in_channels=3, out_channels=descriptor_size, D=3).to(device0)
+
+    net = SiameseNetwork().to(device0)
     # net_arquitecture = 'MinkowskiPointNet'
     # net = MinkowskiPointNet(
     #     in_channel=3, out_channel=20, embedding_channel=1024, dimension=3
@@ -586,7 +682,7 @@ def main(descriptor_size):
     error_history.append(1000)
     recall_at1_history.append(0)
     # net_name = net_arquitecture + 'maxpool_512_' + str(descriptor_size) + '_04_1m_recall'
-    net_name = net_arquitecture + '_50meters_04_1m_recall'
+    net_name = net_arquitecture + '_04_1m_recall'
     net.train()
 
     for epoch in range(TRAINING_PARAMETERS.number_of_epochs):
@@ -596,26 +692,13 @@ def main(descriptor_size):
                 tepoch.set_description(f"Epoch {epoch}")
                 optimizer.zero_grad()
                 # Get new data
-                ref_pcd, ref_feat, other_pcd, other_feat, label = training_data
-                ref_input = ME.TensorField(
-                    features=ref_feat.to(dtype=torch.float32),
-                    coordinates=ref_pcd.to(dtype=torch.float32),
-                    quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-                    minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-                    device=device0,
-                )
-                other_input = ME.TensorField(
-                    features=other_feat.to(dtype=torch.float32),
-                    coordinates=other_pcd.to(dtype=torch.float32),
-                    quantization_mode=ME.SparseTensorQuantizationMode.UNWEIGHTED_AVERAGE,
-                    minkowski_algorithm=ME.MinkowskiAlgorithm.SPEED_OPTIMIZED,
-                    device=device0,
-                )
-                label = label.to(device0)
+                ref_pcd, other_pcd, label = training_data
+                ref_pcd, other_pcd, label = ref_pcd.to(device0), other_pcd.to(device0), label.to(device0)
 
                 # Forward
-                ref_desc = net(ref_input)
-                other_desc = net(other_input)
+
+                ref_desc = net(ref_pcd)
+                other_desc = net(other_pcd)
                 loss = criterion(ref_desc, other_desc, label)  # For tensor field
                 loss.backward()
                 optimizer.step()
