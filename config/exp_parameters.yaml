@@ -5,7 +5,7 @@ origin_coordinates:
   lon: -0.6861944724090255
 
 
-directory: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/03'
+directory: '/home/arvc/Juanjo/Datasets/KittiDataset/sequences/07'
 
 #directory: '/home/arvc/Escritorio/develop/Rosbags_Juanjo/Exterior_innova/2022-12-07-15-22-43'
 do_offline_ekf: False

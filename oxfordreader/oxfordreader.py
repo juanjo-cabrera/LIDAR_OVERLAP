@@ -260,7 +260,7 @@ class KittiReader():
 
 if __name__ == "__main__":
     # Prepare data
-    kitti_read = KittiReader(directory='/home/arvc/Escritorio/develop/Datasets/kitti_sample')
+    kitti_read = KittiReader(directory='/home/arvc/Juanjo/Datasets/benchmark_datasets/oxford/')
 
     scan_times, odom_ekf_pos, odom_ekf_orient, gps_pos = kitti_read.prepare_kitti_data(deltaxy=EXP_PARAMETERS.exp_deltaxy,
                                                                                      deltath=EXP_PARAMETERS.exp_deltath,

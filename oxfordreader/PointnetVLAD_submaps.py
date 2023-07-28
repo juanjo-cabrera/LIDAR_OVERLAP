@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     import os
 
-    path = '/home/arvc/Escritorio/develop/SparseConv/benchmark_datasets/oxford/'
+    path = '/home/arvc/Juanjo/Datasets/benchmark_datasets/oxford/'
     all_folders = sorted(os.listdir(path))
     index_list = [5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 24, 31, 32, 33, 38, 43, 44]
     for index in index_list:
